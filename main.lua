@@ -8,6 +8,10 @@ if IS_DEBUG then
     end
 end
 
+local mouse = nil
+local canvas_size = 400
+local brush_size = math.floor(canvas_size / 20);
+
 require "src"
 require "ParticleDefinitionsHandler"
 require "particleLauncher"
@@ -18,31 +22,55 @@ local myQuad;
 local chunk;
 
 function love.load()
-    -- Set windows size to 800*800
-    love.window.setMode(800, 800)
     -- create quad with the same size as the window getting the size from the window
-    myQuad = Libs.Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), 100, 100)
-    chunk = ParticleChunk.new(100, 100)
+    myQuad = Libs.Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)
+    chunk = ParticleChunk.new(canvas_size, canvas_size)
 
     print(ParticleDefinitionsHandler:getRegisteredParticlesCount())
 end
 
 function love.update(dt)
+	if (mouse ~= nil) then
+		for x = -brush_size, brush_size do
+			for y = -brush_size, brush_size do
+                local px = mouse.x + x
+                local py = mouse.y + y
+                if chunk:isInside(px, py) and chunk:isEmpty(px, py) then
+                    chunk:setNewParticleById(px, py, 2)
+                end
+			end
+		end
+	end
+
     chunk:update()
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
+    -- Checks which button was pressed.
+    local buttonname = ""
     if button == 1 then
-        -- Convert mouse coordinates to chunk coordinates and set the particle type to 2
-        local chunkX = math.floor(x / (love.graphics.getWidth() / chunk.width)) + 1
-        local chunkY = math.floor(y / (love.graphics.getHeight() / chunk.height)) + 1
-        chunk:setNewParticleById(chunkX, chunkY, 2)
+        buttonname = "left"
+    elseif button == 2 then
+        buttonname = "right"
     end
 
-    -- If is left button, update chunk
-    -- if button == 2 then
-    --     chunk:update()
-    -- end
+    local chunkX = math.floor(x / (love.graphics.getWidth() / chunk.width)) + 1
+    local chunkY = math.floor(y / (love.graphics.getHeight() / chunk.height)) + 1
+    mouse = { x = chunkX, y = chunkY }
+end
+
+function love.mousemoved(x, y, dx, dy)
+	if mouse ~= nil then
+        local chunkX = math.floor(x / (love.graphics.getWidth() / chunk.width)) + 1
+        local chunkY = math.floor(y / (love.graphics.getHeight() / chunk.height)) + 1
+        mouse = { x = chunkX, y = chunkY }
+	end
+end
+
+function love.mousereleased(x, y, button, istouch)
+	-- Checks which button was pressed.
+	local buttonname = ""
+	mouse = nil
 end
 
 function love.draw()
