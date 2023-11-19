@@ -1,13 +1,8 @@
 {
-    "pixelbyte.love2d.debug": true,
-    "pixelbyte.love2d.runOnSave": true,
-    "key": "Alt+L,", "command":"pixelbyte.love2d.run",
-    "Lua.diagnostics.globals": [
-        "love",
-        "gcinfo",
-        "Libs"
-    ],
-    "Lua.diagnostics.disable": [
-        "deprecated"
-    ]
+	"Lua.workspace.library": [
+		"${3rd}/love2d/library",
+		"lib"
+	],
+	"Lua.runtime.version": "LuaJIT",
+	"Lua.workspace.checkThirdParty": false,
 }
