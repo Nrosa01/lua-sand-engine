@@ -1,0 +1,11 @@
+{
+    "pixelbyte.love2d.debug": true,
+    "pixelbyte.love2d.runOnSave": true,
+    "key": "Alt+L,", "command":"pixelbyte.love2d.run",
+    "Lua.diagnostics.globals": [
+        "love"
+    ],
+    "Lua.diagnostics.disable": [
+        "deprecated"
+    ]
+}
