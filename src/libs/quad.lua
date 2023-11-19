@@ -1,7 +1,9 @@
 -- Quad.lua
 
 -- Definición de la clase Quad
-Quad = {}
+local Quad = {}
+
+Libs.Quad = Quad
 
 -- Constructor
 function Quad:new(width, height, textWidth, textHeight)
@@ -18,16 +20,6 @@ function Quad:new(width, height, textWidth, textHeight)
 
   obj.texture = love.graphics.newImage(obj.imageData)
   
-  -- Inicializar la textura con colores aleatorios
-  for y = 0, textHeight - 1 do
-    for x = 0, textWidth - 1 do
-      local r = love.math.random(0, 255)
-      local g = love.math.random(0, 255)
-      local b = love.math.random(0, 255)
-      obj.imageData:setPixel(x, y, r, g, b, 255)
-    end
-  end
-
   setmetatable(obj, self)
   self.__index = self
   return obj
