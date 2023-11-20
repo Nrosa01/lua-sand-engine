@@ -116,7 +116,6 @@ end
 
 function ParticleChunk:setNewParticleById(x, y, id)
     if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
-        self.matrix[x][y] = ffi.new("Particle")
         self.matrix[x][y].type = id
         self.matrix[x][y].clock = false
     end
@@ -132,8 +131,7 @@ function ParticleChunk:tryPushParticle(x, y, dir_x, dir_y)
     local new_x, new_y = x + dir_x, y + dir_y
 
     if self:isInside(new_x, new_y) and self:canPush(new_x, new_y, x, y) then
-        local aux = ffi.new("struct Particle", Particle(empty_particle_id))
-        aux = self.matrix[new_y][new_x]
+        local aux = self.matrix[new_y][new_x]
         self.matrix[new_x][new_y] = self.matrix[x][y]
         self.matrix[x][y] = aux
 
@@ -156,7 +154,6 @@ function ParticleChunk:moveParticle(x, y, dir_x, dir_y)
 
     if self:isInside(new_x, new_y) and self:isEmpty(new_x, new_y) then
         self.matrix[new_x][new_y] = self.matrix[x][y]
-        self.matrix[x][y] = ffi.new("Particle")
         self.matrix[x][y].type = empty_particle_id
         self.matrix[x][y].clock = false
         return true
