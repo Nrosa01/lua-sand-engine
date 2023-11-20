@@ -11,6 +11,7 @@ ParticleChunk = {
     height = 0,
     size = 0,
     clock = false,
+    quad = nil
 }
 
 
@@ -26,13 +27,14 @@ local function newArray1D(width, height)
     return matrix
 end
 
-function ParticleChunk.new(width, height)
+function ParticleChunk.new(width, height, quad)
     local instance = {
         matrix = newArray1D(width, height),
         width = width,
         height = height,
         size = width * height,
         clock = false,
+        quad = quad
     }
 
     return setmetatable(instance, { __index = ParticleChunk })
@@ -122,12 +124,18 @@ function ParticleChunk:setNewParticleById(x, y, id)
     if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
         self.matrix[self:index(x, y)].type = id
         self.matrix[self:index(x, y)].clock = false
+
+        local color = ParticleDefinitionsHandler:getParticleData(id).color
+        self.quad:setPixel(x, y, color.r, color.g, color.b, color.a)
     end
 end
 
 function ParticleChunk:setParticle(x, y, particle)
     if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
         self.matrix[self:index(x, y)] = particle
+
+        local color = ParticleDefinitionsHandler:getParticleData(particle.type).color
+        self.quad:setPixel(x, y, color.r, color.g, color.b, color.a)
     end
 end
 
@@ -136,13 +144,13 @@ function ParticleChunk:tryPushParticle(x, y, dir_x, dir_y)
 
     if self:isInside(new_x, new_y) and self:canPush(new_x, new_y, x, y) then
         local aux = self.matrix[new_y][new_x]
-        self.matrix[self:index(new_x, new_y)] = self.matrix[self:index(x, y)]
-        self.matrix[self:index(x, y)] = aux
+        self:setParticle(new_x, new_y, self.matrix[self:index(x, y)])
+        self:setParticle(x, y, aux)
 
         for i = -5, 5 - 1 do
             for j = 1, 20 - 1 do
                 if self:isInside(new_x + i, new_y + j) and self:isEmpty(new_x + i, new_y + j) then
-                    self.matrix[new_y + j][new_x + i] = aux
+                    self:setParticle(new_x + i, new_y + j, aux)
                     return true
                 end
             end
@@ -157,9 +165,8 @@ function ParticleChunk:moveParticle(x, y, dir_x, dir_y)
     local new_x, new_y = x + dir_x, y + dir_y
 
     if self:isInside(new_x, new_y) and self:isEmpty(new_x, new_y) then
-        self.matrix[self:index(new_x, new_y)] = self.matrix[self:index(x, y)]
-        self.matrix[self:index(x, y)].type = empty_particle_id
-        self.matrix[self:index(x, y)].clock = false
+        self:setParticle(new_x, new_y, self.matrix[self:index(x, y)])
+        self:setNewParticleById(x, y, empty_particle_id)
         return true
     else
         return false

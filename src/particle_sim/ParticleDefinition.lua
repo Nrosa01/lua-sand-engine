@@ -4,7 +4,7 @@ ParticleDefinition = {}
 function ParticleDefinition.new(text_id, particle_color, random_granularity, movement_passes, properties, interactions)
     local instance = {
         text_id = text_id,
-        particle_color = particle_color,
+        color = particle_color,
         random_granularity = random_granularity,
         movement_passes = movement_passes,
         properties = properties,

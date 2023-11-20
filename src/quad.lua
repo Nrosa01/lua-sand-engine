@@ -6,6 +6,7 @@ local Quad = {}
 Libs.Quad = Quad
 
 -- Constructor
+----@class Quad 
 function Quad:new(width, height, textWidth, textHeight)
   local obj = {
     width = width,
