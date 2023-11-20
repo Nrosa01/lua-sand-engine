@@ -8,9 +8,10 @@ if IS_DEBUG then
     end
 end
 
-local mouse = nil
-local canvas_size = 800
+local mouse = {x = 0, y = 0,  button = ""}
+local canvas_size = 400
 local brush_size = math.floor(canvas_size / 20);
+local sensitivy = brush_size / 10
 
 require "src"
 require "ParticleDefinitionsHandler"
@@ -28,19 +29,29 @@ function love.load()
 end
 
 function love.update(dt)
-	if (mouse ~= nil and mouse.button == "left") then
-		for x = -brush_size, brush_size do
-			for y = -brush_size, brush_size do
+    if (mouse ~= nil and mouse.button == "left") then
+        for x = -brush_size, brush_size do
+            for y = -brush_size, brush_size do
                 local px = mouse.x + x
                 local py = mouse.y + y
                 if chunk:isInside(px, py) and chunk:isEmpty(px, py) then
                     chunk:setNewParticleById(px, py, 2)
                 end
-			end
-		end
-	end
+            end
+        end
+    end
 
     chunk:update()
+end
+
+function love.wheelmoved(x, y)
+    if y > 0 then
+        brush_size = brush_size + sensitivy
+    elseif y < 0 then
+        brush_size = brush_size - sensitivy
+        -- use math.max to avoid negative values
+        brush_size = math.max(brush_size, 1)
+    end
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
@@ -58,21 +69,24 @@ function love.mousepressed(x, y, button, istouch, presses)
 end
 
 function love.mousemoved(x, y, dx, dy)
-	if mouse ~= nil then
-        local chunkX = math.floor(x / (love.graphics.getWidth() / chunk.width)) + 1
-        local chunkY = math.floor(y / (love.graphics.getHeight() / chunk.height)) + 1
-        mouse = { x = chunkX, y = chunkY, button = mouse.button }
-	end
+    local chunkX = math.floor(x / (love.graphics.getWidth() / chunk.width)) + 1
+    local chunkY = math.floor(y / (love.graphics.getHeight() / chunk.height)) + 1
+    mouse = { x = chunkX, y = chunkY, button = mouse.button }
 end
 
 function love.mousereleased(x, y, button, istouch)
-	-- Checks which button was pressed.
-	local buttonname = ""
-	mouse = nil
+    -- Checks which button was pressed.
+    mouse.button = ""
 end
 
-function love.draw()
+function love.draw(dt)
     myQuad:render(0, 0)
+
+    -- Print a circunference around the mouse
+    local mouseX = love.mouse.getX()
+    local mouseY = love.mouse.getY()
+    love.graphics.circle("line", mouseX , mouseY, brush_size)
+
     love.graphics.print("Current FPS: " .. tostring(love.timer.getFPS() .. " GC: " .. gcinfo()), 10, 10)
 end
 
