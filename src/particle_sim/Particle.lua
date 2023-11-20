@@ -1,13 +1,9 @@
--- Particle.lua
 local ffi = require("ffi")
 
-ffi.cdef[[
-    struct Particle {
-        uint32_t type;
-        bool clock;
-    };
+ffi.cdef [[
+typedef struct { uint8_t type; bool clock; } Particle;
 ]]
 
-local Particle = ffi.metatype("struct Particle", {})
+local Particle = ffi.metatype("Particle", {})
 
 return Particle

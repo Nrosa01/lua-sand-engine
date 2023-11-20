@@ -14,10 +14,10 @@ ParticleChunk = {
 
 
 local function newArray2D(width, height)
-    local matrix = ffi.new("struct Particle*[?]", width)
+    local matrix = ffi.new("Particle*[?]", width)
 
     for x = 0, width - 1 do
-        matrix[x] = ffi.new("struct Particle[?]", height)
+        matrix[x] = ffi.new("Particle[?]", height)
         for y = 0, height - 1 do
             matrix[x][y].type = 1
             matrix[x][y].clock = false
@@ -116,7 +116,9 @@ end
 
 function ParticleChunk:setNewParticleById(x, y, id)
     if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
-        self.matrix[x][y] = Particle(id)
+        self.matrix[x][y] = ffi.new("Particle")
+        self.matrix[x][y].type = id
+        self.matrix[x][y].clock = false
     end
 end
 
@@ -154,7 +156,9 @@ function ParticleChunk:moveParticle(x, y, dir_x, dir_y)
 
     if self:isInside(new_x, new_y) and self:isEmpty(new_x, new_y) then
         self.matrix[new_x][new_y] = self.matrix[x][y]
-        self.matrix[x][y] = Particle(empty_particle_id)
+        self.matrix[x][y] = ffi.new("Particle")
+        self.matrix[x][y].type = empty_particle_id
+        self.matrix[x][y].clock = false
         return true
     else
         return false
