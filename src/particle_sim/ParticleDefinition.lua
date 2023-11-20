@@ -32,14 +32,15 @@ ffi.cdef[[
 -- This is just a constructor
 local ParticleDefinitionLib = {}
 
-function ParticleDefinitionLib.new(text_id, particle_color, random_granularity, movement_passes, properties)
+function ParticleDefinitionLib.new(text_id, particle_color, random_granularity, movement_passes, properties, interactions)
     local instance = {
         text_id = text_id,
         color = ffi.new("Color", particle_color.r, particle_color.g, particle_color.b, particle_color.a),
         random_granularity = random_granularity,
         movement_passes_count = #movement_passes,
         movement_passes = nil,
-        properties = ffi.new("Properties", properties.density or 0, properties.flammability or 0, properties.explosiveness or 0, properties.boilingPoint or 0, properties.startingTemperature or 0)
+        properties = ffi.new("Properties", properties.density or 0, properties.flammability or 0, properties.explosiveness or 0, properties.boilingPoint or 0, properties.startingTemperature or 0),
+        interactions = interactions or {}
     }
 
     if instance.movement_passes_count > 0 then
