@@ -9,7 +9,7 @@ if IS_DEBUG then
 end
 
 local mouse = { x = 0, y = 0, button = "" }
-local canvas_size = 100
+local canvas_size = 200
 local brush_size = math.floor(canvas_size / 20);
 local sensitivy = brush_size / 10
 local currentParticle = 2
@@ -31,21 +31,6 @@ function love.load()
 end
 
 local function drawParticleMenu()
-    -- const auto count = ParticleDefinitionsHandler::getInstance().getRegisteredParticlesCount();
-
-	-- for (uint8_t i = 0; i < count; i++)
-	-- {
-	-- 	auto data = ParticleDefinitionsHandler::getInstance().getParticleData(i);
-
-	-- 	if (ImGui::Selectable(data.text_id.c_str(), selectedParticleIndex == i)) {
-	-- 		selectedParticleIndex = i;
-	-- 	}
-	-- 	ImGui::SameLine();
-	-- 	ImGui::ColorButton((data.text_id + "Color").c_str(), ImVec4(data.color.r / 255.0, data.color.g / 255.0, data.color.b / 255.0, data.color.a / 255.0), ImGuiColorEditFlags_NoTooltip, ImVec2(20, 20));
-	-- }
-
-    -- Equivalent to the above code
-
     local count = ParticleDefinitionsHandler:getRegisteredParticlesCount()
 
     imgui.Begin("Material selector", true, { "ImGuiWindowFlags_AlwaysAutoResize" });
@@ -63,12 +48,32 @@ local function drawParticleMenu()
     imgui.End()
 end
 
+local function selectFromInput(input)
+    local pressedChar = string.lower(input)
+    local startIdx = currentParticle
+    local found = false
+
+    repeat
+        startIdx = (startIdx % ParticleDefinitionsHandler:getRegisteredParticlesCount()) + 1
+        local data = ParticleDefinitionsHandler:getParticleData(startIdx)
+        local dataChar = string.lower(data.text_id:sub(1, 1))
+
+        if dataChar == pressedChar then
+            currentParticle = startIdx
+            found = true
+            break
+        end
+    until startIdx == currentParticle
+
+    if not found then
+        -- No particle found, we could play a sound or something here idk
+    end
+end
+
 function love.keypressed(key, scancode, isrepeat)
     imgui.KeyPressed(key)
     if not imgui.GetWantCaptureKeyboard() then
-        if tonumber(key) ~= nil and tonumber(key) <= ParticleDefinitionsHandler:getRegisteredParticlesCount() then
-            currentParticle = tonumber(key)
-        end
+        selectFromInput(key)
     end
 end
 
@@ -83,16 +88,22 @@ function love.update(dt)
     imgui.NewFrame()
 
     if (mouse ~= nil and mouse.button == "left") then
+        local centerX, centerY = mouse.x, mouse.y
+
         for x = -brush_size, brush_size do
             for y = -brush_size, brush_size do
                 local px = mouse.x + x
                 local py = mouse.y + y
-                if chunk:isInside(px, py) and (chunk:isEmpty(px, py) or currentParticle == 1) then
+
+                -- Verifica si la posición (px, py) está dentro del círculo
+                local distanceSquared = (px - centerX) ^ 2 + (py - centerY) ^ 2
+                if chunk:isInside(px, py) and distanceSquared <= brush_size ^ 2 and (chunk:isEmpty(px, py) or currentParticle == 1) then
                     chunk:setNewParticleById(px, py, currentParticle)
                 end
             end
         end
     end
+
 
     chunk:update()
 end
@@ -125,8 +136,8 @@ function love.mousepressed(x, y, button, istouch, presses)
             buttonname = "right"
         end
 
-        local chunkX = math.floor(x / (love.graphics.getWidth() / chunk.width)) + 1
-        local chunkY = math.floor(y / (love.graphics.getHeight() / chunk.height)) + 1
+        local chunkX = math.floor(x / (love.graphics.getWidth() / chunk.width))
+        local chunkY = math.floor(y / (love.graphics.getHeight() / chunk.height))
         mouse = { x = chunkX, y = chunkY, button = buttonname }
     end
 end
@@ -134,8 +145,8 @@ end
 function love.mousemoved(x, y, dx, dy)
     imgui.MouseMoved(x, y)
     if not imgui.GetWantCaptureMouse() then
-        local chunkX = math.floor(x / (love.graphics.getWidth() / chunk.width)) + 1
-        local chunkY = math.floor(y / (love.graphics.getHeight() / chunk.height)) + 1
+        local chunkX = math.floor(x / (love.graphics.getWidth() / chunk.width))
+        local chunkY = math.floor(y / (love.graphics.getHeight() / chunk.height))
         mouse = { x = chunkX, y = chunkY, button = mouse.button }
     end
 end
@@ -154,12 +165,14 @@ function love.draw(dt)
     myQuad:render(0, 0)
     drawParticleMenu()
     imgui.Render();
-    
+
     -- Print a circunference around the mouse
     local mouseX = love.mouse.getX()
     local mouseY = love.mouse.getY()
-    love.graphics.circle("line", mouseX, mouseY, brush_size)
-    
+
+    local drawCircleSize = brush_size * (love.graphics.getWidth() / chunk.width)
+    love.graphics.circle("line", mouseX, mouseY, drawCircleSize)
+
     love.graphics.print("Current FPS: " .. tostring(love.timer.getFPS() .. " GC: " .. gcinfo()), 10, 10)
 end
 
