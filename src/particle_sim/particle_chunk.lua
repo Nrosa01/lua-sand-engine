@@ -1,6 +1,7 @@
 -- ParticleChunk.lua
 local ffi = require("ffi")
 local Particle = require("Particle")
+
 local empty_particle_id = 1
 local start_index = 0
 local end_index = 1
@@ -19,7 +20,6 @@ local function newArray1D(width, height)
     local matrix = ffi.new("Particle[?]", width * height)
 
     for i = 0, width * height - 1 do
-        matrix[i] = ffi.new("Particle")
         matrix[i].type = empty_particle_id
         matrix[i].clock = false
     end
@@ -60,14 +60,14 @@ end
 function ParticleChunk:updateParticle(x, y)
     local data = ParticleDefinitionsHandler:getParticleData(self:getParticleType(x, y))
     -- local interactions = data.interactions
-    local particle_movement_passes_amount = #data.movement_passes
+    local particle_movement_passes_amount = data.movement_passes_count
 
     if self.matrix[self:index(x, y)].clock ~= self.clock or particle_movement_passes_amount == 0 then
         self.matrix[self:index(x, y)].clock = not self.clock
         return
     end
 
-    local particle_movement_passes_index = 1
+    local particle_movement_passes_index = 0
     local pixelsToMove = 1
     local particleIsMoving = true
     local particleCollidedLastIteration = false

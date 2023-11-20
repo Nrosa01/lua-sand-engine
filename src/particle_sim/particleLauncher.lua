@@ -2,7 +2,7 @@
 print("Loading Lua scripts...")
 -- init.lua
 require("ParticleDefinitionsHandler")
-require("ParticleDefinition")
+local ParticleDefinition = require("ParticleDefinition")
 
 -- Función para agregar una partícula al registro
 local function addParticleToRegistry()
@@ -22,8 +22,7 @@ local function addParticleToRegistry()
             explosiveness = 0,
             boilingPoint = 0,
             startingTemperature = 0
-        }, -- Properties
-        {} -- No interactions for now
+        } -- Properties
     ))
 
     ParticleDefinitionsHandler:addParticleData(ParticleDefinition.new(
@@ -41,8 +40,7 @@ local function addParticleToRegistry()
             explosiveness = 0,
             boilingPoint = 0,
             startingTemperature = 0
-        }, -- Properties
-        {} -- No interactions for now
+        } -- Properties
     ))
 
     ParticleDefinitionsHandler:addParticleData(ParticleDefinition.new(
@@ -62,8 +60,7 @@ local function addParticleToRegistry()
             explosiveness = 0,
             boilingPoint = 0,
             startingTemperature = 0
-        }, -- Properties
-        {} -- No interactions for now
+        } -- Properties
     ))
 end
 
