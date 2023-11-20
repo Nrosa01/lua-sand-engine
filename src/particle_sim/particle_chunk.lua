@@ -1,6 +1,4 @@
 -- ParticleChunk.lua
-local ffi = require("ffi")
-local Particle = require("Particle")
 local empty_particle_id = 1
 local start_index = 1
 local end_index = 0
@@ -18,9 +16,7 @@ local function newArray2D(width, height)
     for x = start_index, width - end_index do
         matrix[x] = {}
         for y = start_index, height - end_index do
-            matrix[x][y] = ffi.new("Particle")
-            matrix[x][y].type = empty_particle_id
-            matrix[x][y].clock = false
+            matrix[x][y] = { type = empty_particle_id, clock = false}
         end
     end
 
@@ -103,9 +99,7 @@ end
 
 function ParticleChunk:setNewParticleById(x, y, id)
     if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
-        self.matrix[x][y] = ffi.new("Particle")
-        self.matrix[x][y].type = id
-        self.matrix[x][y].clock = false
+        self.matrix[x][y] = { type = id, clock = false}
     end
 end
 
@@ -142,9 +136,7 @@ function ParticleChunk:moveParticle(x, y, dir_x, dir_y)
 
     if self:isInside(new_x, new_y) and self:isEmpty(new_x, new_y) then
         self.matrix[new_x][new_y] = self.matrix[x][y]
-        self.matrix[x][y] = ffi.new("Particle")
-        self.matrix[x][y].type = empty_particle_id
-        self.matrix[x][y].clock = false
+        self.matrix[x][y] = { type = empty_particle_id, clock = false}
         return true
     else
         return false
