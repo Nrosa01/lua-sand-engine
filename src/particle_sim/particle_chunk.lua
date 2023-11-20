@@ -108,11 +108,8 @@ end
 -- Resto de métodos y propiedades de ParticleChunk
 
 function ParticleChunk:update()
-    local width = self.width
-    local height = self.height
-
-    for y = start_index, width - end_index do
-        for x = start_index, height - end_index do
+    for y = start_index, self.width - end_index do
+        for x = start_index, self.height - end_index do
             self:updateParticle(x, y)
         end
     end

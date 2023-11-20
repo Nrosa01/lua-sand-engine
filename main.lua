@@ -9,7 +9,7 @@ if IS_DEBUG then
 end
 
 local mouse = nil
-local canvas_size = 400
+local canvas_size = 800
 local brush_size = math.floor(canvas_size / 20);
 
 require "src"
@@ -25,14 +25,6 @@ function love.load()
     -- create quad with the same size as the window getting the size from the window
     myQuad = Libs.Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)
     chunk = ParticleChunk.new(canvas_size, canvas_size, myQuad)
-
-    -- print all the particles in the chunk
-    -- for x = 0, chunk.width - 1 do
-    --     for y = 0, chunk.height - 1 do
-    --         print(x, y, chunk.matrix[chunk:index(x, y)].type)
-    --     end
-    -- end
-
 end
 
 function love.update(dt)
