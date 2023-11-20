@@ -81,12 +81,12 @@ end
 
 function love.draw()
     -- Iterate all particles in the chunk and draw them
-    for x = 0, chunk.width - 1 do
-        for y = 0, chunk.height - 1 do
+    for x = 1, chunk.width do
+        for y = 1, chunk.height do
             local particle = chunk.matrix[x][y]
             local particle_color = ParticleDefinitionsHandler:getParticleData(particle.type).particle_color
             -- If particle type is not 0 print the type
-            myQuad:setPixel(x, y, particle_color.r, particle_color.g, particle_color.b, particle_color.a)
+            myQuad:setPixel(x - 1, y - 1, particle_color.r, particle_color.g, particle_color.b, particle_color.a)
         end
     end
 

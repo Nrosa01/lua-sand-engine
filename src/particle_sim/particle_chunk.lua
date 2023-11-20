@@ -2,8 +2,8 @@
 local ffi = require("ffi")
 local Particle = require("Particle")
 local empty_particle_id = 1
-local start_index = 0
-local end_index = 1
+local start_index = 1
+local end_index = 0
 
 ParticleChunk = {
     matrix = nil,
@@ -12,14 +12,14 @@ ParticleChunk = {
     clock = false,
 }
 
-
 local function newArray2D(width, height)
-    local matrix = ffi.new("Particle*[?]", width)
+    local matrix = {}
 
-    for x = 0, width - 1 do
-        matrix[x] = ffi.new("Particle[?]", height)
-        for y = 0, height - 1 do
-            matrix[x][y].type = 1
+    for x = start_index, width - end_index do
+        matrix[x] = {}
+        for y = start_index, height - end_index do
+            matrix[x][y] = ffi.new("Particle")
+            matrix[x][y].type = empty_particle_id
             matrix[x][y].clock = false
         end
     end
@@ -37,19 +37,6 @@ function ParticleChunk.new(width, height)
 
     return setmetatable(instance, { __index = ParticleChunk })
 end
-
-function ParticleChunk:reset()
-    -- set all matrix data to 0
-    local width = self.width
-    local height = self.height
-
-    for y = start_index, width - end_index do
-        for x = start_index, height - end_index do
-            self.matrix[x][y].type = Particle(empty_particle_id)
-        end
-    end
-end
-
 
 function ParticleChunk:updateParticle(x, y)
     local data = ParticleDefinitionsHandler:getParticleData(self:getParticleType(x, y))
@@ -132,8 +119,7 @@ function ParticleChunk:tryPushParticle(x, y, dir_x, dir_y)
     local new_x, new_y = x + dir_x, y + dir_y
 
     if self:isInside(new_x, new_y) and self:canPush(new_x, new_y, x, y) then
-        local aux = ffi.new("struct Particle", Particle(empty_particle_id))
-        aux = self.matrix[new_y][new_x]
+        local aux = self.matrix[new_y][new_x]
         self.matrix[new_x][new_y] = self.matrix[x][y]
         self.matrix[x][y] = aux
 
