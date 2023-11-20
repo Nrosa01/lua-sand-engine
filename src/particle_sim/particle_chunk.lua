@@ -71,15 +71,12 @@ function ParticleChunk:updateParticle(x, y)
     local pixelsToMove = 1
     local particleIsMoving = true
     local particleCollidedLastIteration = false
+    local canInteract = true
     local new_pos_x, new_pos_y = x, y
 
     while pixelsToMove > 0 and particleIsMoving do
         local dir_x, dir_y = data.movement_passes[particle_movement_passes_index].x, data.movement_passes[particle_movement_passes_index].y
         local particleMoved = self:moveParticle(new_pos_x, new_pos_y, dir_x, dir_y)
-
-        if not particleMoved then
-            particleMoved = self:tryPushParticle(new_pos_x, new_pos_y, dir_x, dir_y)
-        end
 
         if not particleMoved then
             particle_movement_passes_index = particle_movement_passes_index + 1
@@ -96,10 +93,30 @@ function ParticleChunk:updateParticle(x, y)
         else
             particleCollidedLastIteration = false
             particleIsMoving = true
+            canInteract = true
             pixelsToMove = pixelsToMove - 1
             new_pos_x, new_pos_y = new_pos_x + dir_x, new_pos_y + dir_y
         end
+
+        local canContinue = false
+        if canInteract then
+            
+            for i, interaction in ipairs(data.interactions) do
+                canContinue = interaction(new_pos_x, new_pos_y, dir_x, dir_y, particleMoved, self)
+                if not canContinue then
+                    goto clock_handler
+                end
+            end
+
+            canInteract = false
+        end
+
+        if not particleMoved then
+            particleMoved = self:tryPushParticle(new_pos_x, new_pos_y, dir_x, dir_y)
+        end
     end
+
+::clock_handler::
 
     self.matrix[self:index(x, y)].clock = not self.clock
     self.matrix[self:index(new_pos_x, new_pos_y)].clock = not self.clock
@@ -140,7 +157,7 @@ function ParticleChunk:tryPushParticle(x, y, dir_x, dir_y)
     local new_x, new_y = x + dir_x, y + dir_y
 
     if self:isInside(new_x, new_y) and self:canPush(new_x, new_y, x, y) then
-        local aux = self.matrix[new_y][new_x]
+        local aux = self.matrix[self:index(new_x, new_y)]
         self:setParticle(new_x, new_y, self.matrix[self:index(x, y)])
         self:setParticle(x, y, aux)
 

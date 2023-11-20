@@ -9,9 +9,10 @@ if IS_DEBUG then
 end
 
 local mouse = {x = 0, y = 0,  button = ""}
-local canvas_size = 400
+local canvas_size = 100
 local brush_size = math.floor(canvas_size / 20);
 local sensitivy = brush_size / 10
+local currentParticle = 2
 
 require "src"
 require "ParticleDefinitionsHandler"
@@ -28,14 +29,21 @@ function love.load()
     chunk = ParticleChunk.new(canvas_size, canvas_size, myQuad)
 end
 
+function love.keypressed(key, scancode, isrepeat)
+    -- set currnet particle if the key is a number and it's not out of ParticleDefinitionsHandler bounds
+    if tonumber(key) ~= nil and tonumber(key) <= ParticleDefinitionsHandler:getRegisteredParticlesCount() then
+        currentParticle = tonumber(key)
+    end
+end
+
 function love.update(dt)
     if (mouse ~= nil and mouse.button == "left") then
         for x = -brush_size, brush_size do
             for y = -brush_size, brush_size do
                 local px = mouse.x + x
                 local py = mouse.y + y
-                if chunk:isInside(px, py) and chunk:isEmpty(px, py) then
-                    chunk:setNewParticleById(px, py, 2)
+                if chunk:isInside(px, py) and (chunk:isEmpty(px, py) or currentParticle == 1) then
+                    chunk:setNewParticleById(px, py, currentParticle)
                 end
             end
         end
@@ -80,6 +88,9 @@ function love.mousereleased(x, y, button, istouch)
 end
 
 function love.draw(dt)
+    -- clear color
+    love.graphics.clear(0.07, 0.13, 0.17, 1.0)
+    
     myQuad:render(0, 0)
 
     -- Print a circunference around the mouse
