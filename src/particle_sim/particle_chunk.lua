@@ -9,19 +9,18 @@ ParticleChunk = {
     matrix = nil,
     width = 0,
     height = 0,
+    size = 0,
     clock = false,
 }
 
 
-local function newArray2D(width, height)
-    local matrix = ffi.new("Particle*[?]", width)
+local function newArray1D(width, height)
+    local matrix = ffi.new("Particle[?]", width * height)
 
-    for x = 0, width - 1 do
-        matrix[x] = ffi.new("Particle[?]", height)
-        for y = 0, height - 1 do
-            matrix[x][y].type = 1
-            matrix[x][y].clock = false
-        end
+    for i = 0, width * height - 1 do
+        matrix[i] = ffi.new("Particle")
+        matrix[i].type = empty_particle_id
+        matrix[i].clock = false
     end
 
     return matrix
@@ -29,13 +28,18 @@ end
 
 function ParticleChunk.new(width, height)
     local instance = {
-        matrix = newArray2D(width, height),
+        matrix = newArray1D(width, height),
         width = width,
         height = height,
+        size = width * height,
         clock = false,
     }
 
     return setmetatable(instance, { __index = ParticleChunk })
+end
+
+function ParticleChunk:index(x, y)
+    return x + y * self.width
 end
 
 function ParticleChunk:reset()
@@ -45,7 +49,7 @@ function ParticleChunk:reset()
 
     for y = start_index, width - end_index do
         for x = start_index, height - end_index do
-            self.matrix[x][y].type = Particle(empty_particle_id)
+            self.matrix[self:index(x, y)].type = Particle(empty_particle_id)
         end
     end
 end
@@ -56,8 +60,8 @@ function ParticleChunk:updateParticle(x, y)
     -- local interactions = data.interactions
     local particle_movement_passes_amount = #data.movement_passes
 
-    if self.matrix[x][y].clock ~= self.clock or particle_movement_passes_amount == 0 then
-        self.matrix[x][y].clock = not self.clock
+    if self.matrix[self:index(x, y)].clock ~= self.clock or particle_movement_passes_amount == 0 then
+        self.matrix[self:index(x, y)].clock = not self.clock
         return
     end
 
@@ -95,8 +99,8 @@ function ParticleChunk:updateParticle(x, y)
         end
     end
 
-    self.matrix[x][y].clock = not self.clock
-    self.matrix[new_pos_x][new_pos_y].clock = not self.clock
+    self.matrix[self:index(x, y)].clock = not self.clock
+    self.matrix[self:index(new_pos_x, new_pos_y)].clock = not self.clock
 end
 
 -- Resto de métodos y propiedades de ParticleChunk
@@ -116,14 +120,14 @@ end
 
 function ParticleChunk:setNewParticleById(x, y, id)
     if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
-        self.matrix[x][y].type = id
-        self.matrix[x][y].clock = false
+        self.matrix[self:index(x, y)].type = id
+        self.matrix[self:index(x, y)].clock = false
     end
 end
 
 function ParticleChunk:setParticle(x, y, particle)
     if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
-        self.matrix[x][y] = particle
+        self.matrix[self:index(x, y)] = particle
     end
 end
 
@@ -132,8 +136,8 @@ function ParticleChunk:tryPushParticle(x, y, dir_x, dir_y)
 
     if self:isInside(new_x, new_y) and self:canPush(new_x, new_y, x, y) then
         local aux = self.matrix[new_y][new_x]
-        self.matrix[new_x][new_y] = self.matrix[x][y]
-        self.matrix[x][y] = aux
+        self.matrix[self:index(new_x, new_y)] = self.matrix[self:index(x, y)]
+        self.matrix[self:index(x, y)] = aux
 
         for i = -5, 5 - 1 do
             for j = 1, 20 - 1 do
@@ -153,9 +157,9 @@ function ParticleChunk:moveParticle(x, y, dir_x, dir_y)
     local new_x, new_y = x + dir_x, y + dir_y
 
     if self:isInside(new_x, new_y) and self:isEmpty(new_x, new_y) then
-        self.matrix[new_x][new_y] = self.matrix[x][y]
-        self.matrix[x][y].type = empty_particle_id
-        self.matrix[x][y].clock = false
+        self.matrix[self:index(new_x, new_y)] = self.matrix[self:index(x, y)]
+        self.matrix[self:index(x, y)].type = empty_particle_id
+        self.matrix[self:index(x, y)].clock = false
         return true
     else
         return false
@@ -173,7 +177,7 @@ function ParticleChunk:getHeight()
 end
 
 function ParticleChunk:getParticle(x, y)
-    return self.matrix[x][y]
+    return self.matrix[self:index(x, y)]
 end
 
 function ParticleChunk:isInside(x, y)
@@ -181,7 +185,7 @@ function ParticleChunk:isInside(x, y)
 end
 
 function ParticleChunk:isEmpty(x, y)
-    return self.matrix[x][y].type == empty_particle_id
+    return self.matrix[self:index(x, y)].type == empty_particle_id
 end
 
 function ParticleChunk:canPush(other_x, other_y, x, y)
@@ -189,7 +193,7 @@ function ParticleChunk:canPush(other_x, other_y, x, y)
 end
 
 function ParticleChunk:getParticleType(x, y)
-    return self.matrix[x][y].type
+    return self.matrix[self:index(x, y)].type
 end
 
 return ParticleChunk

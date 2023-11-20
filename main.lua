@@ -25,11 +25,11 @@ function love.load()
     -- create quad with the same size as the window getting the size from the window
     myQuad = Libs.Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)
     chunk = ParticleChunk.new(canvas_size, canvas_size)
-    
+
     -- print all the particles in the chunk
     -- for x = 0, chunk.width - 1 do
     --     for y = 0, chunk.height - 1 do
-    --         print(x, y, chunk.matrix[x][y].type)
+    --         print(x, y, chunk.matrix[chunk:index(x, y)].type)
     --     end
     -- end
 
@@ -83,7 +83,7 @@ function love.draw()
     -- Iterate all particles in the chunk and draw them
     for x = 0, chunk.width - 1 do
         for y = 0, chunk.height - 1 do
-            local particle = chunk.matrix[x][y]
+            local particle = chunk.matrix[chunk:index(x, y)]
             local particle_color = ParticleDefinitionsHandler:getParticleData(particle.type).particle_color
             -- If particle type is not 0 print the type
             myQuad:setPixel(x, y, particle_color.r, particle_color.g, particle_color.b, particle_color.a)
