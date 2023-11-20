@@ -25,12 +25,13 @@ function love.load()
     -- create quad with the same size as the window getting the size from the window
     myQuad = Libs.Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)
     chunk = ParticleChunk.new(canvas_size, canvas_size)
+    local chunk00_type = chunk.matrix[10][30].type
 
-    print(ParticleDefinitionsHandler:getRegisteredParticlesCount())
+    print(chunk00_type)
 end
 
 function love.update(dt)
-	if (mouse ~= nil) then
+	if (mouse ~= nil and mouse.button == "left") then
 		for x = -brush_size, brush_size do
 			for y = -brush_size, brush_size do
                 local px = mouse.x + x
@@ -42,7 +43,7 @@ function love.update(dt)
 		end
 	end
 
-    chunk:update()
+    -- chunk:update()
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
@@ -52,11 +53,12 @@ function love.mousepressed(x, y, button, istouch, presses)
         buttonname = "left"
     elseif button == 2 then
         buttonname = "right"
+        chunk:update()
     end
 
     local chunkX = math.floor(x / (love.graphics.getWidth() / chunk.width)) + 1
     local chunkY = math.floor(y / (love.graphics.getHeight() / chunk.height)) + 1
-    mouse = { x = chunkX, y = chunkY }
+    mouse = { x = chunkX, y = chunkY, button = buttonname }
 end
 
 function love.mousemoved(x, y, dx, dy)
@@ -77,7 +79,7 @@ function love.draw()
     -- Iterate all particles in the chunk and draw them
     for x = 0, chunk.width - 1 do
         for y = 0, chunk.height - 1 do
-            local particle = chunk.matrix[x + 1][y + 1]
+            local particle = chunk.matrix[x][y]
             local particle_color = ParticleDefinitionsHandler:getParticleData(particle.type).particle_color
             -- If particle type is not 0 print the type
             myQuad:setPixel(x, y, particle_color.r, particle_color.g, particle_color.b, particle_color.a)

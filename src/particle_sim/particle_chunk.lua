@@ -1,7 +1,9 @@
 -- ParticleChunk.lua
 local ffi = require("ffi")
-local ParticleFactory = require("ParticleFactory")
+local Particle = require("Particle")
 local empty_particle_id = 1
+local start_index = 0
+local end_index = 1
 
 ParticleChunk = {
     matrix = nil,
@@ -10,13 +12,15 @@ ParticleChunk = {
     clock = false,
 }
 
-local function newArray2D(width, height)
-    local matrix = {}
 
-    for x = 1, width do
-        matrix[x] = {}
-        for y = 1, height do
-            matrix[x][y] = ParticleFactory.createParticle(empty_particle_id)
+local function newArray2D(width, height)
+    local matrix = ffi.new("struct Particle*[?]", width)
+
+    for x = 0, width - 1 do
+        matrix[x] = ffi.new("struct Particle[?]", height)
+        for y = 0, height - 1 do
+            matrix[x][y].type = 1
+            matrix[x][y].clock = false
         end
     end
 
@@ -39,17 +43,16 @@ function ParticleChunk:reset()
     local width = self.width
     local height = self.height
 
-    for y = 1, width do
-        for x = 1, height do
-            self.matrix[x][y].type = ParticleFactory.createParticle(empty_particle_id)
+    for y = start_index, width - end_index do
+        for x = start_index, height - end_index do
+            self.matrix[x][y].type = Particle(empty_particle_id)
         end
     end
 end
 
 
 function ParticleChunk:updateParticle(x, y)
-    local registry = ParticleDefinitionsHandler
-    local data = registry:getParticleData(self:getParticleType(x, y))
+    local data = ParticleDefinitionsHandler:getParticleData(self:getParticleType(x, y))
     -- local interactions = data.interactions
     local particle_movement_passes_amount = #data.movement_passes
 
@@ -102,8 +105,8 @@ function ParticleChunk:update()
     local width = self.width
     local height = self.height
 
-    for y = 1, width do
-        for x = 1, height do
+    for y = start_index, width - end_index do
+        for x = start_index, height - end_index do
             self:updateParticle(x, y)
         end
     end
@@ -112,13 +115,13 @@ function ParticleChunk:update()
 end
 
 function ParticleChunk:setNewParticleById(x, y, id)
-    if x >= 1 and x < self.width and y >= 1 and y < self.height then
-        self.matrix[x][y] = ParticleFactory.createParticle(id)
+    if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
+        self.matrix[x][y] = Particle(id)
     end
 end
 
 function ParticleChunk:setParticle(x, y, particle)
-    if x >= 1 and x < self.width and y >= 1 and y < self.height then
+    if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
         self.matrix[x][y] = particle
     end
 end
@@ -127,7 +130,7 @@ function ParticleChunk:tryPushParticle(x, y, dir_x, dir_y)
     local new_x, new_y = x + dir_x, y + dir_y
 
     if self:isInside(new_x, new_y) and self:canPush(new_x, new_y, x, y) then
-        local aux = ffi.new("struct Particle", ParticleFactory.createParticle(empty_particle_id))
+        local aux = ffi.new("struct Particle", Particle(empty_particle_id))
         aux = self.matrix[new_y][new_x]
         self.matrix[new_x][new_y] = self.matrix[x][y]
         self.matrix[x][y] = aux
@@ -151,7 +154,7 @@ function ParticleChunk:moveParticle(x, y, dir_x, dir_y)
 
     if self:isInside(new_x, new_y) and self:isEmpty(new_x, new_y) then
         self.matrix[new_x][new_y] = self.matrix[x][y]
-        self.matrix[x][y] = ParticleFactory.createParticle(empty_particle_id)
+        self.matrix[x][y] = Particle(empty_particle_id)
         return true
     else
         return false
@@ -173,7 +176,7 @@ function ParticleChunk:getParticle(x, y)
 end
 
 function ParticleChunk:isInside(x, y)
-    return x >= 1 and x <= self.width and y >= 1 and y <= self.height
+    return x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index
 end
 
 function ParticleChunk:isEmpty(x, y)
