@@ -1,0 +1,15 @@
+name = "PixelFlow"
+default_targets = ["win64"]
+build_directory = "makelove-build"
+
+love_files = [
+    "::git-ls-tree::",
+    "-*/.*",
+]
+
+[windows]
+# The files specified here will be added in addition to the ones specified on top level.
+# All specified files will simply be added to the .zip archive.
+[windows.archive_files]
+# Add imgui.dll to the archive
+"imgui.dll" = "imgui.dll"
