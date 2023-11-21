@@ -9,7 +9,7 @@ if IS_DEBUG then
 end
 
 local mouse = { x = 0, y = 0, button = "" }
-local canvas_size = 200
+local canvas_size = 400
 local brush_size = math.floor(canvas_size / 20);
 local sensitivy = brush_size / 10
 local currentParticle = 2
@@ -24,10 +24,28 @@ require "particle_chunk"
 local myQuad;
 local chunk;
 
+local threadCode = [[
+local ffi = require("ffi")
+local Particle = require("Particle")
+
+-- Receive values sent via thread:start
+local chunk = ...
+local ptr = ffi.cast("Particle*", chunk:getPointer())
+ptr[0].type = 2
+print("Chunk test " .. ptr[0].type)
+
+]]
+
+local thread
+
 function love.load()
     -- create quad with the same size as the window getting the size from the window
     myQuad = Libs.Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)
     chunk = ParticleChunk.new(canvas_size, canvas_size, myQuad)
+
+    thread = love.thread.newThread(threadCode)
+    thread:start(chunk.bytecode)
+    print("Chunk test " .. chunk.matrix[0].type)
 end
 
 local function drawParticleMenu()
