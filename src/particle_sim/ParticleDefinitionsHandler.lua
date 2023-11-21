@@ -19,9 +19,9 @@ end
 function ParticleDefinitionsHandler:addParticleData(data)
     -- If data is already registered in text_to_id_map, then we overwrite it in particle_data
     -- Otherwise we add it to the end of the particle_data vector and add it to the text_to_id_map
-
+    
     local index = self.text_to_id_map[data.text_id]
-
+    
     if index then
         self.particle_data[index] = data
     else
@@ -40,7 +40,7 @@ function ParticleDefinitionsHandler:getRegisteredParticlesCount()
 end
 
 function ParticleDefinitionsHandler:getParticleData(index)
-    return self.particle_data[index]
+        return self.particle_data[index]
 end
 
 function ParticleDefinitionsHandler:getParticleDataVector()

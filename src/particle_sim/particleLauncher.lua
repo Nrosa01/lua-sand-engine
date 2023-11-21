@@ -22,9 +22,7 @@ local function addParticleToRegistry()
     ParticleDefinitionsHandler:addParticleData(ParticleDefinition.new(
         "Sand",                -- Text id
         yellow,                -- Color
-        function()
-            print("Sand particle interaction")
-        end                 -- Properties
+        {}                -- Properties
     ))
 
 --     ParticleDefinitionsHandler:addParticleData(ParticleDefinition.new(

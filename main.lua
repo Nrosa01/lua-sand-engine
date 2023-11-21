@@ -21,6 +21,7 @@ require "ParticleDefinitionsHandler"
 require "particleLauncher"
 require "quad"
 require "particle_chunk"
+require "buffer"
 
 local myQuad;
 local chunk;
@@ -36,6 +37,8 @@ ffi.cdef [[
     } void_ptr;
 ]]
 
+local copy = ParticleDefinitionsHandler.new(ParticleDefinitionsHandler.particle_data, ParticleDefinitionsHandler.text_to_id_map)
+
 function love.load()
     -- create quad with the same size as the window getting the size from the window
     myQuad = Libs.Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)
@@ -44,7 +47,7 @@ function love.load()
     -- asign the function to the pointer
 
     thread = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
-    thread:start(string.dump(t))        
+    thread:start(Encode(copy))        
     print("Chunk test " .. chunk.matrix[0].type)
 end
 

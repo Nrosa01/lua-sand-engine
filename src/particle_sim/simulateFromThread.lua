@@ -1,7 +1,19 @@
+require "buffer"
+
 local f = ...
 
--- load f as function (f is a string)
-local func = loadstring(f)
+f = Decode(f)
 
--- call the function
-func()
+if not f then
+    return
+end
+
+print(f:getRegisteredParticlesCount())
+
+-- print(f:getRegisteredParticlesCount())
+
+-- load f as function (f is a string)
+-- local func = Decode(f)
+
+-- -- call the function
+-- func()
