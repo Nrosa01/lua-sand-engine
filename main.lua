@@ -24,18 +24,6 @@ require "particle_chunk"
 local myQuad;
 local chunk;
 
-local threadCode = [[
-local ffi = require("ffi")
-local Particle = require("Particle")
-
--- Receive values sent via thread:start
-local chunk = ...
-local ptr = ffi.cast("Particle*", chunk:getFFIPointer())
-ptr[0].type = 2
-print("Chunk test " .. ptr[0].type)
-
-]]
-
 local thread
 
 function love.load()
@@ -43,7 +31,7 @@ function love.load()
     myQuad = Libs.Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)
     chunk = ParticleChunk.new(canvas_size, canvas_size, myQuad)
 
-    thread = love.thread.newThread(threadCode)
+    thread = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
     thread:start(chunk.bytecode)
     print("Chunk test " .. chunk.matrix[0].type)
 end
