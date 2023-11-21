@@ -1,22 +1,21 @@
 -- ParticleDefinitionsHandler.lua
-ParticleDefinitionsHandler = {
+local ParticleDefinitionsHandlerConstructor = {
     particle_data = {},
     text_to_id_map = {},
 }
 
-ParticleDefinitionsHandler.__index = ParticleDefinitionsHandler
+ParticleDefinitionsHandlerConstructor.__index = ParticleDefinitionsHandlerConstructor
 
-function ParticleDefinitionsHandler.new(particle_data, text_to_id_map)
-    local instance = {
-        particle_data = particle_data or {},
-        text_to_id_map = text_to_id_map or {}
-    }
+ParticleDefinitionsHandler = 
+{
+    particle_data = {},
+    text_to_id_map = {},
+}
 
-    setmetatable(instance, ParticleDefinitionsHandler)
-    return instance
-end
+setmetatable(ParticleDefinitionsHandler, ParticleDefinitionsHandlerConstructor)
 
-function ParticleDefinitionsHandler:addParticleData(data)
+
+function ParticleDefinitionsHandlerConstructor:addParticleData(data)
     -- If data is already registered in text_to_id_map, then we overwrite it in particle_data
     -- Otherwise we add it to the end of the particle_data vector and add it to the text_to_id_map
     
@@ -30,21 +29,21 @@ function ParticleDefinitionsHandler:addParticleData(data)
     end
 end
 
-function ParticleDefinitionsHandler:getParticleId(particle_text_id)
+function ParticleDefinitionsHandlerConstructor:getParticleId(particle_text_id)
     local index = self.text_to_id_map[particle_text_id]
     return index or -1
 end
 
-function ParticleDefinitionsHandler:getRegisteredParticlesCount()
+function ParticleDefinitionsHandlerConstructor:getRegisteredParticlesCount()
     return #self.particle_data
 end
 
-function ParticleDefinitionsHandler:getParticleData(index)
+function ParticleDefinitionsHandlerConstructor:getParticleData(index)
         return self.particle_data[index]
 end
 
-function ParticleDefinitionsHandler:getParticleDataVector()
+function ParticleDefinitionsHandlerConstructor:getParticleDataVector()
     return self.particle_data
 end
 
-return ParticleDefinitionsHandler
+return ParticleDefinitionsHandlerConstructor
