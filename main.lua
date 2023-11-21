@@ -15,6 +15,7 @@ local sensitivy = brush_size / 10
 local currentParticle = 2
 
 local imgui = require "imgui"
+local ffi = require "ffi"
 require "src"
 require "ParticleDefinitionsHandler"
 require "particleLauncher"
@@ -26,13 +27,24 @@ local chunk;
 
 local thread
 
+local t = function () print "hey" end
+
+--cdef struct that just holds a pointer to void
+ffi.cdef [[
+    typedef struct {
+        void* ptr;
+    } void_ptr;
+]]
+
 function love.load()
     -- create quad with the same size as the window getting the size from the window
     myQuad = Libs.Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)
     chunk = ParticleChunk.new(canvas_size, canvas_size, myQuad)
 
+    -- asign the function to the pointer
+
     thread = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
-    thread:start(chunk.bytecode, ParticleDefinitionsHandler.particle_data, ParticleDefinitionsHandler.text_to_id_map)
+    thread:start(string.dump(t))        
     print("Chunk test " .. chunk.matrix[0].type)
 end
 
