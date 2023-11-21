@@ -19,7 +19,7 @@ InstanceChunk = {}
 
 local function newArray1D(width, height)
     local byte_code = love.data.newByteData(width * height * ffi.sizeof("Particle"))
-    local ptr = ffi.cast("Particle*", byte_code:getPointer())
+    local ptr = ffi.cast("Particle*", byte_code:getFFIPointer())
 
     for i = 0, width * height - 1 do
         ptr[i].type = 1
