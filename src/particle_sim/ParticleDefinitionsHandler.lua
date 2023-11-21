@@ -6,12 +6,22 @@ ParticleDefinitionsHandler = {
 
 ParticleDefinitionsHandler.__index = ParticleDefinitionsHandler
 
+function ParticleDefinitionsHandler.new(particle_data, text_to_id_map)
+    local instance = {
+        particle_data = particle_data or {},
+        text_to_id_map = text_to_id_map or {}
+    }
+
+    setmetatable(instance, ParticleDefinitionsHandler)
+    return instance
+end
+
 function ParticleDefinitionsHandler:addParticleData(data)
     -- If data is already registered in text_to_id_map, then we overwrite it in particle_data
     -- Otherwise we add it to the end of the particle_data vector and add it to the text_to_id_map
-    
+
     local index = self.text_to_id_map[data.text_id]
-    
+
     if index then
         self.particle_data[index] = data
     else
@@ -30,12 +40,7 @@ function ParticleDefinitionsHandler:getRegisteredParticlesCount()
 end
 
 function ParticleDefinitionsHandler:getParticleData(index)
-    if index >= 1 and index <= #self.particle_data then
-        -- print("Data at index " .. index .. ": " .. self.particle_data[index].text_id)
-        return self.particle_data[index]
-    else
-        error("Index was out of range on getParticleData (index: " .. index .. ")")
-    end
+    return self.particle_data[index]
 end
 
 function ParticleDefinitionsHandler:getParticleDataVector()

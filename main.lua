@@ -32,7 +32,7 @@ function love.load()
     chunk = ParticleChunk.new(canvas_size, canvas_size, myQuad)
 
     thread = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
-    thread:start(chunk.bytecode)
+    thread:start(chunk.bytecode, ParticleDefinitionsHandler.particle_data, ParticleDefinitionsHandler.text_to_id_map)
     print("Chunk test " .. chunk.matrix[0].type)
 end
 
@@ -111,7 +111,7 @@ function love.update(dt)
     end
 
 
-    chunk:update()
+    -- chunk:update()
 end
 
 function love.quit()
