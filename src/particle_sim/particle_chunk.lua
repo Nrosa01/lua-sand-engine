@@ -146,7 +146,8 @@ end
 
 function ParticleChunk:setParticle(x, y, particle)
     if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
-        self.matrix[self:index(x, y)] = particle
+        self.matrix[self:index(x, y)].type = particle.type
+        self.matrix[self:index(x, y)].clock = particle.clock
 
         local color = ParticleDefinitionsHandler:getParticleData(particle.type).color
         self.quad:setPixel(x, y, color.r, color.g, color.b, color.a)
@@ -158,13 +159,14 @@ function ParticleChunk:tryPushParticle(x, y, dir_x, dir_y)
 
     if self:isInside(new_x, new_y) and self:canPush(new_x, new_y, x, y) then
         local aux = self.matrix[self:index(new_x, new_y)]
+        local auxParticle = Particle(aux.type, aux.clock)
         self:setParticle(new_x, new_y, self.matrix[self:index(x, y)])
-        self:setParticle(x, y, aux)
+        self:setNewParticleById(x, y, empty_particle_id)
 
         for i = -5, 5 - 1 do
-            for j = 1, 20 - 1 do
-                if self:isInside(new_x + i, new_y + j) and self:isEmpty(new_x + i, new_y + j) then
-                    self:setParticle(new_x + i, new_y + j, aux)
+            for j = -1, 20 - 1 do
+                if self:isInside(new_x + i, new_y - j) and self:isEmpty(new_x + i, new_y - j) then
+                    self:setParticle(new_x + i, new_y - j, auxParticle)
                     return true
                 end
             end
@@ -174,6 +176,7 @@ function ParticleChunk:tryPushParticle(x, y, dir_x, dir_y)
         return false
     end
 end
+
 
 function ParticleChunk:moveParticle(x, y, dir_x, dir_y)
     local new_x, new_y = x + dir_x, y + dir_y
