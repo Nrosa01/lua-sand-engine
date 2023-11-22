@@ -170,7 +170,11 @@ function love.draw(dt)
     local drawCircleSize = brush_size * (love.graphics.getWidth() / particleSimulation.chunk.width)
     love.graphics.circle("line", mouseX, mouseY, drawCircleSize)
 
+    -- set white colors
+    love.graphics.setColor(1, 0, 0, 1)
     love.graphics.print("Current FPS: " .. tostring(love.timer.getFPS() .. " GC: " .. gcinfo()), 10, 10)
+    -- reset color
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 function love.filedropped(file)

@@ -99,9 +99,9 @@ function ParticleSimulation:update()
     end
 
     -- Wait for all odd threads to finish
-    -- for i = 1, threadCount, 2 do
-    --     self.threads[i]:wait()
-    -- end
+    for i = 1, threadCount, 2 do
+        self.threads[i]:wait()
+    end
 
     -- Run all even threads
     for i = 2, threadCount, 2 do
@@ -109,14 +109,14 @@ function ParticleSimulation:update()
     end
 
     -- Wait for all even threads to finish
-    -- for i = 2, threadCount, 2 do
-    --     self.threads[i]:wait()
-    -- end
-
-    -- Wait for all threads to finish
-    for i = 1, threadCount do
+    for i = 2, threadCount, 2 do
         self.threads[i]:wait()
     end
+
+    -- Wait for all threads to finish
+    -- for i = 1, threadCount do
+    --     self.threads[i]:wait()
+    -- end
 
     self.clock = not self.clock
 end
