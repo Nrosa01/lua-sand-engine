@@ -50,7 +50,7 @@ function love.load()
     local newClass = classTemplate:new()
     newClass:print("Im primting from main")
     local imageData = myQuad.imageData
-    thread:start({bytecode = chunk.bytecode, width = chunk.width, height = chunk.height}, imageData, Encode(ParticleDefinitionsHandler))        
+    -- thread:start({bytecode = chunk.bytecode, width = chunk.width, height = chunk.height}, imageData, Encode(ParticleDefinitionsHandler))        
     print("Chunk test " .. chunk.matrix[0].type)
 end
 
@@ -129,7 +129,7 @@ function love.update(dt)
     end
 
 
-    -- chunk:update()
+    chunk:update()
 end
 
 function love.quit()

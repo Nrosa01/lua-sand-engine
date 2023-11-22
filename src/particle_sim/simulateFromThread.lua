@@ -8,8 +8,11 @@ local Quad = require "quad"
 
 local chunk, imageData, ParticleDefinitionsHandler = ...
 
+_G.ParticleDefinitionsHandler = Decode(ParticleDefinitionsHandler)
+
 imageData:setPixel(1,1,1,1,1,1)
 
 local quad = Quad:from(love.graphics.getWidth(), love.graphics.getHeight(), chunk.width, chunk.height, imageData)
 ParticleDefinitionsHandler = Decode(ParticleDefinitionsHandler)
 local chunk = ParticleChunk:from(chunk.bytecode, chunk.width, chunk.height, quad)
+chunk:update()
