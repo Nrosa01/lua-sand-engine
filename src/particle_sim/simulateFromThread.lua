@@ -8,11 +8,15 @@ local Quad = require "quad"
 
 local chunk, imageData, ParticleDefinitionsHandler = ...
 
-_G.ParticleDefinitionsHandler = Decode(ParticleDefinitionsHandler)
+ParticleDefinitionsHandler = Decode(ParticleDefinitionsHandler)
+_G.ParticleDefinitionsHandler = ParticleDefinitionsHandler
 
-imageData:setPixel(1,1,1,1,1,1)
+-- Iterate all interactions in particle definition handler and load them
+for i = 1, ParticleDefinitionsHandler:getRegisteredParticlesCount() do
+    local data = ParticleDefinitionsHandler:getParticleData(i)
+    data.interactions = load(data.interactions)
+end
 
 local quad = Quad:from(love.graphics.getWidth(), love.graphics.getHeight(), chunk.width, chunk.height, imageData)
-ParticleDefinitionsHandler = Decode(ParticleDefinitionsHandler)
 local chunk = ParticleChunk:from(chunk.bytecode, chunk.width, chunk.height, quad)
 chunk:update()

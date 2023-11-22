@@ -9,7 +9,7 @@ if IS_DEBUG then
 end
 
 local mouse = { x = 0, y = 0, button = "" }
-local canvas_size = 400
+local canvas_size = 800
 local brush_size = math.floor(canvas_size / 20);
 local sensitivy = brush_size / 10
 local currentParticle = 2
@@ -30,15 +30,6 @@ local chunk;
 
 local thread
 
-local t = function () print "hey" end
-
---cdef struct that just holds a pointer to void
-ffi.cdef [[
-    typedef struct {
-        void* ptr;
-    } void_ptr;
-]]
-
 function love.load()
     -- create quad with the same size as the window getting the size from the window
     myQuad = Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)
@@ -47,10 +38,7 @@ function love.load()
     -- asign the function to the pointer
 
     thread = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
-    local newClass = classTemplate:new()
-    newClass:print("Im primting from main")
-    local imageData = myQuad.imageData
-    -- thread:start({bytecode = chunk.bytecode, width = chunk.width, height = chunk.height}, imageData, Encode(ParticleDefinitionsHandler))        
+    -- thread:start({bytecode = chunk.bytecode, width = chunk.width, height = chunk.height}, myQuad.imageData, Encode(ParticleDefinitionsHandler))        
     print("Chunk test " .. chunk.matrix[0].type)
 end
 
@@ -129,7 +117,9 @@ function love.update(dt)
     end
 
 
-    chunk:update()
+    -- chunk:update()
+    thread:start({bytecode = chunk.bytecode, width = chunk.width, height = chunk.height}, myQuad.imageData, Encode(ParticleDefinitionsHandler))        
+    thread:wait()
 end
 
 function love.quit()
