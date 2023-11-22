@@ -38,7 +38,7 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         clock                      = false,
         updateData                 = {},
         chunkData                  = {},
-        quadData                   = {},
+        quadData                   = {}
     }
 
     o.simulaton_buffer_ptr = ffi.cast("Particle*", o.simulation_buffer_bytecode:getFFIPointer())
@@ -91,37 +91,51 @@ end
 
 function ParticleSimulation:update()
     -- Get num of threads supported
-    local ParticleDefinitionsHandler = Encode(_G.ParticleDefinitionsHandler)
-    local threadCount = #self.threads
+    local threadCount = 4
 
     -- Run all odd threds
     for i = 1, threadCount, 2 do
-        self:runThread(self.threads[i], i, ParticleDefinitionsHandler)
+        self:runThread(self.threads[i], i)
     end
 
     -- Wait for all odd threads to finish
-    for i = 1, threadCount, 2 do
-        self.threads[i]:wait()
-    end
+    -- for i = 1, threadCount, 2 do
+    --     self.threads[i]:wait()
+    -- end
 
     -- Run all even threads
     for i = 2, threadCount, 2 do
-        self:runThread(self.threads[i], i, ParticleDefinitionsHandler)
+        self:runThread(self.threads[i], i)
     end
 
     -- Wait for all even threads to finish
-    for i = 2, threadCount, 2 do
+    -- for i = 2, threadCount, 2 do
+    --     self.threads[i]:wait()
+    -- end
+
+    -- Wait for all threads to finish
+    for i = 1, threadCount do
         self.threads[i]:wait()
     end
 
     self.clock = not self.clock
 end
 
-function ParticleSimulation:runThread(thread, updateDataIndex, ParticleDefinitionsHandler)
-    thread:start(self.chunkData, self.updateData[updateDataIndex], self.quadData, ParticleDefinitionsHandler)
+function ParticleSimulation:runThread(thread, updateDataIndex)
+    thread:start(self.chunkData, self.updateData[updateDataIndex], ParticleDefinitionsHandler.particle_data,
+        ParticleDefinitionsHandler.text_to_id_map)
 end
 
 function ParticleSimulation:render()
+    local function pixels(x, y, r, g, b, a)
+        local index = self.chunk:index(x, y)
+        local particle = self.simulaton_buffer_ptr[index]
+        local color = ParticleDefinitionsHandler:getParticleData(particle.type).color
+
+        return color.r, color.g, color.b, color.a
+    end
+
+    self.quad.imageData:mapPixel(pixels)
     self.quad:render(0, 0)
 end
 
