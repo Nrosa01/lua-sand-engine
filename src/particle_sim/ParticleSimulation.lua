@@ -52,7 +52,7 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     o.chunk = ParticleChunk:new(chunkData, {}, o.quad)
 
     -- Build update data
-    local numThreads = love.system:getProcessorCount()
+    local numThreads = 4
 
     -- We will create numThreads threads
     for i = 1, numThreads do
@@ -60,17 +60,20 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     end
 
     -- We will create numThreads updateData tables
-    local xStep = math.floor(simulation_width / numThreads)
-    local yStep = math.floor(simulation_height / numThreads)
+    local xStep = math.floor(simulation_width / numThreads) * 2
+    local yStep = math.floor(simulation_height / numThreads) * 2
 
-    for i = 1, numThreads do
-        o.updateData[i] =
-        {
-            xStart = (i - 1) * xStep,
-            xEnd = i * xStep - 1,
-            yStart = (i - 1) * yStep,
-            yEnd = i * yStep - 1
-        }
+    -- I just divide the world into 4 chunks
+    for i = 1, 2 do
+        for j = 1, 2 do
+            local index = (i - 1) * 2 + j
+            o.updateData[index] = {
+                xStart = (i - 1) * xStep,
+                xEnd = i * xStep - 1,
+                yStart = (j - 1) * yStep,
+                yEnd = j * yStep - 1
+            }
+        end
     end
 
     -- We will create numThreads chunkData tables
