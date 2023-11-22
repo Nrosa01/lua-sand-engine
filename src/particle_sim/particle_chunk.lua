@@ -19,7 +19,7 @@ local empty_particle_id = 1
 local start_index = 0
 local end_index = 1
 
-function ParticleChunk:new(chunkData, quad)
+function ParticleChunk:new(chunkData, updateData, quad)
     local instance = {
         matrix = ffi.cast("Particle*", chunkData.bytecode:getFFIPointer()),
         width = chunkData.width,
@@ -28,7 +28,7 @@ function ParticleChunk:new(chunkData, quad)
         quad = quad,
         currentX = 0,
         currentY = 0,
-        updateData = chunkData.updateData
+        updateData = updateData
     }
 
     setmetatable(instance, self)
@@ -47,7 +47,7 @@ function ParticleChunk:update()
             else
                 self.currentX = x
                 self.currentY = y
-
+                
                 local data = ParticleDefinitionsHandler:getParticleData(self:getParticleType(x, y))
                 data.interactions(x, y, self)
             end

@@ -6,7 +6,7 @@ require "love.image"
 local ParticleChunk = require "particle_chunk"
 local Quad = require "quad"
 
-local chunkData, quadData, ParticleDefinitionsHandler = ...
+local chunkData, updateData, quadData, ParticleDefinitionsHandler = ...
 
 ParticleDefinitionsHandler = Decode(ParticleDefinitionsHandler)
 
@@ -24,5 +24,5 @@ for i = 1, ParticleDefinitionsHandler:getRegisteredParticlesCount() do
 end
 
 local quad = Quad:from(quadData.width, quadData.height, chunkData.width, chunkData.height, quadData.imageData)
-local chunk = ParticleChunk:new(chunkData, quad)
+local chunk = ParticleChunk:new(chunkData, updateData, quad)
 chunk:update()
