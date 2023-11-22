@@ -1,58 +1,27 @@
--- ParticleChunk.lua
 local ffi = require("ffi")
-local Particle = require("Particle")
+require("Particle")
+
+---@class ParticleChunk
+---@field bytecode love.ByteData
+---@field matrix Particle*
+---@field width number
+---@field height number
+---@field clock boolean
+---@field quad Quad
+
+local ParticleChunk = {}
+ParticleChunk.__index = ParticleChunk
 
 local empty_particle_id = 1
 local start_index = 0
 local end_index = 1
 
-local ParticleChunk = {
-    matrix = nil,
-    width = 0,
-    height = 0,
-    size = 0,
-    clock = false,
-    quad = nil
-}
-
-ParticleChunk.__index = ParticleChunk
-
-local function newArray1D(width, height)
-    local byte_code = love.data.newByteData(width * height * ffi.sizeof("Particle"))
-    local ptr = ffi.cast("Particle*", byte_code:getFFIPointer())
-
-    for i = 0, width * height - 1 do
-        ptr[i].type = 1
-        ptr[i].clock = false
-    end
-
-    return byte_code
-end
-
-function ParticleChunk:from(bytecode, width, height, quad)
+function ParticleChunk:new(bytecode, width, height, quad)
     local instance = {
         bytecode = bytecode,
         matrix = nil,
         width = width,
         height = height,
-        size = width * height,
-        clock = false,
-        quad = quad
-    }
-
-    instance.matrix = ffi.cast("Particle*", instance.bytecode:getPointer())
-
-    setmetatable(instance, self)
-    return instance
-end
-
-function ParticleChunk:new(width, height, quad)
-    local instance = {
-        bytecode = newArray1D(width, height),
-        matrix = nil,
-        width = width,
-        height = height,
-        size = width * height,
         clock = false,
         quad = quad
     }

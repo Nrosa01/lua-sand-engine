@@ -1,6 +1,12 @@
--- Quad.lua
-
--- Definición de la clase Quad
+---@class Quad
+---@field width number
+---@field height number
+---@field textWidth number
+---@field textHeight number
+---@field scaleX number
+---@field scaleY number
+---@field imageData love.ImageData
+---@field texture love.Texture
 local Quad = {}
 
 function Quad:from(width, height, textWidth, textHeight, imageData)

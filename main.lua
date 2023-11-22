@@ -15,31 +15,16 @@ local sensitivy = brush_size / 10
 local currentParticle = 2
 
 local imgui = require "imgui"
-local ffi = require "ffi"
 require "src"
 require "ParticleDefinitionsHandler"
 require "particleLauncher"
-local Quad = require "quad"
-local ParticleChunk = require "particle_chunk"
+local ParticleSimulation = require "ParticleSimulation"
 require "buffer"
 
-local classTemplate = require "classTemplate"
-
-local myQuad;
-local chunk;
-
-local thread
+local particleSimulation;
 
 function love.load()
-    -- create quad with the same size as the window getting the size from the window
-    myQuad = Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)
-    chunk = ParticleChunk:new(canvas_size, canvas_size, myQuad)
-
-    -- asign the function to the pointer
-
-    thread = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
-    -- thread:start({bytecode = chunk.bytecode, width = chunk.width, height = chunk.height}, myQuad.imageData, Encode(ParticleDefinitionsHandler))        
-    print("Chunk test " .. chunk.matrix[0].type)
+    particleSimulation = ParticleSimulation:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)    
 end
 
 local function drawParticleMenu()
@@ -109,17 +94,15 @@ function love.update(dt)
 
                 -- Verifica si la posición (px, py) está dentro del círculo
                 local distanceSquared = (px - centerX) ^ 2 + (py - centerY) ^ 2
-                if chunk:isInside(px, py) and distanceSquared <= brush_size ^ 2 and (chunk:isEmpty(px, py) or currentParticle == 1) then
-                    chunk:setNewParticleById(px, py, currentParticle)
+                if particleSimulation.chunk:isInside(px, py) and distanceSquared <= brush_size ^ 2 and (particleSimulation.chunk:isEmpty(px, py) or currentParticle == 1) then
+                    particleSimulation.chunk:setNewParticleById(px, py, currentParticle)
                 end
             end
         end
     end
 
 
-    -- chunk:update()
-    thread:start({bytecode = chunk.bytecode, width = chunk.width, height = chunk.height}, myQuad.imageData, Encode(ParticleDefinitionsHandler))        
-    thread:wait()
+    -- particleSimulation:update()
 end
 
 function love.quit()
@@ -150,8 +133,8 @@ function love.mousepressed(x, y, button, istouch, presses)
             buttonname = "right"
         end
 
-        local chunkX = math.floor(x / (love.graphics.getWidth() / chunk.width))
-        local chunkY = math.floor(y / (love.graphics.getHeight() / chunk.height))
+        local chunkX = math.floor(x / (love.graphics.getWidth() / particleSimulation.chunk.width))
+        local chunkY = math.floor(y / (love.graphics.getHeight() / particleSimulation.chunk.height))
         mouse = { x = chunkX, y = chunkY, button = buttonname }
     end
 end
@@ -159,8 +142,8 @@ end
 function love.mousemoved(x, y, dx, dy)
     imgui.MouseMoved(x, y)
     if not imgui.GetWantCaptureMouse() then
-        local chunkX = math.floor(x / (love.graphics.getWidth() / chunk.width))
-        local chunkY = math.floor(y / (love.graphics.getHeight() / chunk.height))
+        local chunkX = math.floor(x / (love.graphics.getWidth() / particleSimulation.chunk.width))
+        local chunkY = math.floor(y / (love.graphics.getHeight() / particleSimulation.chunk.height))
         mouse = { x = chunkX, y = chunkY, button = mouse.button }
     end
 end
@@ -176,7 +159,7 @@ function love.draw(dt)
     -- clear color
     love.graphics.clear(0.07, 0.13, 0.17, 1.0)
 
-    myQuad:render(0, 0)
+    particleSimulation:render()
     drawParticleMenu()
     imgui.Render();
 
@@ -184,7 +167,7 @@ function love.draw(dt)
     local mouseX = love.mouse.getX()
     local mouseY = love.mouse.getY()
 
-    local drawCircleSize = brush_size * (love.graphics.getWidth() / chunk.width)
+    local drawCircleSize = brush_size * (love.graphics.getWidth() / particleSimulation.chunk.width)
     love.graphics.circle("line", mouseX, mouseY, drawCircleSize)
 
     love.graphics.print("Current FPS: " .. tostring(love.timer.getFPS() .. " GC: " .. gcinfo()), 10, 10)
