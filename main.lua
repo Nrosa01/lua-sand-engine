@@ -23,6 +23,8 @@ require "quad"
 require "particle_chunk"
 require "buffer"
 
+local classTemplate = require "classTemplate"
+
 local myQuad;
 local chunk;
 
@@ -45,6 +47,8 @@ function love.load()
     -- asign the function to the pointer
 
     thread = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
+    local newClass = classTemplate:new()
+    newClass:print("Im primting from main")
     thread:start(Encode(ParticleDefinitionsHandler))        
     print("Chunk test " .. chunk.matrix[0].type)
 end

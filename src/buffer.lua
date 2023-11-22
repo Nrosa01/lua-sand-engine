@@ -5,7 +5,7 @@ local buffer = stringBuffer.new(
     {
         metatable =
         {
-            require("ParticleDefinitionsHandler")
+            require("ParticleDefinitionsHandler"),
         }
     }
 )

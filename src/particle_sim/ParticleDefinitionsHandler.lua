@@ -8,8 +8,8 @@ ParticleDefinitionsHandlerConstructor.__index = ParticleDefinitionsHandlerConstr
 
 ParticleDefinitionsHandler = 
 {
-    particle_data = {},
-    text_to_id_map = {},
+    particle_data = ParticleDefinitionsHandlerConstructor.particle_data,
+    text_to_id_map = ParticleDefinitionsHandlerConstructor.text_to_id_map,
 }
 
 setmetatable(ParticleDefinitionsHandler, ParticleDefinitionsHandlerConstructor)

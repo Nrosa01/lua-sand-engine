@@ -10,11 +10,3 @@ if not f then
 end
 
 print(f:getRegisteredParticlesCount())
-
--- print(f:getRegisteredParticlesCount())
-
--- load f as function (f is a string)
--- local func = Decode(f)
-
--- -- call the function
--- func()
