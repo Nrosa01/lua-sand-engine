@@ -1,12 +1,15 @@
 require "buffer"
+require "Particle"
+require "love.graphics"
+require "love.image"
 
-local f = ...
+local ParticleChunk = require "particle_chunk"
+local Quad = require "quad"
 
-f = Decode(f)
+local chunk, imageData, ParticleDefinitionsHandler = ...
 
-if not f then
-    print("Not f")
-    return
-end
+imageData:setPixel(1,1,1,1,1,1)
 
-print(f:getRegisteredParticlesCount())
+local quad = Quad:from(love.graphics.getWidth(), love.graphics.getHeight(), chunk.width, chunk.height, imageData)
+ParticleDefinitionsHandler = Decode(ParticleDefinitionsHandler)
+local chunk = ParticleChunk:from(chunk.bytecode, chunk.width, chunk.height, quad)

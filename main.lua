@@ -19,8 +19,8 @@ local ffi = require "ffi"
 require "src"
 require "ParticleDefinitionsHandler"
 require "particleLauncher"
-require "quad"
-require "particle_chunk"
+local Quad = require "quad"
+local ParticleChunk = require "particle_chunk"
 require "buffer"
 
 local classTemplate = require "classTemplate"
@@ -41,15 +41,16 @@ ffi.cdef [[
 
 function love.load()
     -- create quad with the same size as the window getting the size from the window
-    myQuad = Libs.Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)
-    chunk = ParticleChunk.new(canvas_size, canvas_size, myQuad)
+    myQuad = Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)
+    chunk = ParticleChunk:new(canvas_size, canvas_size, myQuad)
 
     -- asign the function to the pointer
 
     thread = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
     local newClass = classTemplate:new()
     newClass:print("Im primting from main")
-    thread:start(Encode(ParticleDefinitionsHandler))        
+    local imageData = myQuad.imageData
+    thread:start({bytecode = chunk.bytecode, width = chunk.width, height = chunk.height}, imageData, Encode(ParticleDefinitionsHandler))        
     print("Chunk test " .. chunk.matrix[0].type)
 end
 

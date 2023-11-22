@@ -3,7 +3,22 @@
 -- Definición de la clase Quad
 local Quad = {}
 
-Libs.Quad = Quad
+function Quad:from(width, height, textWidth, textHeight, imageData)
+  local obj = {
+    width = width,
+    height = height,
+    textWidth = textWidth,
+    textHeight = textHeight,
+    scaleX = width / textWidth,
+    scaleY = height / textHeight,
+    imageData = imageData,
+    texture = nil
+  }
+  
+  setmetatable(obj, self)
+  self.__index = self
+  return obj
+end
 
 -- Constructor
 ----@class Quad 

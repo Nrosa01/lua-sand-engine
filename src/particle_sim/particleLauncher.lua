@@ -15,14 +15,16 @@ local function addParticleToRegistry()
 
     ParticleDefinitionsHandler:addParticleData(ParticleDefinition.new(
         "Empty",    -- Text id
-        emptyColor, -- Color
-        {}          -- Properties
+        emptyColor -- Color
     ))
 
     ParticleDefinitionsHandler:addParticleData(ParticleDefinition.new(
         "Sand",                -- Text id
         yellow,                -- Color
-        {}                -- Properties
+        function(x, y, api)
+            api:setNewParticleById(x, y, 1)
+            api:setNewParticleById(x, y - 1, 2)
+        end
     ))
 
 --     ParticleDefinitionsHandler:addParticleData(ParticleDefinition.new(

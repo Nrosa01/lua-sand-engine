@@ -6,7 +6,7 @@ local empty_particle_id = 1
 local start_index = 0
 local end_index = 1
 
-ParticleChunk = {
+local ParticleChunk = {
     matrix = nil,
     width = 0,
     height = 0,
@@ -15,7 +15,7 @@ ParticleChunk = {
     quad = nil
 }
 
-InstanceChunk = {}
+ParticleChunk.__index = ParticleChunk
 
 local function newArray1D(width, height)
     local byte_code = love.data.newByteData(width * height * ffi.sizeof("Particle"))
@@ -29,7 +29,24 @@ local function newArray1D(width, height)
     return byte_code
 end
 
-function ParticleChunk.new(width, height, quad)
+function ParticleChunk:from(bytecode, width, height, quad)
+    local instance = {
+        bytecode = bytecode,
+        matrix = nil,
+        width = width,
+        height = height,
+        size = width * height,
+        clock = false,
+        quad = quad
+    }
+    
+    instance.matrix = ffi.cast("Particle*", instance.bytecode:getPointer())
+
+    setmetatable(instance, self)
+    return instance
+end
+
+function ParticleChunk:new(width, height, quad)
     local instance = {
         bytecode = newArray1D(width, height),
         matrix = nil,
@@ -42,8 +59,8 @@ function ParticleChunk.new(width, height, quad)
     
     instance.matrix = ffi.cast("Particle*", instance.bytecode:getPointer())
 
-    InstanceChunk = setmetatable(instance, { __index = ParticleChunk })
-    return InstanceChunk
+    setmetatable(instance, self)
+    return instance
 end
 
 function ParticleChunk:index(x, y)
@@ -226,4 +243,4 @@ function ParticleChunk:getParticleType(x, y)
     return self.matrix[self:index(x, y)].type
 end
 
-return InstanceChunk
+return ParticleChunk
