@@ -1,5 +1,4 @@
 local stringBuffer = require("string.buffer")
-local ffi = require("ffi")
 
 local buffer = stringBuffer.new(
     {

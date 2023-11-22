@@ -8,6 +8,9 @@ require("Particle")
 ---@field height number
 ---@field clock boolean
 ---@field quad Quad
+---@field currentX number
+---@field currentY number
+---@field updateData table
 
 local ParticleChunk = {}
 ParticleChunk.__index = ParticleChunk
@@ -16,17 +19,17 @@ local empty_particle_id = 1
 local start_index = 0
 local end_index = 1
 
-function ParticleChunk:new(bytecode, width, height, quad)
+function ParticleChunk:new(chunkData, quad)
     local instance = {
-        bytecode = bytecode,
-        matrix = nil,
-        width = width,
-        height = height,
+        matrix = ffi.cast("Particle*", chunkData.bytecode:getFFIPointer()),
+        width = chunkData.width,
+        height = chunkData.height,
         clock = false,
-        quad = quad
+        quad = quad,
+        currentX = 0,
+        currentY = 0,
+        updateData = chunkData.updateData
     }
-
-    instance.matrix = ffi.cast("Particle*", instance.bytecode:getPointer())
 
     setmetatable(instance, self)
     return instance
@@ -36,41 +39,20 @@ function ParticleChunk:index(x, y)
     return x + y * self.width
 end
 
-function ParticleChunk:reset()
-    -- set all matrix data to 0
-    local width = self.width
-    local height = self.height
-
-    for y = start_index, width - end_index do
-        for x = start_index, height - end_index do
-            self.matrix[self:index(x, y)].type = Particle(empty_particle_id)
-        end
-    end
-end
-
-function ParticleChunk:updateParticle(x, y)
-    local data = ParticleDefinitionsHandler:getParticleData(self:getParticleType(x, y))
-
-    -- data.interactions is a code string, so we need to load it
-    -- local interactions = load(data.interactions)
-
-    -- if interactions then
-    --     interactions(x, y, self)
-    -- end
-
-    data.interactions(x, y, self)
-end
-
--- Resto de métodos y propiedades de ParticleChunk
-
 function ParticleChunk:update()
-    for y = start_index, self.width - end_index do
-        for x = start_index, self.height - end_index do
-            self:updateParticle(x, y)
+    for y = self.updateData.yStart, self.updateData.yEnd do
+        for x = self.updateData.xStart, self.updateData.xEnd do
+            if self.matrix[self:index(x, y)].clock ~= self.clock then
+                self.matrix[self:index(x, y)].clock = not self.clock
+            else
+                self.currentX = x
+                self.currentY = y
+
+                local data = ParticleDefinitionsHandler:getParticleData(self:getParticleType(x, y))
+                data.interactions(x, y, self)
+            end
         end
     end
-
-    self.clock = not self.clock
 end
 
 function ParticleChunk:setNewParticleById(x, y, id)
@@ -152,7 +134,7 @@ end
 
 function ParticleChunk:canPush(other_x, other_y, x, y)
     return ParticleDefinitionsHandler:getParticleData(self:getParticleType(other_x, other_y)).properties.density <
-    ParticleDefinitionsHandler:getParticleData(self:getParticleType(x, y)).properties.density
+        ParticleDefinitionsHandler:getParticleData(self:getParticleType(x, y)).properties.density
 end
 
 function ParticleChunk:getParticleType(x, y)

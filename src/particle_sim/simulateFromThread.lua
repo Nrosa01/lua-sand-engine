@@ -6,17 +6,23 @@ require "love.image"
 local ParticleChunk = require "particle_chunk"
 local Quad = require "quad"
 
-local chunk, imageData, ParticleDefinitionsHandler = ...
+local chunkData, quadData, ParticleDefinitionsHandler = ...
 
 ParticleDefinitionsHandler = Decode(ParticleDefinitionsHandler)
+
+if not ParticleDefinitionsHandler then
+    error("ParticleDefinitionsHandler is nil")
+end
+
 _G.ParticleDefinitionsHandler = ParticleDefinitionsHandler
 
--- Iterate all interactions in particle definition handler and load them
+-- As I saved code as string, I need to load it
+-- This is the only way to pass functions to the thread
 for i = 1, ParticleDefinitionsHandler:getRegisteredParticlesCount() do
     local data = ParticleDefinitionsHandler:getParticleData(i)
     data.interactions = load(data.interactions)
 end
 
-local quad = Quad:from(love.graphics.getWidth(), love.graphics.getHeight(), chunk.width, chunk.height, imageData)
-local chunk = ParticleChunk:new(chunk.bytecode, chunk.width, chunk.height, quad)
+local quad = Quad:from(quadData.width, quadData.height, chunkData.width, chunkData.height, quadData.imageData)
+local chunk = ParticleChunk:new(chunkData, quad)
 chunk:update()
