@@ -102,7 +102,7 @@ function love.update(dt)
     end
 
 
-    -- particleSimulation:update()
+    particleSimulation:update()
 end
 
 function love.quit()

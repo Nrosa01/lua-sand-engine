@@ -18,5 +18,5 @@ for i = 1, ParticleDefinitionsHandler:getRegisteredParticlesCount() do
 end
 
 local quad = Quad:from(love.graphics.getWidth(), love.graphics.getHeight(), chunk.width, chunk.height, imageData)
-local chunk = ParticleChunk:from(chunk.bytecode, chunk.width, chunk.height, quad)
+local chunk = ParticleChunk:new(chunk.bytecode, chunk.width, chunk.height, quad)
 chunk:update()
