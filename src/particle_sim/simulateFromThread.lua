@@ -76,9 +76,10 @@ local channel = love.thread.getChannel("mainThreadChannel")
 local chunkChannel = love.thread.getChannel("chunkChannel")
 
 while true do
-    local command = channel:demand()
+    local data = channel:demand()
     -- print("Thread " .. index .. " received command " .. command)
-    chunk.updateData = command
+    chunk.updateData = data.updateData
+    chunk.clock = data.clock
     chunk:update()
     chunkChannel:performAtomic(function(channel)
         channel:push(1)

@@ -42,7 +42,8 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         chunkData                  = {},
         quadData                   = {},
         channel                    = love.thread.getChannel("mainThreadChannel"),
-        chunkChannel               = love.thread.getChannel("chunkChannel")
+        chunkChannel               = love.thread.getChannel("chunkChannel"),
+        gridSize                   = 2
     }
 
     o.simulaton_buffer_ptr = ffi.cast("Particle*", o.simulation_buffer_bytecode:getFFIPointer())
@@ -56,7 +57,7 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     o.chunk = ParticleChunk:new(chunkData, {}, o.quad)
 
     -- Build update data
-    local numThreads = love.system.getProcessorCount()
+    local numThreads = 1
 
     -- We will create numThreads threads
     for i = 1, numThreads do
@@ -66,7 +67,7 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     end
 
     -- We will divide the world in 4*4 chunks regardless of the number of threads
-    local gridSize = 4 -- Default to a 4x4 grid
+    local gridSize = o.gridSize -- Default to a 4x4 grid
     local xStep = math.floor(simulation_width / gridSize)
     local yStep = math.floor(simulation_height / gridSize)
 
@@ -85,6 +86,9 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     local table = {}
 
     local iterator = 1
+    -- 1
+
+    -- 1
     for i = 1, gridSize, 2 do
         for j = 1, gridSize, 2 do
             table[iterator] = o.updateData[i][j]
@@ -92,21 +96,24 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         end
     end
 
+    -- 3
     for i = 2, gridSize, 2 do
+        for j = 1, gridSize, 2 do
+            table[iterator] = o.updateData[i][j]
+            iterator = iterator + 1
+        end
+    end
+
+    -- 4
+    for i = 1, gridSize, 2 do
         for j = 2, gridSize, 2 do
             table[iterator] = o.updateData[i][j]
             iterator = iterator + 1
         end
     end
 
+    -- 2
     for i = 2, gridSize, 2 do
-        for j = 1, gridSize, 2 do
-            table[iterator] = o.updateData[i][j]
-            iterator = iterator + 1
-        end
-    end
-
-    for i = 1, gridSize, 2 do
         for j = 2, gridSize, 2 do
             table[iterator] = o.updateData[i][j]
             iterator = iterator + 1
@@ -135,20 +142,20 @@ function ParticleSimulation:update()
 
     -- Init all threads
     for i = 1, threadCount do
-        self.channel:push(self.updateData[i])
+        self.channel:push({ updateData = self.updateData[i], clock = self.clock })
     end
 
     -- Wait for any of them to finish, then run another until it's all done
     for i = threadCount + 1, updateDataCount do
         self.chunkChannel:demand() -- A thread is done
-        self.channel:push(self.updateData[i])
+        self.channel:push({ updateData = self.updateData[i], clock = self.clock })
     end
 
     -- Wait for the rest of the threads to finish
     for i = 1, threadCount do
         self.chunkChannel:demand() -- A thread is done
     end
-    
+
     self.clock = not self.clock
 end
 
@@ -163,6 +170,17 @@ function ParticleSimulation:render()
 
     self.quad.imageData:mapPixel(pixels)
     self.quad:render(0, 0)
+
+    -- Draw grid
+    love.graphics.setColor(1, 0.1, 0.1, 1)
+    for i = 1, self.gridSize - 1 do
+        love.graphics.line(i * self.window_width / self.gridSize, 0, i * self.window_width / self.gridSize,
+            self.window_height)
+        love.graphics.line(0, i * self.window_height / self.gridSize, self.window_width,
+            i * self.window_height / self.gridSize)
+    end
+    love.graphics.setColor(1, 1, 1, 1)
+
 end
 
 return ParticleSimulation

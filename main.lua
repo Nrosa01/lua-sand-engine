@@ -9,7 +9,7 @@ if IS_DEBUG then
 end
 
 local mouse = { x = 0, y = 0, button = "" }
-local canvas_size = 800
+local canvas_size = 100
 local brush_size = math.floor(canvas_size / 20) * 14;
 local sensitivy = brush_size / 10
 local currentParticle = 2
@@ -24,7 +24,8 @@ require "buffer"
 local particleSimulation;
 
 function love.load()
-    particleSimulation = ParticleSimulation:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)    
+    particleSimulation = ParticleSimulation:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size,
+        canvas_size)
     -- particleSimulation:update()
 end
 
@@ -103,7 +104,7 @@ function love.update(dt)
     end
 
 
-    particleSimulation:update()
+    -- particleSimulation:update()
 end
 
 function love.quit()
@@ -132,6 +133,7 @@ function love.mousepressed(x, y, button, istouch, presses)
             buttonname = "left"
         elseif button == 2 then
             buttonname = "right"
+            particleSimulation:update()
         end
 
         local chunkX = math.floor(x / (love.graphics.getWidth() / particleSimulation.chunk.width))
@@ -164,6 +166,7 @@ function love.draw(dt)
     drawParticleMenu()
     imgui.Render();
 
+
     -- Print a circunference around the mouse
     local mouseX = love.mouse.getX()
     local mouseY = love.mouse.getY()
@@ -175,6 +178,10 @@ function love.draw(dt)
     love.graphics.setColor(1, 0, 0, 1)
     love.graphics.print("Current FPS: " .. tostring(love.timer.getFPS() .. " GC: " .. gcinfo()), 10, 10)
     -- reset color
+
+    -- draw chunk coordinates on the mouse position
+    local mouseX, mouseY = love.mouse.getPosition()
+    love.graphics.print("Chunk: " .. mouse.x .. ", " .. mouse.y, mouseX, mouseY)
     love.graphics.setColor(1, 1, 1, 1)
 end
 

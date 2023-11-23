@@ -21,9 +21,12 @@ local function addParticleToRegistry()
     ParticleDefinitionsHandler:addParticleData(ParticleDefinition.new(
         "Sand",                -- Text id
         yellow,                -- Color
-        function(x, y, api)
-            api:setNewParticleById(x, y, 1)
-            api:setNewParticleById(x, y - 1, 2)
+        function(api)
+            local dirY = -1
+            local dirX = 0
+            if api:isEmpty(dirX, dirY) then
+                api:swap(dirX, dirY)
+            end
         end
     ))
 
