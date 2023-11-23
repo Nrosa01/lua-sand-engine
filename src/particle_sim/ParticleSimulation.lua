@@ -18,6 +18,8 @@ require("love.system")
 ---@field updateData table
 ---@field chunkData table
 ---@field quadData table
+---@field channel love.Channel
+---@field chunkChannel love.Channel
 local ParticleSimulation = {}
 
 ParticleSimulation.__index = ParticleSimulation
@@ -39,7 +41,8 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         updateData                 = {},
         chunkData                  = {},
         quadData                   = {},
-        channel                    = love.thread.getChannel("particle_sim_channel")
+        channel                    = love.thread.getChannel("mainThreadChannel"),
+        chunkChannel               = love.thread.getChannel("chunkChannel")
     }
 
     o.simulaton_buffer_ptr = ffi.cast("Particle*", o.simulation_buffer_bytecode:getFFIPointer())
@@ -58,8 +61,8 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     -- We will create numThreads threads
     for i = 1, numThreads do
         o.threads[i] = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
-        -- o.threads[i]:start(self.chunkData, self.updateData[1][1], ParticleDefinitionsHandler.particle_data,
-        --ParticleDefinitionsHandler.text_to_id_map, i)
+        o.threads[i]:start(chunkData, {}, ParticleDefinitionsHandler.particle_data,
+            ParticleDefinitionsHandler.text_to_id_map, i)
     end
 
     -- We will divide the world in 4*4 chunks regardless of the number of threads
@@ -127,22 +130,28 @@ end
 
 function ParticleSimulation:update()
     -- Get num of threads supported
-    local threadCount = love.system.getProcessorCount()
     local updateDataCount = #self.updateData
+    local threadCount = #self.threads
 
-    -- Run all odd threds
-    for i = 1, updateDataCount do
-        self:runThread(self.threads[1], i)
-        self.threads[1]:wait()
+    -- Init all threads
+    for i = 1, threadCount do
+        self.channel:push(self.updateData[i])
     end
 
+    -- Wait for any of them to finish, then run another until it's all done
+    for i = threadCount + 1, updateDataCount do
+        self.chunkChannel:demand() -- A thread is done
+        self.channel:push(self.updateData[i])
+    end
+
+    -- Wait for the rest of the threads to finish
+    for i = 1, threadCount do
+        self.chunkChannel:demand() -- A thread is done
+    end
+    
     self.clock = not self.clock
 end
 
-function ParticleSimulation:runThread(thread, ui)
-    thread:start(self.chunkData, self.updateData[ui], ParticleDefinitionsHandler.particle_data,
-        ParticleDefinitionsHandler.text_to_id_map, 1)
-end
 function ParticleSimulation:render()
     local function pixels(x, y, r, g, b, a)
         local index = self.chunk:index(x, y)
