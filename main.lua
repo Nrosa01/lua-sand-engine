@@ -9,10 +9,11 @@ if IS_DEBUG then
 end
 
 local mouse = { x = 0, y = 0, button = "" }
-local canvas_size = 100
+local canvas_size = 400
 local brush_size = math.floor(canvas_size / 20) * 14;
 local sensitivy = brush_size / 10
 local currentParticle = 2
+local paused = false
 
 local imgui = require "imgui"
 require "src"
@@ -26,7 +27,6 @@ local particleSimulation;
 function love.load()
     particleSimulation = ParticleSimulation:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size,
         canvas_size)
-    -- particleSimulation:update()
 end
 
 local function drawParticleMenu()
@@ -72,6 +72,10 @@ end
 function love.keypressed(key, scancode, isrepeat)
     imgui.KeyPressed(key)
     if not imgui.GetWantCaptureKeyboard() then
+        if key == "space" then
+            paused = not paused
+        end
+
         selectFromInput(key)
     end
 end
@@ -103,8 +107,9 @@ function love.update(dt)
         end
     end
 
-
-    -- particleSimulation:update()
+    if not paused then
+        particleSimulation:update()
+    end
 end
 
 function love.quit()

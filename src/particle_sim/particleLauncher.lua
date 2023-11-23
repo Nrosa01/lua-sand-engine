@@ -22,7 +22,7 @@ local function addParticleToRegistry()
         "Sand",                -- Text id
         yellow,                -- Color
         function(api)
-            local dirY = -1
+            local dirY = 1
             local dirX = 0
             if api:isEmpty(dirX, dirY) then
                 api:swap(dirX, dirY)

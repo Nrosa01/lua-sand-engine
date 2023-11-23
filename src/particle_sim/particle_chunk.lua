@@ -46,7 +46,7 @@ function ParticleChunk:update()
         for x = self.updateData.xStart, self.updateData.xEnd do
             local index = self:index(x, y)
             if self.matrix[index].clock ~= self.clock then
-                print("Current update on: " .. x .. ", " .. y .. " with type: " .. self.matrix[index].type)
+                -- print("Current update on: " .. x .. ", " .. y .. " with type: " .. self.matrix[index].type)
                 self.matrix[index].clock = not self.clock
             else
                 self.currentX = x

@@ -43,7 +43,7 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         quadData                   = {},
         channel                    = love.thread.getChannel("mainThreadChannel"),
         chunkChannel               = love.thread.getChannel("chunkChannel"),
-        gridSize                   = 2
+        gridSize                   = 4
     }
 
     o.simulaton_buffer_ptr = ffi.cast("Particle*", o.simulation_buffer_bytecode:getFFIPointer())
@@ -57,7 +57,7 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     o.chunk = ParticleChunk:new(chunkData, {}, o.quad)
 
     -- Build update data
-    local numThreads = 1
+    local numThreads = love.system.getProcessorCount()
 
     -- We will create numThreads threads
     for i = 1, numThreads do
@@ -96,6 +96,14 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         end
     end
 
+    -- 2
+    for i = 2, gridSize, 2 do
+        for j = 2, gridSize, 2 do
+            table[iterator] = o.updateData[i][j]
+            iterator = iterator + 1
+        end
+    end
+
     -- 3
     for i = 2, gridSize, 2 do
         for j = 1, gridSize, 2 do
@@ -106,14 +114,6 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
 
     -- 4
     for i = 1, gridSize, 2 do
-        for j = 2, gridSize, 2 do
-            table[iterator] = o.updateData[i][j]
-            iterator = iterator + 1
-        end
-    end
-
-    -- 2
-    for i = 2, gridSize, 2 do
         for j = 2, gridSize, 2 do
             table[iterator] = o.updateData[i][j]
             iterator = iterator + 1
@@ -180,7 +180,6 @@ function ParticleSimulation:render()
             i * self.window_height / self.gridSize)
     end
     love.graphics.setColor(1, 1, 1, 1)
-
 end
 
 return ParticleSimulation
