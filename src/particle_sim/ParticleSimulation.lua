@@ -38,7 +38,8 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         clock                      = false,
         updateData                 = {},
         chunkData                  = {},
-        quadData                   = {}
+        quadData                   = {},
+        channel                    = love.thread.getChannel("particle_sim_channel")
     }
 
     o.simulaton_buffer_ptr = ffi.cast("Particle*", o.simulation_buffer_bytecode:getFFIPointer())
@@ -52,29 +53,64 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     o.chunk = ParticleChunk:new(chunkData, {}, o.quad)
 
     -- Build update data
-    local numThreads = 4
+    local numThreads = love.system.getProcessorCount()
 
     -- We will create numThreads threads
     for i = 1, numThreads do
         o.threads[i] = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
+        -- o.threads[i]:start(self.chunkData, self.updateData[1][1], ParticleDefinitionsHandler.particle_data,
+        --ParticleDefinitionsHandler.text_to_id_map, i)
     end
 
-    -- We will create numThreads updateData tables
-    local xStep = math.floor(simulation_width / numThreads) * 2
-    local yStep = math.floor(simulation_height / numThreads) * 2
+    -- We will divide the world in 4*4 chunks regardless of the number of threads
+    local gridSize = 4 -- Default to a 4x4 grid
+    local xStep = math.floor(simulation_width / gridSize)
+    local yStep = math.floor(simulation_height / gridSize)
 
-    -- I just divide the world into 4 chunks
-    for i = 1, 2 do
-        for j = 1, 2 do
-            local index = (i - 1) * 2 + j
-            o.updateData[index] = {
+    for i = 1, gridSize do
+        o.updateData[i] = {}
+        for j = 1, gridSize do
+            o.updateData[i][j] = {
                 xStart = (i - 1) * xStep,
-                xEnd = i * xStep - 1,
+                xEnd = math.min(i * xStep - 1, simulation_width - 1),
                 yStart = (j - 1) * yStep,
-                yEnd = j * yStep - 1
+                yEnd = math.min(j * yStep - 1, simulation_height - 1)
             }
         end
     end
+
+    local table = {}
+
+    local iterator = 1
+    for i = 1, gridSize, 2 do
+        for j = 1, gridSize, 2 do
+            table[iterator] = o.updateData[i][j]
+            iterator = iterator + 1
+        end
+    end
+
+    for i = 2, gridSize, 2 do
+        for j = 2, gridSize, 2 do
+            table[iterator] = o.updateData[i][j]
+            iterator = iterator + 1
+        end
+    end
+
+    for i = 2, gridSize, 2 do
+        for j = 1, gridSize, 2 do
+            table[iterator] = o.updateData[i][j]
+            iterator = iterator + 1
+        end
+    end
+
+    for i = 1, gridSize, 2 do
+        for j = 2, gridSize, 2 do
+            table[iterator] = o.updateData[i][j]
+            iterator = iterator + 1
+        end
+    end
+
+    o.updateData = table
 
     -- We will create numThreads chunkData tables
     o.chunkData = {
@@ -91,41 +127,22 @@ end
 
 function ParticleSimulation:update()
     -- Get num of threads supported
-    local threadCount = 4
+    local threadCount = love.system.getProcessorCount()
+    local updateDataCount = #self.updateData
 
     -- Run all odd threds
-    for i = 1, threadCount, 2 do
-        self:runThread(self.threads[i], i)
+    for i = 1, updateDataCount do
+        self:runThread(self.threads[1], i)
+        self.threads[1]:wait()
     end
-
-    -- Wait for all odd threads to finish
-    for i = 1, threadCount, 2 do
-        self.threads[i]:wait()
-    end
-
-    -- Run all even threads
-    for i = 2, threadCount, 2 do
-        self:runThread(self.threads[i], i)
-    end
-
-    -- Wait for all even threads to finish
-    for i = 2, threadCount, 2 do
-        self.threads[i]:wait()
-    end
-
-    -- Wait for all threads to finish
-    -- for i = 1, threadCount do
-    --     self.threads[i]:wait()
-    -- end
 
     self.clock = not self.clock
 end
 
-function ParticleSimulation:runThread(thread, updateDataIndex)
-    thread:start(self.chunkData, self.updateData[updateDataIndex], ParticleDefinitionsHandler.particle_data,
-        ParticleDefinitionsHandler.text_to_id_map)
+function ParticleSimulation:runThread(thread, ui)
+    thread:start(self.chunkData, self.updateData[ui], ParticleDefinitionsHandler.particle_data,
+        ParticleDefinitionsHandler.text_to_id_map, 1)
 end
-
 function ParticleSimulation:render()
     local function pixels(x, y, r, g, b, a)
         local index = self.chunk:index(x, y)

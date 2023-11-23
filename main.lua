@@ -10,7 +10,7 @@ end
 
 local mouse = { x = 0, y = 0, button = "" }
 local canvas_size = 800
-local brush_size = math.floor(canvas_size / 20);
+local brush_size = math.floor(canvas_size / 20) * 14;
 local sensitivy = brush_size / 10
 local currentParticle = 2
 
@@ -25,6 +25,7 @@ local particleSimulation;
 
 function love.load()
     particleSimulation = ParticleSimulation:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)    
+    -- particleSimulation:update()
 end
 
 local function drawParticleMenu()
