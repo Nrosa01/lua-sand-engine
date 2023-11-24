@@ -104,7 +104,7 @@ function love.update(dt)
 
                 -- Verifica si la posición (px, py) está dentro del círculo
                 local distanceSquared = (px - centerX) ^ 2 + (py - centerY) ^ 2
-                if particleSimulation.chunk:isInside(px, py) and distanceSquared <= brush_size ^ 2 and (particleSimulation.chunk:isEmpty(px, py) or currentParticle == 1) then
+                if particleSimulation.chunk:isInside(px, py) and distanceSquared <= brush_size ^ 2 then
                     particleSimulation.chunk:setNewParticleById(px, py, currentParticle)
                 end
             end

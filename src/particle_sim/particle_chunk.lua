@@ -4,32 +4,33 @@ local ffi = require("ffi")
 -- require("Particle")
 
 ---@class ParticleChunk
----@field bytecode love.ByteData
 ---@field matrix Particle*
 ---@field width number
 ---@field height number
 ---@field clock boolean
 ---@field currentX number
 ---@field currentY number
----@field updateData table
 
 local ParticleChunk = {}
 ParticleChunk.__index = ParticleChunk
 
-local empty_particle_id = 1
 local start_index = 0
 local end_index = 1
 
-function ParticleChunk:new(chunkData, updateData)
+function ParticleChunk:new(width, height)
     local instance = {
-        matrix = ffi.cast("Particle*", chunkData.bytecode:getFFIPointer()),
-        width = chunkData.width,
-        height = chunkData.height,
+        matrix = ffi.new("Particle[?]", width * height),
+        width = width,
+        height = height,
         clock = false,
         currentX = 0,
         currentY = 0,
-        updateData = updateData
     }
+
+    for i = 0, width * height - 1 do
+        instance.matrix[i].type = ParticleType.Empty
+        instance.matrix[i].clock = false
+    end
 
     setmetatable(instance, self)
     return instance
@@ -39,31 +40,35 @@ function ParticleChunk:index(x, y)
     return x + y * self.width
 end
 
-function ParticleChunk:update()
-    local funcs = ParticleDefinitionsHandler.funcs
+function ParticleChunk:update(updateData)
+    local data = ParticleDefinitionsHandler.particle_data
 
-    for y = self.updateData.yStart, self.updateData.yEnd, self.updateData.incrementY do
-        for x = self.updateData.xStart, self.updateData.xEnd, self.updateData.incrementX do
+    for y = updateData.yStart, updateData.yEnd, updateData.incrementY do
+        for x = updateData.xStart, updateData.xEnd, updateData.incrementX do
             local index = self:index(x, y)
+
             if self.matrix[index].clock ~= self.clock then
-                -- print("Current update on: " .. x .. ", " .. y .. " with type: " .. self.matrix[index].type)
                 self.matrix[index].clock = not self.clock
             else
                 self.currentX = x
                 self.currentY = y
 
                 self.matrix[index].clock = not self.clock
-                funcs[self.matrix[index].type](self)
+                data[self.matrix[index].type].func(self)
             end
         end
     end
+
+    self.currentX = 0
+    self.currentY = 0
+    self.clock = not self.clock
 end
 
 -- Swaps particle in direction with current particle
 function ParticleChunk:swap(rx, ry)
     local x = rx + self.currentX
     local y = ry + self.currentY
-    
+
     local current_index = self:index(x, y)
     local swap_index = self:index(self.currentX, self.currentY)
 
@@ -119,7 +124,7 @@ end
 function ParticleChunk:isEmpty(rx, ry)
     local x = rx + self.currentX
     local y = ry + self.currentY
-    return self:isInside(rx, ry) and self.matrix[self:index(x, y)].type == empty_particle_id
+    return self:isInside(rx, ry) and self.matrix[self:index(x, y)].type == ParticleType.Empty
 end
 
 function ParticleChunk:getParticleType(rx, ry)
