@@ -45,13 +45,22 @@ local function addParticleToRegistry()
     })
 
     addParticle({
-        "Gas",                                   -- Text id
+        "Steam",                                   -- Text id
         { r = 200, g = 200, b = 200, a = 255 },  -- Color
         function(api)
             local dirY = -1
             local dirX = math.random(-1, 1)
             if api:isEmpty(dirX, dirY) then
                 api:swap(dirX, dirY)
+            end
+
+            -- Has 1 in 200 chance to turn into water or else dissapear
+            if math.random(200) == 1 then
+                if math.random(2) == 1 then
+                    api:setNewParticleById(0, 0, ParticleType.WATER)
+                else
+                    api:setNewParticleById(0, 0, ParticleType.EMPTY)
+                end
             end
         end
     })

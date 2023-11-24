@@ -24,6 +24,11 @@ _G.getFuncOf = function (id)
     return ParticleDefinitionsHandler.particle_data[id].func
 end
 
+_G.getColorOf = function (id)
+    local c = ParticleDefinitionsHandler.particle_data[id].color
+    return { r = c.r * 255, g = c.g * 255, b = c.b * 255, a = c.a * 255 }
+end
+
 function ParticleDefinitionsHandlerConstructor:addParticleData(data)
     -- If data is already registered in text_to_id_map, then we overwrite it in particle_data
     -- Otherwise we add it to the end of the particle_data vector and add it to the text_to_id_map

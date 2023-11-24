@@ -98,6 +98,7 @@ function ParticleChunk:setParticle(rx, ry, particle)
     local y = ry + self.currentY
     if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
         self.matrix[self:index(x, y)].type = particle.type
+        self.matrix[self:index(x, y)].clock = particle.clock
     end
 end
 
