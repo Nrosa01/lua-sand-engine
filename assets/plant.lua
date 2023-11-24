@@ -1,3 +1,18 @@
+local function getDirections()
+    local directions = {}
+
+    for dirX = -1, 1 do
+        for dirY = -1, 1 do
+            if dirX ~= 0 or dirY ~= 0 then
+                table.insert(directions, { x = dirX, y = dirY })
+            end
+        end
+    end
+
+    return directions
+end
+
+
 addParticle({
     "Plant",                            -- Text id
     { r = 0, g = 255, b = 0, a = 255 }, -- Color
@@ -14,7 +29,22 @@ addParticle({
             for dirY = -1, 1 do
                 if api:getParticleType(dirX, dirY) == ParticleType.WATER then
                     if math.random(5) == 1 then
-                        api:setNewParticleById(dirX, dirY, ParticleType.PLANT)
+                        -- Set new particle to plant in a random free direction
+                        local directions = getDirections()
+                        -- If chosen direction is not empty, remove it from the list
+                        -- and try again
+                        while #directions > 0 do
+                            local index = math.random(#directions)
+                            local dir = directions[index]
+                            if api:isEmpty(dir.x, dir.y) then
+                                api:setNewParticleById(dir.x, dir.y, ParticleType.PLANT)
+                                break
+                            else
+                                table.remove(directions, index)
+                            end
+                        end
+                        
+                        api:setNewParticleById(dirX, dirY, ParticleType.EMPTY)
                     end
                 end
             end
