@@ -28,7 +28,7 @@ function ParticleChunk:new(width, height)
     }
 
     for i = 0, width * height - 1 do
-        instance.matrix[i].type = ParticleType.Empty
+        instance.matrix[i].type = ParticleType.EMPTY
         instance.matrix[i].clock = false
     end
 
@@ -124,7 +124,7 @@ end
 function ParticleChunk:isEmpty(rx, ry)
     local x = rx + self.currentX
     local y = ry + self.currentY
-    return self:isInside(rx, ry) and self.matrix[self:index(x, y)].type == ParticleType.Empty
+    return self:isInside(rx, ry) and self.matrix[self:index(x, y)].type == ParticleType.EMPTY
 end
 
 function ParticleChunk:getParticleType(rx, ry)
