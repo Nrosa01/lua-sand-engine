@@ -39,6 +39,7 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         chunk                      = nil,
         clock                      = false,
         updateData                 = {},
+        updateDataReversed         = {},
         chunkData                  = {},
         quadData                   = {},
         channel                    = love.thread.getChannel("mainThreadChannel"),
@@ -76,9 +77,10 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         for j = 1, gridSize do
             o.updateData[i][j] = {
                 xStart = (i - 1) * xStep,
-                xEnd = math.min(i * xStep - 1, simulation_width - 1),
+                xEnd = i * xStep - 1,
                 yStart = (j - 1) * yStep,
-                yEnd = math.min(j * yStep - 1, simulation_height - 1)
+                yEnd = j * yStep - 1,
+                increment = 1
             }
         end
     end
@@ -122,6 +124,17 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
 
     o.updateData = table
 
+    -- Updatedata odds will be the reverse
+    for i = 1, #o.updateData do
+        o.updateDataReversed[i] = {
+            xStart = o.updateData[i].xEnd,
+            xEnd = o.updateData[i].xStart,
+            yStart = o.updateData[i].yEnd,
+            yEnd = o.updateData[i].yStart,
+            increment = -1
+        }
+    end
+
     -- We will create numThreads chunkData tables
     o.chunkData = {
         bytecode = o.simulation_buffer_bytecode,
@@ -136,19 +149,24 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
 end
 
 function ParticleSimulation:update()
+    self:updateFrom(self.updateData)
+    self:updateFrom(self.updateDataReversed)
+end
+
+function ParticleSimulation:updateFrom(updateData)
     -- Get num of threads supported
-    local updateDataCount = #self.updateData
+    local updateDataCount = #updateData
     local threadCount = #self.threads
 
     -- Init all threads
     for i = 1, threadCount do
-        self.channel:push({ updateData = self.updateData[i], clock = self.clock })
+        self.channel:push({ updateData = updateData[i], clock = self.clock })
     end
 
     -- Wait for any of them to finish, then run another until it's all done
     for i = threadCount + 1, updateDataCount do
         self.chunkChannel:demand() -- A thread is done
-        self.channel:push({ updateData = self.updateData[i], clock = self.clock })
+        self.channel:push({ updateData = updateData[i], clock = self.clock })
     end
 
     -- Wait for the rest of the threads to finish
@@ -172,7 +190,7 @@ function ParticleSimulation:render()
     self.quad:render(0, 0)
 
     -- Draw grid
-    love.graphics.setColor(1, 0.1, 0.1, 1)
+    love.graphics.setColor(1, 0.1, 0.1, 0.25)
     for i = 1, self.gridSize - 1 do
         love.graphics.line(i * self.window_width / self.gridSize, 0, i * self.window_width / self.gridSize,
             self.window_height)

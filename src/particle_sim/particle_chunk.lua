@@ -42,8 +42,8 @@ end
 function ParticleChunk:update()
     local funcs = ParticleDefinitionsHandler.funcs
 
-    for y = self.updateData.yStart, self.updateData.yEnd do
-        for x = self.updateData.xStart, self.updateData.xEnd do
+    for y = self.updateData.yStart, self.updateData.yEnd, self.updateData.increment do
+        for x = self.updateData.xStart, self.updateData.xEnd, self.updateData.increment do
             local index = self:index(x, y)
             if self.matrix[index].clock ~= self.clock then
                 -- print("Current update on: " .. x .. ", " .. y .. " with type: " .. self.matrix[index].type)
@@ -51,7 +51,7 @@ function ParticleChunk:update()
             else
                 self.currentX = x
                 self.currentY = y
-                
+
                 self.matrix[index].clock = not self.clock
                 funcs[self.matrix[index].type](self)
             end
@@ -65,7 +65,7 @@ function ParticleChunk:swap(rx, ry)
     local y = ry + self.currentY
     local current_index = self:index(x, y)
     local swap_index = self:index(self.currentX, self.currentY)
-    
+
     -- This doesn work because these are pointers
     -- local copy = self.matrix[index]
     -- self.matrix[index] = self.matrix[current_index]

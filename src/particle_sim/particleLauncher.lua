@@ -23,7 +23,37 @@ local function addParticleToRegistry()
         yellow,                -- Color
         function(api)
             local dirY = 1
-            local dirX = 0
+            local dirX = math.random(-1, 1)
+            if api:isEmpty(0, dirY) then
+                api:swap(0, dirY)
+            elseif api:isEmpty(-1, dirY) and api:isEmpty(1, dirY) then
+                api:swap(dirX, dirY)
+            elseif api:isEmpty(-1, dirY) then
+                api:swap(-1, dirY)
+            elseif api:isEmpty(1, dirY) then
+                api:swap(1, dirY)
+            end
+        end
+    ))
+
+    ParticleDefinitionsHandler:addParticleData(ParticleDefinition.new(
+        "Dust",                -- Text id
+        { r = 128, g = 128, b = 128, a = 255 } ,                -- Color
+        function(api)
+            local dirY = 1
+            local dirX = math.random(-1, 1)
+            if api:isEmpty(dirX, dirY) then
+                api:swap(dirX, dirY)
+            end
+        end
+    ))
+
+    ParticleDefinitionsHandler:addParticleData(ParticleDefinition.new(
+        "Gas",                -- Text id
+        { r = 200, g = 200, b = 200, a = 255 } ,                -- Color
+        function(api)
+            local dirY = -1
+            local dirX = math.random(-1, 1)
             if api:isEmpty(dirX, dirY) then
                 api:swap(dirX, dirY)
             end
