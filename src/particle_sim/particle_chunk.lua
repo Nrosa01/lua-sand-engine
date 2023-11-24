@@ -42,8 +42,8 @@ end
 function ParticleChunk:update()
     local funcs = ParticleDefinitionsHandler.funcs
 
-    for y = self.updateData.yStart, self.updateData.yEnd, self.updateData.increment do
-        for x = self.updateData.xStart, self.updateData.xEnd, self.updateData.increment do
+    for y = self.updateData.yStart, self.updateData.yEnd, self.updateData.incrementY do
+        for x = self.updateData.xStart, self.updateData.xEnd, self.updateData.incrementX do
             local index = self:index(x, y)
             if self.matrix[index].clock ~= self.clock then
                 -- print("Current update on: " .. x .. ", " .. y .. " with type: " .. self.matrix[index].type)
@@ -63,6 +63,7 @@ end
 function ParticleChunk:swap(rx, ry)
     local x = rx + self.currentX
     local y = ry + self.currentY
+    
     local current_index = self:index(x, y)
     local swap_index = self:index(self.currentX, self.currentY)
 

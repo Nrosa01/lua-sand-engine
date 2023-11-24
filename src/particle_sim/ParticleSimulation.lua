@@ -63,9 +63,10 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     {
         xStart = 0,
         xEnd = simulation_width - 1,
-        yStart = 0,
-        yEnd = simulation_height - 1,
-        increment = 1
+        yStart = simulation_height - 1,
+        yEnd = 0,
+        incrementX = 1,
+        incrementY = -1
     }
 
     o.updateDataReversed =
@@ -74,7 +75,8 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         xEnd = 0,
         yStart = simulation_height - 1,
         yEnd = 0,
-        increment = -1
+        incrementX = -1,
+        incrementY = -1
     }
 
     -- We will create numThreads threads

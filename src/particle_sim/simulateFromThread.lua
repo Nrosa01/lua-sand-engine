@@ -65,9 +65,13 @@ ParticleDefinitionsHandler.text_to_id_map = tdata
 
 -- As I saved code as string, I need to load it
 -- This is the only way to pass functions to the thread
+
+_G["ParticleType"] = {}
+
 for i = 1, ParticleDefinitionsHandler:getRegisteredParticlesCount() do
     local data = ParticleDefinitionsHandler:getParticleData(i)
     ParticleDefinitionsHandler.funcs[i] = load(data.interactions)
+    _G.ParticleType[data.text_id] = i
 end
 
 local chunk = ParticleChunk:new(chunkData, updateData)
