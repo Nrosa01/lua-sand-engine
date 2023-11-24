@@ -129,6 +129,10 @@ function ParticleChunk:isEmpty(rx, ry)
 end
 
 function ParticleChunk:getParticleType(rx, ry)
+    if not self:isInside(rx, ry) then
+        return -1
+    end
+
     local x = rx + self.currentX
     local y = ry + self.currentY
     return self.matrix[self:index(x, y)].type
