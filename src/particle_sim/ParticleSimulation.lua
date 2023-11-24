@@ -16,6 +16,7 @@ require("love.system")
 ---@field chunk ParticleChunk
 ---@field clock boolean
 ---@field updateData table
+---@field updateDataReversed table
 ---@field chunkData table
 ---@field quadData table
 ---@field channel love.Channel
@@ -35,7 +36,7 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         simulation_buffer_bytecode = love.data.newByteData(simulation_width * simulation_height * ffi.sizeof("Particle")),
         simulaton_buffer_ptr       = nil,
         quad                       = Quad:new(window_width, window_height, simulation_width, simulation_height),
-        threads                    = {},
+        simulation_thread          = {},
         chunk                      = nil,
         clock                      = false,
         updateData                 = {},
@@ -55,164 +56,31 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     end
 
     local chunkData = { bytecode = o.simulation_buffer_bytecode, width = simulation_width, height = simulation_height }
-    o.chunk = ParticleChunk:new(chunkData, {}, o.quad)
 
-    -- Build update data
-    local numThreads = math.min(love.system.getProcessorCount(), o.gridSize * o.gridSize)
-    -- numThreads = 1
+    o.chunk = ParticleChunk:new(chunkData, {})
 
-    -- We will create numThreads threads
-    for row = 1, numThreads do
-        o.threads[row] = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
-        o.threads[row]:start(chunkData, {}, ParticleDefinitionsHandler.particle_data,
-            ParticleDefinitionsHandler.text_to_id_map, i)
-    end
-
-    -- We will divide the world in 4*4 chunks regardless of the number of threads
-    local gridSize = o.gridSize -- Default to a 4x4 grid
-    local xStep = math.floor(simulation_width / gridSize)
-    local yStep = math.floor(simulation_height / gridSize)
-
-    for row = 1, gridSize do
-        o.updateData[row] = {}
-        for col = 1, gridSize do
-            o.updateData[row][col] = {
-                xStart = (row - 1) * xStep,
-                xEnd = row * xStep - 1,
-                yStart = (col - 1) * yStep,
-                yEnd = col * yStep - 1,
-                increment = 1
-            }
-        end
-    end
-
-    local table = {}
-
-    local iterator = 1
-    -- 1
-
-    -- 2
-    for row = 2, gridSize, 2 do
-        for col = 1, gridSize, 2 do
-            table[iterator] = o.updateData[row][col]
-            iterator = iterator + 1
-        end
-    end
-
-    -- 1
-    for row = 1, gridSize, 2 do
-        for col = 2, gridSize, 2 do
-            table[iterator] = o.updateData[row][col]
-            iterator = iterator + 1
-        end
-    end
-
-    -- 3
-    for row = 1, gridSize, 2 do
-        for col = 1, gridSize, 2 do
-            table[iterator] = o.updateData[row][col]
-            iterator = iterator + 1
-        end
-    end
-
-    -- 4
-    for row = 2, gridSize, 2 do
-        for col = 2, gridSize, 2 do
-            table[iterator] = o.updateData[row][col]
-            iterator = iterator + 1
-        end
-    end
-
-    local t2 = {}
-    iterator = 1
-
-
-    -- 2
-    for row = gridSize, 1, -2 do
-        for col = gridSize, 1, -2 do
-            t2[iterator] =
-            {
-                xStart = o.updateData[row][col].xEnd,
-                xEnd = o.updateData[row][col].xStart,
-                yStart = o.updateData[row][col].yEnd,
-                yEnd = o.updateData[row][col].yStart,
-                increment = -1
-            }
-            iterator = iterator + 1
-        end
-    end
-
-    -- 1
-    for row = gridSize - 1, 1, -2 do
-        for col = gridSize - 1, 1, -2 do
-            t2[iterator] =
-            {
-                xStart = o.updateData[row][col].xEnd,
-                xEnd = o.updateData[row][col].xStart,
-                yStart = o.updateData[row][col].yEnd,
-                yEnd = o.updateData[row][col].yStart,
-                increment = -1
-            }
-            iterator = iterator + 1
-        end
-    end
-
-    -- 3
-    for row = gridSize, 1, -2 do
-        for col = gridSize - 1, 1, -2 do
-            t2[iterator] =
-            {
-                xStart = o.updateData[row][col].xEnd,
-                xEnd = o.updateData[row][col].xStart,
-                yStart = o.updateData[row][col].yEnd,
-                yEnd = o.updateData[row][col].yStart,
-                increment = -1
-            }
-            iterator = iterator + 1
-        end
-    end
-
-    -- 4
-    for row = gridSize - 1, 1, -2 do
-        for col = gridSize, 1, -2 do
-            t2[iterator] =
-            {
-                xStart = o.updateData[row][col].xEnd,
-                xEnd = o.updateData[row][col].xStart,
-                yStart = o.updateData[row][col].yEnd,
-                yEnd = o.updateData[row][col].yStart,
-                increment = -1
-            }
-            iterator = iterator + 1
-        end
-    end
-
-
-    o.updateData = table
-    o.updateDataReversed = t2
-
-    -- We will create numThreads chunkData tables
-    o.chunkData = {
-        bytecode = o.simulation_buffer_bytecode,
-        width = o.simulation_width,
-        height = o.simulation_height
+    o.updateData =
+    {
+        xStart = 0,
+        xEnd = simulation_width - 1,
+        yStart = 0,
+        yEnd = simulation_height - 1,
+        increment = 1
     }
 
-    -- print both tables with newlines for ipairs
-    for i, v in ipairs(o.updateData) do
-        print(i ..
-            ": xStart = " .. v.xStart .. ", xEnd = " .. v.xEnd .. ", yStart = " .. v.yStart .. ", yEnd = " .. v.yEnd
-            .. ", increment = " .. v.increment)
-    end
+    o.updateDataReversed =
+    {
+        xStart = simulation_width - 1,
+        xEnd = 0,
+        yStart = simulation_height - 1,
+        yEnd = 0,
+        increment = -1
+    }
 
-    print("------------------")
-
-    for i, v in ipairs(o.updateDataReversed) do
-        print(i ..
-            ": xStart = " .. v.xStart .. ", xEnd = " .. v.xEnd .. ", yStart = " .. v.yStart .. ", yEnd = " .. v.yEnd
-            .. ", increment = " .. v.increment)
-    end
-
+    -- We will create numThreads threads
+    o.simulation_thread = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
+    o.simulation_thread:start(chunkData, {}, ParticleDefinitionsHandler.particle_data,
+        ParticleDefinitionsHandler.text_to_id_map)
 
     o.quadData = { width = o.window_width, height = o.simulation_height, imageData = o.quad.imageData }
 
@@ -220,33 +88,17 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     return o
 end
 
-_G.TESTFlag = false
-
 function ParticleSimulation:update()
-    self:updateFrom(self.updateData)
-    self:updateFrom(self.updateDataReversed)
+    if self.clock then
+        self:updateFrom(self.updateData)
+    else
+        self:updateFrom(self.updateDataReversed)
+    end
 end
 
 function ParticleSimulation:updateFrom(updateData)
-    -- Get num of threads supported
-    local updateDataCount = #updateData
-    local threadCount = #self.threads
-
-    -- Init all threads
-    for row = 1, threadCount do
-        self.channel:push({ updateData = updateData[row], clock = self.clock })
-    end
-
-    -- Wait for any of them to finish, then run another until it's all done
-    for row = threadCount + 1, updateDataCount do
-        self.chunkChannel:demand() -- A thread is done
-        self.channel:push({ updateData = updateData[row], clock = self.clock })
-    end
-
-    -- Wait for the rest of the threads to finish
-    for row = 1, threadCount do
-        self.chunkChannel:demand() -- A thread is done
-    end
+    self.channel:push({ updateData = updateData, clock = self.clock })
+    self.chunkChannel:demand() -- A thread is done
 
     self.clock = not self.clock
 end
@@ -262,16 +114,6 @@ function ParticleSimulation:render()
 
     self.quad.imageData:mapPixel(pixels)
     self.quad:render(0, 0)
-
-    -- Draw grid
-    -- love.graphics.setColor(TESTFlag and 1 or 0.1, TESTFlag and 0.1 or 1, 0.1, 0.25)
-    -- for row = 1, self.gridSize - 1 do
-    --     love.graphics.line(row * self.window_width / self.gridSize, 0, row * self.window_width / self.gridSize,
-    --         self.window_height)
-    --     love.graphics.line(0, row * self.window_height / self.gridSize, self.window_width,
-    --         row * self.window_height / self.gridSize)
-    -- end
-    -- love.graphics.setColor(1, 1, 1, 1)
 end
 
 return ParticleSimulation
