@@ -44,7 +44,7 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         quadData                   = {},
         channel                    = love.thread.getChannel("mainThreadChannel"),
         chunkChannel               = love.thread.getChannel("chunkChannel"),
-        gridSize                   = 4
+        gridSize                   = 8
     }
 
     o.simulaton_buffer_ptr = ffi.cast("Particle*", o.simulation_buffer_bytecode:getFFIPointer())
@@ -59,6 +59,7 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
 
     -- Build update data
     local numThreads = math.min(love.system.getProcessorCount(), o.gridSize * o.gridSize)
+    -- numThreads = 1
 
     -- We will create numThreads threads
     for row = 1, numThreads do
@@ -90,16 +91,16 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     local iterator = 1
     -- 1
 
-    -- 1
-    for row = 1, gridSize, 2 do
+    -- 2
+    for row = 2, gridSize, 2 do
         for col = 1, gridSize, 2 do
             table[iterator] = o.updateData[row][col]
             iterator = iterator + 1
         end
     end
 
-    -- 2
-    for row = 2, gridSize, 2 do
+    -- 1
+    for row = 1, gridSize, 2 do
         for col = 2, gridSize, 2 do
             table[iterator] = o.updateData[row][col]
             iterator = iterator + 1
@@ -107,7 +108,7 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     end
 
     -- 3
-    for row = 2, gridSize, 2 do
+    for row = 1, gridSize, 2 do
         for col = 1, gridSize, 2 do
             table[iterator] = o.updateData[row][col]
             iterator = iterator + 1
@@ -115,7 +116,7 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     end
 
     -- 4
-    for row = 1, gridSize, 2 do
+    for row = 2, gridSize, 2 do
         for col = 2, gridSize, 2 do
             table[iterator] = o.updateData[row][col]
             iterator = iterator + 1
@@ -125,35 +126,6 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     local t2 = {}
     iterator = 1
 
-    -- 3
-    for row = gridSize, 1, -2 do
-        for col = gridSize - 1, 1, -2 do
-            t2[iterator] =
-            {
-                xStart = o.updateData[row][col].xEnd,
-                xEnd = o.updateData[row][col].xStart,
-                yStart = o.updateData[row][col].yEnd,
-                yEnd = o.updateData[row][col].yStart,
-                increment = -1
-            }
-            iterator = iterator + 1
-        end
-    end
-
-    -- 4
-    for row = gridSize - 1, 1, -2 do
-        for col = gridSize, 1, -2 do
-            t2[iterator] =
-            {
-                xStart = o.updateData[row][col].xEnd,
-                xEnd = o.updateData[row][col].xStart,
-                yStart = o.updateData[row][col].yEnd,
-                yEnd = o.updateData[row][col].yStart,
-                increment = -1
-            }
-            iterator = iterator + 1
-        end
-    end
 
     -- 2
     for row = gridSize, 1, -2 do
@@ -184,6 +156,37 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
             iterator = iterator + 1
         end
     end
+
+    -- 3
+    for row = gridSize, 1, -2 do
+        for col = gridSize - 1, 1, -2 do
+            t2[iterator] =
+            {
+                xStart = o.updateData[row][col].xEnd,
+                xEnd = o.updateData[row][col].xStart,
+                yStart = o.updateData[row][col].yEnd,
+                yEnd = o.updateData[row][col].yStart,
+                increment = -1
+            }
+            iterator = iterator + 1
+        end
+    end
+
+    -- 4
+    for row = gridSize - 1, 1, -2 do
+        for col = gridSize, 1, -2 do
+            t2[iterator] =
+            {
+                xStart = o.updateData[row][col].xEnd,
+                xEnd = o.updateData[row][col].xStart,
+                yStart = o.updateData[row][col].yEnd,
+                yEnd = o.updateData[row][col].yStart,
+                increment = -1
+            }
+            iterator = iterator + 1
+        end
+    end
+
 
     o.updateData = table
     o.updateDataReversed = t2
@@ -217,9 +220,11 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     return o
 end
 
+_G.TESTFlag = false
+
 function ParticleSimulation:update()
-    --self:updateFrom(self.updateDataReversed)
     self:updateFrom(self.updateData)
+    self:updateFrom(self.updateDataReversed)
 end
 
 function ParticleSimulation:updateFrom(updateData)
@@ -259,14 +264,14 @@ function ParticleSimulation:render()
     self.quad:render(0, 0)
 
     -- Draw grid
-    love.graphics.setColor(1, 0.1, 0.1, 0.25)
-    for row = 1, self.gridSize - 1 do
-        love.graphics.line(row * self.window_width / self.gridSize, 0, row * self.window_width / self.gridSize,
-            self.window_height)
-        love.graphics.line(0, row * self.window_height / self.gridSize, self.window_width,
-            row * self.window_height / self.gridSize)
-    end
-    love.graphics.setColor(1, 1, 1, 1)
+    -- love.graphics.setColor(TESTFlag and 1 or 0.1, TESTFlag and 0.1 or 1, 0.1, 0.25)
+    -- for row = 1, self.gridSize - 1 do
+    --     love.graphics.line(row * self.window_width / self.gridSize, 0, row * self.window_width / self.gridSize,
+    --         self.window_height)
+    --     love.graphics.line(0, row * self.window_height / self.gridSize, self.window_width,
+    --         row * self.window_height / self.gridSize)
+    -- end
+    -- love.graphics.setColor(1, 1, 1, 1)
 end
 
 return ParticleSimulation

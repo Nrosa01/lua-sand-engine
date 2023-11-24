@@ -76,6 +76,10 @@ function love.keypressed(key, scancode, isrepeat)
             paused = not paused
         end
 
+        if key == "m" then
+            TESTFlag = not TESTFlag
+        end
+
         selectFromInput(key)
     end
 end
