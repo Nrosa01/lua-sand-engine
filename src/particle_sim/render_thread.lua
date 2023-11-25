@@ -6,7 +6,7 @@ require "colour_t"
 local ffi = require("ffi")
 
 -- Thread start parameters
-local imageData, startIndex, endIndex, particle_buffer, colors = ...
+local imageData, particle_buffer, colors = ...
 
 -- Init
 local particle_buffer_ptr = ffi.cast("Particle*", particle_buffer:getFFIPointer())
@@ -21,9 +21,9 @@ for i = 1, #colors do
 end
 
 while true do
-    channel:demand()
+    local data = channel:demand()
     
-    for i = startIndex, endIndex do
+    for i = data.startIndex, data.endIndex do
         local index = i * 4
         local particleType = particle_buffer_ptr[i].type
         local color = colors[particleType]

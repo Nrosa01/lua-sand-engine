@@ -44,12 +44,13 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         chunkChannel       = love.thread.getChannel("chunkChannel"),
         threads            = {},
         particle_buffer    = love.data.newByteData(simulation_width * simulation_height *
-            ffi.sizeof("Particle"))
+            ffi.sizeof("Particle")),
+        ranges             = {}
     }
 
     o.imageDataPtr = ffi.cast("uint8_t*", o.quad.imageData:getFFIPointer())
 
-    local colorArray = {}   
+    local colorArray = {}
     local registeredParticleCount = ParticleDefinitionsHandler:getRegisteredParticlesCount()
 
     for i = 1, registeredParticleCount do
@@ -60,9 +61,12 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     local processorCount = love.system.getProcessorCount()
     for i = 1, processorCount do
         o.threads[i] = love.thread.newThread("src/particle_sim/render_thread.lua")
-        local startIndex = math.floor((i - 1) * o.imageSize / processorCount)
-        local endIndex = math.floor(i * o.imageSize / processorCount) - 1
-        o.threads[i]:start(o.quad.imageData, startIndex, endIndex, o.particle_buffer, colorArray)
+        o.ranges[i] = 
+        {
+            startIndex = math.floor((i - 1) * o.imageSize / processorCount),
+            endIndex = math.floor(i * o.imageSize / processorCount) - 1
+        }
+        o.threads[i]:start(o.quad.imageData, o.particle_buffer, colorArray)
     end
 
     local particle_buffer_ptr = ffi.cast("Particle*", o.particle_buffer:getFFIPointer())
@@ -91,7 +95,7 @@ end
 function ParticleSimulation:updateTexture()
     -- Init all threads to start
     for i = 1, #self.threads do
-        self.channel:push(i)
+        self.channel:push(self.ranges[i])
     end
 
     -- Wait for all threads to finish
@@ -101,15 +105,6 @@ function ParticleSimulation:updateTexture()
 end
 
 function ParticleSimulation:render()
-    -- for i = 0, self.imageSize - 1 do
-    --     local index = i * 4
-    --     local color = getColorOf(self.chunk.matrix[i].type)
-    --     self.imageDataPtr[index] = color.r
-    --     self.imageDataPtr[index + 1] = color.g
-    --     self.imageDataPtr[index + 2] = color.b
-    --     self.imageDataPtr[index + 3] = color.a
-    -- end
-
     self.quad:render(0, 0)
 end
 
