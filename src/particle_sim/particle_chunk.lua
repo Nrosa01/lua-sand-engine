@@ -19,18 +19,13 @@ local end_index = 1
 
 function ParticleChunk:new(width, height)
     local instance = {
-        matrix = ffi.new("Particle[?]", width * height),
+        matrix = {},
         width = width,
         height = height,
         clock = false,
         currentX = 0,
         currentY = 0,
     }
-
-    for i = 0, width * height - 1 do
-        instance.matrix[i].type = ParticleType.EMPTY
-        instance.matrix[i].clock = false
-    end
 
     setmetatable(instance, self)
     return instance
