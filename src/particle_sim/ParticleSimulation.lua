@@ -238,7 +238,6 @@ function ParticleSimulation:setParticle(x, y, particleType)
         local index = self.chunk:index(x, y)
         self.simulaton_buffer_front_ptr[index].type = particleType
         self.simulaton_buffer_back_ptr[index].type = particleType
-
     end
 end
 
@@ -248,11 +247,52 @@ function ParticleSimulation:update()
             self.updateData,
             self.simulation_buffer_front_bytecode,
             self.simulation_buffer_back_bytecode)
+        self:updateBuffers(
+            self.updateData,
+            self.simulation_buffer_front_bytecode,
+            self.simulation_buffer_back_bytecode)
     else
         self:updateFrom(
             self.updateData,
             self.simulation_buffer_back_bytecode,
             self.simulation_buffer_front_bytecode)
+        self:updateBuffers(
+            self.updateData,
+            self.simulation_buffer_back_bytecode,
+            self.simulation_buffer_front_bytecode)
+    end
+end
+
+function ParticleSimulation:updateBuffers(updateData, read, write)
+    -- Update read, write buffer and color buffer
+    -- Get num of threads supported
+    local updateDataCount = #updateData
+    local threadCount = #self.threads
+
+    -- Init all threads
+    for row = 1, threadCount do
+        self.channel:push({command = "UpdateBuffers", data =
+            {
+                updateData = updateData[row],
+                read = read,
+                write = write
+            }})
+    end
+
+    -- Wait for any of them to finish, then run another until it's all done
+    for row = threadCount + 1, updateDataCount do
+        self.chunkChannel:demand()     -- A thread is done
+        self.channel:push({command = "UpdateBuffers", data =
+            {
+                updateData = updateData[row],
+                read = read,
+                write = write
+            }})
+    end
+
+    -- Wait for the rest of the threads to finish
+    for row = 1, threadCount do
+        self.chunkChannel:demand()     -- A thread is done
     end
 end
 
@@ -263,25 +303,25 @@ function ParticleSimulation:updateFrom(updateData, read, write)
 
     -- Init all threads
     for row = 1, threadCount do
-        self.channel:push(
+        self.channel:push({command = "TickSimulation", data =
             {
                 updateData = updateData[row],
                 clock = self.clock,
                 read = read,
                 write = write
-            })
+            }})
     end
 
     -- Wait for any of them to finish, then run another until it's all done
     for row = threadCount + 1, updateDataCount do
         self.chunkChannel:demand() -- A thread is done
-        self.channel:push(
+        self.channel:push({command = "TickSimulation", data =
             {
                 updateData = updateData[row],
                 clock = self.clock,
                 read = read,
                 write = write
-            })
+            }})
     end
 
     -- Wait for the rest of the threads to finish

@@ -13,7 +13,7 @@ ParticleDefinitionsHandler.text_to_id_map = tdata
 -- This is the only way to pass functions to the thread
 for i = 1, ParticleDefinitionsHandler:getRegisteredParticlesCount() do
     local data = ParticleDefinitionsHandler:getParticleData(i)
-    data.color = ffi.new("struct colour_t", data.color.r, data.color.g, data.color.b, data.color.a)
+    data.color = ffi.new("colour_t", data.color.r, data.color.g, data.color.b, data.color.a)
     ParticleDefinitionsHandler.funcs[i] = load(data.interactions)
 end
 
@@ -23,33 +23,43 @@ local imageDataptr = ffi.cast("uint8_t*", imageData:getFFIPointer())
 local channel = love.thread.getChannel("mainThreadChannel")
 local chunkChannel = love.thread.getChannel("chunkChannel")
 
-while true do
-    local data = channel:demand()
-    -- print("Thread " .. index .. " received command " .. command)
-    chunk.updateData = data.updateData
-    chunk.clock = data.clock
-    chunk.read_matrix = ffi.cast("Particle*", data.read:getFFIPointer())
-    chunk.write_matrix = ffi.cast("Particle*", data.write:getFFIPointer())
-    chunk:update()
+local function updateSimulation(data)
+        -- print("Thread " .. index .. " received command " .. command)
+        chunk.updateData = data.updateData
+        chunk.clock = data.clock
+        chunk.read_matrix = ffi.cast("Particle*", data.read:getFFIPointer())
+        chunk.write_matrix = ffi.cast("Particle*", data.write:getFFIPointer())
+        chunk:update() 
+end
 
-    -- Once we have written into the write buffer, we send copy it to the read buffer
-    -- to have it ready for the next iteration, iterate using updateData
+-- Updatedata here should be a start index and end index to iterate over an array
+local function updateBuffers(data)
+    local updateData = data.updateData
+    local read = ffi.cast("Particle*", data.read:getFFIPointer())
+    local write = ffi.cast("Particle*", data.write:getFFIPointer())
 
-    local updateData = chunk.updateData
-    --print(casted)
     for y = updateData.yStart, updateData.yEnd, updateData.increment do
         for x = updateData.xStart, updateData.xEnd, updateData.increment do
             local index = chunk:index(x, y)
-            chunk.read_matrix[index].type = chunk.write_matrix[index].type
-            local color = ParticleDefinitionsHandler:getParticleData(chunk.read_matrix[index].type).color
+            read[index].type = write[index].type
             
-            -- This is fast (the cast is done only once outside, this is only for showcasing)
+            local color = ParticleDefinitionsHandler:getParticleData(read[index].type).color
             local pIndex = index * 4
             imageDataptr[pIndex] = color.r
             imageDataptr[pIndex + 1] = color.g
             imageDataptr[pIndex + 2] = color.b
             imageDataptr[pIndex + 3] = color.a
         end
+    end
+end
+
+while true do
+    local message = channel:demand()
+
+    if message.command == "TickSimulation" then
+        updateSimulation(message.data)
+    elseif message.command == "UpdateBuffers" then
+        updateBuffers(message.data)
     end
 
     chunkChannel:performAtomic(function(channel)
