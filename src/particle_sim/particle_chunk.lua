@@ -14,7 +14,6 @@ require("Particle")
 local ParticleChunk = {}
 ParticleChunk.__index = ParticleChunk
 
-local empty_particle_id = 1
 local start_index = 0
 local end_index = 1
 
@@ -104,10 +103,14 @@ end
 function ParticleChunk:isEmpty(rx, ry)
 	local x = rx + self.currentX
 	local y = ry + self.currentY
-	return self:isInside(rx, ry) and self.read_matrix[self:index(x, y)].type == empty_particle_id
+	return self:isInside(rx, ry) and self.read_matrix[self:index(x, y)].type == ParticleType.EMPTY
 end
 
 function ParticleChunk:getParticleType(rx, ry)
+	if not self:isInside(rx, ry) then
+        return -1
+    end
+
 	local x = rx + self.currentX
 	local y = ry + self.currentY
 	return self.read_matrix[self:index(x, y)].type

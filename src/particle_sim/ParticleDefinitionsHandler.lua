@@ -1,3 +1,5 @@
+local ParticleDefinition = require("ParticleDefinition")
+
 -- ParticleDefinitionsHandler.lua
 local ParticleDefinitionsHandlerConstructor = {
     particle_data = {},
@@ -16,6 +18,17 @@ ParticleDefinitionsHandler =
 
 setmetatable(ParticleDefinitionsHandler, ParticleDefinitionsHandlerConstructor)
 
+_G.addParticle = function (text, color, func)
+    ParticleDefinitionsHandler:addParticleData(ParticleDefinition.new(text, color, func))
+end
+
+_G.getFuncOf = function (id)
+    return ParticleDefinitionsHandler.particle_data[id].func
+end
+
+_G.getColorOf = function (id)
+    return ParticleDefinitionsHandler.particle_data[id].color
+end
 
 function ParticleDefinitionsHandlerConstructor:addParticleData(data)
     -- If data is already registered in text_to_id_map, then we overwrite it in particle_data

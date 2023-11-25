@@ -10,7 +10,7 @@ ParticleDefinitionsHandler.particle_data = pdata
 ParticleDefinitionsHandler.text_to_id_map = tdata
 
 
-_G.ParticleTypes = {}
+_G.ParticleType = {}
 
 -- As I saved code as string, I need to load it
 -- This is the only way to pass functions to the thread
@@ -18,7 +18,7 @@ for i = 1, ParticleDefinitionsHandler:getRegisteredParticlesCount() do
     local data = ParticleDefinitionsHandler:getParticleData(i)
     data.color = ffi.new("colour_t", data.color.r, data.color.g, data.color.b, data.color.a)
     ParticleDefinitionsHandler.funcs[i] = load(data.interactions)
-    ParticleTypes[string.upper(data.text_id)] = i
+    ParticleType[string.upper(data.text_id)] = i
 end
 
 local chunk = ParticleChunk:new(chunkData)
