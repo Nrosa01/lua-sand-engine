@@ -24,20 +24,15 @@ local function addParticleToRegistry()
         function(api)
             local dirY = 1
             local dirX = math.random(-1, 1)
-            local myType = api:getParticleType(0, 0)
 
             if api:isEmpty(0, dirY) then
-                api:setNewParticleById(0, 0, 1)
-                api:setNewParticleById(0, dirY, myType)
+                api:swap(0, dirY)
             elseif api:isEmpty(-1, dirY) and api:isEmpty(1, dirY) then
-                api:setNewParticleById(0, 0, 1)
-                api:setNewParticleById(dirX, dirY, myType)
+                api:swap(dirX, dirY)
             elseif api:isEmpty(-1, dirY) then
-                api:setNewParticleById(0, 0, 1)
-                api:setNewParticleById(-1, dirY, myType)
+                api:swap(-1, dirY)
             elseif api:isEmpty(1, dirY) then
-                api:setNewParticleById(0, 0, 1)
-                api:setNewParticleById(1, dirY, myType)
+                api:swap(1, dirY)
             end
         end
     ))
@@ -62,8 +57,6 @@ local function addParticleToRegistry()
             local dirX = math.random(-1, 1)
             if api:isEmpty(dirX, dirY) then
                 api:swap(dirX, dirY)
-            else
-                api:setNewParticleById(0, 0, api:getParticleType(0, 0))
             end
         end
     ))

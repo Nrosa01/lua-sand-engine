@@ -60,6 +60,16 @@ function ParticleChunk:setNewParticleById(rx, ry, id)
     end
 end
 
+function ParticleChunk:swap(rx, ry)
+    local new_x = rx + self.currentX
+    local new_y = ry + self.currentY
+    local new_index = self:index(new_x, new_y)
+
+    local type_copy = self.read_matrix[new_index].type
+    self.write_matrix[new_index].type = self.read_matrix[self:index(self.currentX, self.currentY)].type
+    self.write_matrix[self:index(self.currentX, self.currentY)].type = type_copy
+end
+
 -- function ParticleChunk:setParticle(rx, ry, particle)
 --     local x = rx + self.currentX
 --     local y = ry + self.currentY
