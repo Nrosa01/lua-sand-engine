@@ -9,13 +9,16 @@ require("love.system")
 ---@field window_height number
 ---@field simulation_width number
 ---@field simulation_height number
----@field simulation_buffer_bytecode love.ByteData
----@field simulaton_buffer_ptr Particle*
+---@field simulation_buffer_front_bytecode love.ByteData
+---@field simulaton_buffer_front_ptr Particle*
+---@field simulation_buffer_back_bytecode love.ByteData
+---@field simulaton_buffer_back_ptr Particle*
 ---@field quad Quad
 ---@field threads table
 ---@field chunk ParticleChunk
 ---@field clock boolean
 ---@field updateData table
+---@field updateDataReversed table
 ---@field chunkData table
 ---@field quadData table
 ---@field channel love.Channel
@@ -28,38 +31,52 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     -- I guess here I define fields
     local o =
     {
-        window_width               = window_width,
-        window_height              = window_height,
-        simulation_width           = simulation_width,
-        simulation_height          = simulation_height,
-        simulation_buffer_bytecode = love.data.newByteData(simulation_width * simulation_height * ffi.sizeof("Particle")),
-        simulaton_buffer_ptr       = nil,
-        quad                       = Quad:new(window_width, window_height, simulation_width, simulation_height),
-        threads                    = {},
-        chunk                      = nil,
-        clock                      = false,
-        updateData                 = {},
-        updateDataReversed         = {},
-        chunkData                  = {},
-        quadData                   = {},
-        channel                    = love.thread.getChannel("mainThreadChannel"),
-        chunkChannel               = love.thread.getChannel("chunkChannel"),
-        gridSize                   = 8
+        window_width                     = window_width,
+        window_height                    = window_height,
+        simulation_width                 = simulation_width,
+        simulation_height                = simulation_height,
+        simulation_buffer_front_bytecode = love.data.newByteData(simulation_width * simulation_height *
+            ffi.sizeof("Particle")),
+        simulation_buffer_back_bytecode  = love.data.newByteData(simulation_width * simulation_height *
+            ffi.sizeof("Particle")),
+        simulaton_buffer_front_ptr       = nil,
+        simulaton_buffer_back_ptr        = nil,
+        quad                             = Quad:new(window_width, window_height, simulation_width, simulation_height),
+        threads                          = {},
+        chunk                            = nil,
+        clock                            = false,
+        updateData                       = {},
+        updateDataReversed               = {},
+        chunkData                        = {},
+        quadData                         = {},
+        channel                          = love.thread.getChannel("mainThreadChannel"),
+        chunkChannel                     = love.thread.getChannel("chunkChannel"),
+        gridSize                         = 4
     }
 
-    o.simulaton_buffer_ptr = ffi.cast("Particle*", o.simulation_buffer_bytecode:getFFIPointer())
+    o.simulaton_buffer_front_ptr = ffi.cast("Particle*", o.simulation_buffer_front_bytecode:getFFIPointer())
+    o.simulaton_buffer_back_ptr = ffi.cast("Particle*", o.simulation_buffer_back_bytecode:getFFIPointer())
 
     for row = 0, simulation_width * simulation_height - 1 do
-        o.simulaton_buffer_ptr[row].type = 1
-        o.simulaton_buffer_ptr[row].clock = false
+        o.simulaton_buffer_front_ptr[row].type = 1
+        o.simulaton_buffer_front_ptr[row].clock = false
+        o.simulaton_buffer_back_ptr[row].type = 1
+        o.simulaton_buffer_back_ptr[row].clock = false
     end
 
-    local chunkData = { bytecode = o.simulation_buffer_bytecode, width = simulation_width, height = simulation_height }
-    o.chunk = ParticleChunk:new(chunkData, {}, o.quad)
+    local chunkData =
+    {
+        bytecode_read = o.simulation_buffer_front_bytecode,
+        bytecode_write = o.simulation_buffer_back_bytecode,
+        width = simulation_width,
+        height = simulation_height
+    }
+
+    o.chunk = ParticleChunk:new(chunkData, {})
 
     -- Build update data
     local numThreads = math.min(love.system.getProcessorCount(), o.gridSize * o.gridSize)
-    -- numThreads = 1
+    --numThreads = 1
 
     -- We will create numThreads threads
     for row = 1, numThreads do
@@ -193,26 +210,10 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
 
     -- We will create numThreads chunkData tables
     o.chunkData = {
-        bytecode = o.simulation_buffer_bytecode,
+        bytecode = o.simulation_buffer_front_bytecode,
         width = o.simulation_width,
         height = o.simulation_height
     }
-
-    -- print both tables with newlines for ipairs
-    for i, v in ipairs(o.updateData) do
-        print(i ..
-            ": xStart = " .. v.xStart .. ", xEnd = " .. v.xEnd .. ", yStart = " .. v.yStart .. ", yEnd = " .. v.yEnd
-            .. ", increment = " .. v.increment)
-    end
-
-    print("------------------")
-
-    for i, v in ipairs(o.updateDataReversed) do
-        print(i ..
-            ": xStart = " .. v.xStart .. ", xEnd = " .. v.xEnd .. ", yStart = " .. v.yStart .. ", yEnd = " .. v.yEnd
-            .. ", increment = " .. v.increment)
-    end
-
 
     o.quadData = { width = o.window_width, height = o.simulation_height, imageData = o.quad.imageData }
 
@@ -222,25 +223,98 @@ end
 
 _G.TESTFlag = false
 
-function ParticleSimulation:update()
-    self:updateFrom(self.updateData)
-    self:updateFrom(self.updateDataReversed)
+function ParticleSimulation:setBuffers()
+    if self.clock then
+        self.chunk.matrixes = 
+        {
+            read = self.simulaton_buffer_front_ptr,
+            write = self.simulaton_buffer_back_ptr
+        }
+    else
+        self.chunk.matrixes = 
+        {
+            read = self.simulaton_buffer_back_ptr,
+            write = self.simulaton_buffer_front_ptr
+        }
+    end
 end
 
-function ParticleSimulation:updateFrom(updateData)
+function ParticleSimulation:setParticle(x, y, particleType)
+    if self.chunk:isInside(x, y) then
+        local index = self.chunk:index(x, y)
+        self.simulaton_buffer_front_ptr[index].type = particleType
+        self.simulaton_buffer_back_ptr[index].type = particleType
+
+    end
+end
+
+function ParticleSimulation:update()
+    if self.clock then
+        self:updateFrom(
+            self.updateData,
+            self.simulation_buffer_front_bytecode,
+            self.simulation_buffer_back_bytecode)
+    else
+        self:updateFrom(
+            self.updateData,
+            self.simulation_buffer_back_bytecode,
+            self.simulation_buffer_front_bytecode)
+    end
+end
+
+
+ccc = 1
+
+function ParticleSimulation:updateFrom(updateData, read, write)
     -- Get num of threads supported
     local updateDataCount = #updateData
     local threadCount = #self.threads
 
+    -- print read table (1d array, print particle.type in grid)
+    -- local reaad_ptr = ffi.cast("Particle*", read:getFFIPointer())
+    -- local write_ptr = ffi.cast("Particle*", write:getFFIPointer())
+    
+    -- print(ccc .. " ---------------------------")
+
+    -- print("Read table:")
+    -- for row = 0, self.simulation_height - 1 do
+    --     for col = 0, self.simulation_width - 1 do
+    --         local index = self.chunk:index(col, row)
+    --         io.write(reaad_ptr[index].type .. " ")
+    --     end
+    --     io.write("\n")
+    -- end
+
+    -- print("Write table:")
+    -- for row = 0, self.simulation_height - 1 do
+    --     for col = 0, self.simulation_width - 1 do
+    --         local index = self.chunk:index(col, row)
+    --         io.write(write_ptr[index].type .. " ")
+    --     end
+    --     io.write("\n")
+    -- end
+
     -- Init all threads
     for row = 1, threadCount do
-        self.channel:push({ updateData = updateData[row], clock = self.clock })
+        self.channel:push(
+            {
+                updateData = updateData[row],
+                clock = self.clock,
+                read = read,
+                write = write
+            })
     end
 
     -- Wait for any of them to finish, then run another until it's all done
     for row = threadCount + 1, updateDataCount do
         self.chunkChannel:demand() -- A thread is done
-        self.channel:push({ updateData = updateData[row], clock = self.clock })
+        self.channel:push(
+            {
+                updateData = updateData[row],
+                clock = self.clock,
+                read = read,
+                write = write
+            })
     end
 
     -- Wait for the rest of the threads to finish
@@ -249,12 +323,41 @@ function ParticleSimulation:updateFrom(updateData)
     end
 
     self.clock = not self.clock
+
+    -- print("-------------")
+
+    -- print("Read table:")
+    -- for row = 0, self.simulation_height - 1 do
+    --     for col = 0, self.simulation_width - 1 do
+    --         local index = self.chunk:index(col, row)
+    --         io.write(reaad_ptr[index].type .. " ")
+    --     end
+    --     io.write("\n")
+    -- end
+
+    -- print("Write table:")
+    -- for row = 0, self.simulation_height - 1 do
+    --     for col = 0, self.simulation_width - 1 do
+    --         local index = self.chunk:index(col, row)
+    --         io.write(write_ptr[index].type .. " ")
+    --     end
+    --     io.write("\n")
+    -- end
+
+    -- ffi.copy(read:getFFIPointer(), write:getFFIPointer(), read:getSize())
+
+    ccc = ccc + 1
 end
 
 function ParticleSimulation:render()
     local function pixels(x, y, r, g, b, a)
         local index = self.chunk:index(x, y)
-        local particle = self.simulaton_buffer_ptr[index]
+
+        local particle =
+            self.clock and
+            self.simulaton_buffer_front_ptr[index] or
+            self.simulaton_buffer_back_ptr[index]
+
         local color = ParticleDefinitionsHandler:getParticleData(particle.type).color
 
         return color.r, color.g, color.b, color.a
@@ -264,14 +367,14 @@ function ParticleSimulation:render()
     self.quad:render(0, 0)
 
     -- Draw grid
-    -- love.graphics.setColor(TESTFlag and 1 or 0.1, TESTFlag and 0.1 or 1, 0.1, 0.25)
-    -- for row = 1, self.gridSize - 1 do
-    --     love.graphics.line(row * self.window_width / self.gridSize, 0, row * self.window_width / self.gridSize,
-    --         self.window_height)
-    --     love.graphics.line(0, row * self.window_height / self.gridSize, self.window_width,
-    --         row * self.window_height / self.gridSize)
-    -- end
-    -- love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setColor(0.1, 1, 0.1, TESTFlag and 0 or 0.25)
+    for row = 1, self.gridSize - 1 do
+        love.graphics.line(row * self.window_width / self.gridSize, 0, row * self.window_width / self.gridSize,
+            self.window_height)
+        love.graphics.line(0, row * self.window_height / self.gridSize, self.window_width,
+            row * self.window_height / self.gridSize)
+    end
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 return ParticleSimulation
