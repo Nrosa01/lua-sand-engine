@@ -2,6 +2,7 @@
 local ParticleDefinitionsHandlerConstructor = {
     particle_data = {},
     text_to_id_map = {},
+    funcs = {},
 }
 
 ParticleDefinitionsHandlerConstructor.__index = ParticleDefinitionsHandlerConstructor
@@ -10,6 +11,7 @@ ParticleDefinitionsHandler =
 {
     particle_data = ParticleDefinitionsHandlerConstructor.particle_data,
     text_to_id_map = ParticleDefinitionsHandlerConstructor.text_to_id_map,
+    funcs = ParticleDefinitionsHandlerConstructor.funcs,
 }
 
 setmetatable(ParticleDefinitionsHandler, ParticleDefinitionsHandlerConstructor)

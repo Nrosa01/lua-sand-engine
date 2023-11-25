@@ -4,7 +4,7 @@ local ParticleDefinitionLib = {}
 function ParticleDefinitionLib.new(text_id, particle_color, interactions)
     local instance = {
         text_id = text_id,
-        color = { r = particle_color.r / 255.0, g = particle_color.g / 255.0, b = particle_color.b / 255.0, a = particle_color.a / 255.0 },
+        color = particle_color,
         interactions =
             interactions and
             string.dump(interactions) or

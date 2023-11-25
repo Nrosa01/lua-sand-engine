@@ -51,7 +51,7 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         quadData                         = {},
         channel                          = love.thread.getChannel("mainThreadChannel"),
         chunkChannel                     = love.thread.getChannel("chunkChannel"),
-        gridSize                         = 4
+        gridSize                         = 4 -- TODO: Algorithm to find this numbers
     }
 
     o.simulaton_buffer_front_ptr = ffi.cast("Particle*", o.simulation_buffer_front_bytecode:getFFIPointer())
@@ -72,17 +72,17 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         height = simulation_height
     }
 
-    o.chunk = ParticleChunk:new(chunkData, {})
+    o.chunk = ParticleChunk:new(chunkData)
 
     -- Build update data
     local numThreads = math.min(love.system.getProcessorCount(), o.gridSize * o.gridSize)
-    --numThreads = 1
+    -- numThreads = 1
 
     -- We will create numThreads threads
     for row = 1, numThreads do
         o.threads[row] = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
-        o.threads[row]:start(chunkData, {}, ParticleDefinitionsHandler.particle_data,
-            ParticleDefinitionsHandler.text_to_id_map, i)
+        o.threads[row]:start(chunkData, ParticleDefinitionsHandler.particle_data,
+            ParticleDefinitionsHandler.text_to_id_map, o.quad.imageData, row)
     end
 
     -- We will divide the world in 4*4 chunks regardless of the number of threads
@@ -225,17 +225,11 @@ _G.TESTFlag = false
 
 function ParticleSimulation:setBuffers()
     if self.clock then
-        self.chunk.matrixes = 
-        {
-            read = self.simulaton_buffer_front_ptr,
-            write = self.simulaton_buffer_back_ptr
-        }
+        self.chunk.read_matrix = self.simulaton_buffer_front_ptr
+        self.chunk.write_matrix = self.simulaton_buffer_back_ptr
     else
-        self.chunk.matrixes = 
-        {
-            read = self.simulaton_buffer_back_ptr,
-            write = self.simulaton_buffer_front_ptr
-        }
+        self.chunk.read_matrix = self.simulaton_buffer_back_ptr
+        self.chunk.write_matrix = self.simulaton_buffer_front_ptr
     end
 end
 
@@ -262,37 +256,10 @@ function ParticleSimulation:update()
     end
 end
 
-
-ccc = 1
-
 function ParticleSimulation:updateFrom(updateData, read, write)
     -- Get num of threads supported
     local updateDataCount = #updateData
     local threadCount = #self.threads
-
-    -- print read table (1d array, print particle.type in grid)
-    -- local reaad_ptr = ffi.cast("Particle*", read:getFFIPointer())
-    -- local write_ptr = ffi.cast("Particle*", write:getFFIPointer())
-    
-    -- print(ccc .. " ---------------------------")
-
-    -- print("Read table:")
-    -- for row = 0, self.simulation_height - 1 do
-    --     for col = 0, self.simulation_width - 1 do
-    --         local index = self.chunk:index(col, row)
-    --         io.write(reaad_ptr[index].type .. " ")
-    --     end
-    --     io.write("\n")
-    -- end
-
-    -- print("Write table:")
-    -- for row = 0, self.simulation_height - 1 do
-    --     for col = 0, self.simulation_width - 1 do
-    --         local index = self.chunk:index(col, row)
-    --         io.write(write_ptr[index].type .. " ")
-    --     end
-    --     io.write("\n")
-    -- end
 
     -- Init all threads
     for row = 1, threadCount do
@@ -323,47 +290,9 @@ function ParticleSimulation:updateFrom(updateData, read, write)
     end
 
     self.clock = not self.clock
-
-    -- print("-------------")
-
-    -- print("Read table:")
-    -- for row = 0, self.simulation_height - 1 do
-    --     for col = 0, self.simulation_width - 1 do
-    --         local index = self.chunk:index(col, row)
-    --         io.write(reaad_ptr[index].type .. " ")
-    --     end
-    --     io.write("\n")
-    -- end
-
-    -- print("Write table:")
-    -- for row = 0, self.simulation_height - 1 do
-    --     for col = 0, self.simulation_width - 1 do
-    --         local index = self.chunk:index(col, row)
-    --         io.write(write_ptr[index].type .. " ")
-    --     end
-    --     io.write("\n")
-    -- end
-
-    -- ffi.copy(read:getFFIPointer(), write:getFFIPointer(), read:getSize())
-
-    ccc = ccc + 1
 end
 
 function ParticleSimulation:render()
-    local function pixels(x, y, r, g, b, a)
-        local index = self.chunk:index(x, y)
-
-        local particle =
-            self.clock and
-            self.simulaton_buffer_front_ptr[index] or
-            self.simulaton_buffer_back_ptr[index]
-
-        local color = ParticleDefinitionsHandler:getParticleData(particle.type).color
-
-        return color.r, color.g, color.b, color.a
-    end
-
-    self.quad.imageData:mapPixel(pixels)
     self.quad:render(0, 0)
 
     -- Draw grid

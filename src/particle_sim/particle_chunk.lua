@@ -1,7 +1,5 @@
 local ffi = require("ffi")
-
--- Must be defined outside
--- require("Particle")
+require("Particle")
 
 ---@class ParticleChunk
 ---@field bytecode love.ByteData
@@ -20,15 +18,16 @@ local empty_particle_id = 1
 local start_index = 0
 local end_index = 1
 
-function ParticleChunk:new(chunkData, updateData)
+function ParticleChunk:new(chunkData)
     local instance = {
-        matrixes = {},
+        read_matrix = {},
+        write_matrix = {},
         width = chunkData.width,
         height = chunkData.height,
         clock = false,
         currentX = 0,
         currentY = 0,
-        updateData = updateData
+        updateData = {}
     }
 
     setmetatable(instance, self)
@@ -48,7 +47,7 @@ function ParticleChunk:update()
             self.currentX = x
             self.currentY = y
 
-            funcs[self.matrixes.read[index].type](self)
+            funcs[self.read_matrix[index].type](self)
         end
     end
 end
@@ -57,7 +56,7 @@ function ParticleChunk:setNewParticleById(rx, ry, id)
     local x = rx + self.currentX
     local y = ry + self.currentY
     if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
-        self.matrixes.write[self:index(x, y)].type = id
+        self.write_matrix[self:index(x, y)].type = id
     end
 end
 
@@ -65,7 +64,7 @@ end
 --     local x = rx + self.currentX
 --     local y = ry + self.currentY
 --     if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
---         self.matrixes.write[self:index(x, y)].type = particle.type
+--         self.write_matrix[self:index(x, y)].type = particle.type
 --     end
 -- end
 
@@ -80,7 +79,7 @@ end
 function ParticleChunk:getParticle(rx, ry)
     local x = rx + self.currentX
     local y = ry + self.currentY
-    return self.matrixes.read[self:index(x, y)]
+    return self.read_matrix[self:index(x, y)]
 end
 
 function ParticleChunk:isInside(rx, ry)
@@ -92,13 +91,13 @@ end
 function ParticleChunk:isEmpty(rx, ry)
     local x = rx + self.currentX
     local y = ry + self.currentY
-    return self:isInside(rx, ry) and self.matrixes.read[self:index(x, y)].type == empty_particle_id
+    return self:isInside(rx, ry) and self.read_matrix[self:index(x, y)].type == empty_particle_id
 end
 
 function ParticleChunk:getParticleType(rx, ry)
     local x = rx + self.currentX
     local y = ry + self.currentY
-    return self.matrixes.read[self:index(x, y)].type
+    return self.read_matrix[self:index(x, y)].type
 end
 
 return ParticleChunk
