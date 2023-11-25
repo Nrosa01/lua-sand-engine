@@ -1,19 +1,4 @@
-local IS_DEBUG = os.getenv("LOCAL_LUA_DEBUGGER_VSCODE") == "1" and arg[2] == "debug"
-if IS_DEBUG then
-    lldebugger = require("lldebugger")
-    lldebugger.start()
-
-    function love.errorhandler(msg)
-        error(msg, 2)
-    end
-end
-
-local mouse = { x = 0, y = 0, button = "" }
-local canvas_size = 800
-local brush_size = math.floor(canvas_size / 20) * 14;
-local sensitivy = brush_size / 10
-local currentParticle = 2
-local paused = false
+require "src.vscodedebug"
 
 local imgui = require "imgui"
 require "src"
@@ -22,12 +7,20 @@ require "particleLauncher"
 local ParticleSimulation = require "ParticleSimulation"
 require "buffer"
 
+local mouse = { x = 0, y = 0, button = "" }
+local canvas_size = 400
+local brush_size = math.floor(canvas_size / 20) * 14;
+local sensitivy = brush_size / 10
+local currentParticle = ParticleType.SAND
+local paused = false
 local particleSimulation;
 
 function love.load()
     particleSimulation = ParticleSimulation:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size,
         canvas_size)
 end
+
+local rgba_convert = 1 / 255
 
 local function drawParticleMenu()
     local count = ParticleDefinitionsHandler:getRegisteredParticlesCount()
@@ -41,7 +34,8 @@ local function drawParticleMenu()
             currentParticle = i
         end
         imgui.SameLine()
-        imgui.ColorButton(data.text_id .. "Color", data.color.r, data.color.g, data.color.b, data.color.a)
+        imgui.ColorButton(data.text_id .. "Color", data.color.r * rgba_convert, data.color.g * rgba_convert,
+            data.color.b * rgba_convert, data.color.a * rgba_convert)
     end
 
     imgui.End()
