@@ -30,6 +30,8 @@ function love.load()
         canvas_size)
 end
 
+local converter = 1.0 / 255.0
+
 local function drawParticleMenu()
     local count = ParticleDefinitionsHandler:getRegisteredParticlesCount()
 
@@ -42,7 +44,7 @@ local function drawParticleMenu()
             currentParticle = i
         end
         imgui.SameLine()
-        imgui.ColorButton(data.text_id .. "Color", data.color.r, data.color.g, data.color.b, data.color.a)
+        imgui.ColorButton(data.text_id .. "Color", data.color.r * converter, data.color.g *  converter, data.color.b * converter, data.color.a * converter)
     end
 
     imgui.End()

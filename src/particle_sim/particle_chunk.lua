@@ -19,55 +19,58 @@ local start_index = 0
 local end_index = 1
 
 function ParticleChunk:new(chunkData)
-    local instance = {
-        read_matrix = {},
-        write_matrix = {},
-        width = chunkData.width,
-        height = chunkData.height,
-        clock = false,
-        currentX = 0,
-        currentY = 0,
-        updateData = {}
-    }
+	local instance = {
+		read_matrix = {},
+		write_matrix = {},
+		width = chunkData.width,
+		height = chunkData.height,
+		clock = false,
+		currentX = 0,
+		currentY = 0,
+		currenType = 1,
+		currentIndex = 0,
+		updateData = {}
+	}
 
-    setmetatable(instance, self)
-    return instance
+	setmetatable(instance, self)
+	return instance
 end
 
 function ParticleChunk:index(x, y)
-    return x + y * self.width
+	return x + y * self.width
 end
 
 function ParticleChunk:update()
-    local funcs = ParticleDefinitionsHandler.funcs
+	local funcs = ParticleDefinitionsHandler.funcs
 
-    for y = self.updateData.yStart, self.updateData.yEnd, self.updateData.increment do
-        for x = self.updateData.xStart, self.updateData.xEnd, self.updateData.increment do
-            local index = self:index(x, y)
-            self.currentX = x
-            self.currentY = y
+	for y = self.updateData.yStart, self.updateData.yEnd, self.updateData.increment do
+		for x = self.updateData.xStart, self.updateData.xEnd, self.updateData.increment do
+			self.currentX = x
+			self.currentY = y
+			self.currentIndex = self:index(x, y)
+			self.currentType = self.read_matrix[self.currentIndex].type
 
-            funcs[self.read_matrix[index].type](self)
-        end
-    end
+			funcs[self.currentType](self)
+		end
+	end
 end
 
 function ParticleChunk:setNewParticleById(rx, ry, id)
-    local x = rx + self.currentX
-    local y = ry + self.currentY
-    if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
-        self.write_matrix[self:index(x, y)].type = id
-    end
+	local x = rx + self.currentX
+	local y = ry + self.currentY
+	if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
+		self.write_matrix[self:index(x, y)].type = id
+	end
 end
 
 function ParticleChunk:swap(rx, ry)
-    local new_x = rx + self.currentX
-    local new_y = ry + self.currentY
-    local new_index = self:index(new_x, new_y)
+	local new_x = rx + self.currentX
+	local new_y = ry + self.currentY
+	local new_index = self:index(new_x, new_y)
 
-    local type_copy = self.read_matrix[new_index].type
-    self.write_matrix[new_index].type = self.read_matrix[self:index(self.currentX, self.currentY)].type
-    self.write_matrix[self:index(self.currentX, self.currentY)].type = type_copy
+	local type_copy = self.read_matrix[new_index].type
+	self.write_matrix[new_index].type = self.currentType
+	self.write_matrix[self.currentIndex].type = type_copy
 end
 
 -- function ParticleChunk:setParticle(rx, ry, particle)
@@ -79,35 +82,35 @@ end
 -- end
 
 function ParticleChunk:getWidth()
-    return self.width
+	return self.width
 end
 
 function ParticleChunk:getHeight()
-    return self.height
+	return self.height
 end
 
 function ParticleChunk:getParticle(rx, ry)
-    local x = rx + self.currentX
-    local y = ry + self.currentY
-    return self.read_matrix[self:index(x, y)]
+	local x = rx + self.currentX
+	local y = ry + self.currentY
+	return self.read_matrix[self:index(x, y)]
 end
 
 function ParticleChunk:isInside(rx, ry)
-    local x = rx + self.currentX
-    local y = ry + self.currentY
-    return x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index
+	local x = rx + self.currentX
+	local y = ry + self.currentY
+	return x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index
 end
 
 function ParticleChunk:isEmpty(rx, ry)
-    local x = rx + self.currentX
-    local y = ry + self.currentY
-    return self:isInside(rx, ry) and self.read_matrix[self:index(x, y)].type == empty_particle_id
+	local x = rx + self.currentX
+	local y = ry + self.currentY
+	return self:isInside(rx, ry) and self.read_matrix[self:index(x, y)].type == empty_particle_id
 end
 
 function ParticleChunk:getParticleType(rx, ry)
-    local x = rx + self.currentX
-    local y = ry + self.currentY
-    return self.read_matrix[self:index(x, y)].type
+	local x = rx + self.currentX
+	local y = ry + self.currentY
+	return self.read_matrix[self:index(x, y)].type
 end
 
 return ParticleChunk
