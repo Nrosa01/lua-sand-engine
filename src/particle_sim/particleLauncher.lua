@@ -23,7 +23,7 @@ local function addParticleToRegistry()
         { r = 255, g = 255, b = 0, a = 255 }, -- Color
         function(api)
             local dirY = 1
-            local dirX = math.random
+            local dirX = math.random(-1, 1)
             local below = api:getParticleType(0, dirY)
             if below == ParticleType.EMPTY or below == ParticleType.WATER then
                 api:swap(0, dirY)
