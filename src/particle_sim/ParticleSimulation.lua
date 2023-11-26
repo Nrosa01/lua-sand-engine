@@ -253,11 +253,11 @@ function ParticleSimulation:update()
             self.simulation_buffer_back_bytecode)
     else
         self:updateFrom(
-            self.updateData,
+            self.updateDataReversed,
             self.simulation_buffer_back_bytecode,
             self.simulation_buffer_front_bytecode)
         self:updateBuffers(
-            self.updateData,
+            self.updateDataReversed,
             self.simulation_buffer_back_bytecode,
             self.simulation_buffer_front_bytecode)
     end

@@ -23,12 +23,14 @@ _G.addParticle = function (text, color, func)
 end
 
 _G.getFuncOf = function (id)
-    return ParticleDefinitionsHandler.particle_data[id].func
+    return ParticleDefinitionsHandler.particle_data[id].interactions
 end
 
 _G.getColorOf = function (id)
     return ParticleDefinitionsHandler.particle_data[id].color
 end
+
+_G.ParticleType = {}
 
 function ParticleDefinitionsHandlerConstructor:addParticleData(data)
     -- If data is already registered in text_to_id_map, then we overwrite it in particle_data
@@ -40,6 +42,7 @@ function ParticleDefinitionsHandlerConstructor:addParticleData(data)
         self.particle_data[index] = data
     else
         table.insert(self.particle_data, data)
+        _G.ParticleType[string.upper(data.text_id)] = #self.particle_data
         self.text_to_id_map[data.text_id] = #self.particle_data
     end
 end

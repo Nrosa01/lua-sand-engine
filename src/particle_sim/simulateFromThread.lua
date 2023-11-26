@@ -46,6 +46,7 @@ local function updateBuffers(data)
         for x = updateData.xStart, updateData.xEnd, updateData.increment do
             local index = chunk:index(x, y)
             read[index].type = write[index].type
+            read[index].clock = false
             
             local color = ParticleDefinitionsHandler:getParticleData(read[index].type).color
             local pIndex = index * 4

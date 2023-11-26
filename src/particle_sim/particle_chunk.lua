@@ -59,6 +59,7 @@ function ParticleChunk:setNewParticleById(rx, ry, id)
 	local y = ry + self.currentY
 	if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
 		self.write_matrix[self:index(x, y)].type = id
+		self.write_matrix[self:index(x, y)].clock = true
 	end
 end
 
@@ -69,7 +70,9 @@ function ParticleChunk:swap(rx, ry)
 
 	local type_copy = self.read_matrix[new_index].type
 	self.write_matrix[new_index].type = self.currentType
+	self.write_matrix[new_index].clock = true
 	self.write_matrix[self.currentIndex].type = type_copy
+	--self.write_matrix[self.currentIndex].clock = true
 end
 
 -- function ParticleChunk:setParticle(rx, ry, particle)
@@ -103,7 +106,9 @@ end
 function ParticleChunk:isEmpty(rx, ry)
 	local x = rx + self.currentX
 	local y = ry + self.currentY
-	return self:isInside(rx, ry) and self.read_matrix[self:index(x, y)].type == ParticleType.EMPTY
+	return self:isInside(rx, ry) and 
+			self.read_matrix[self:index(x, y)].type == ParticleType.EMPTY and
+			self.write_matrix[self:index(x, y)].clock ~= true
 end
 
 function ParticleChunk:getParticleType(rx, ry)
