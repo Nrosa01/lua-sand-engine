@@ -10,7 +10,7 @@ end
 
 local mouse = { x = 0, y = 0, button = "" }
 local canvas_size = 400
-local brush_size = math.floor(canvas_size / 20) * 14;
+local brush_size = math.floor(canvas_size / 20) * 7;
 -- brush_size = 1;
 local sensitivy = brush_size / 10
 local currentParticle = 2

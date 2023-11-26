@@ -49,7 +49,10 @@ function ParticleChunk:update()
 			self.currentIndex = self:index(x, y)
 			self.currentType = self.read_matrix[self.currentIndex].type
 
-			funcs[self.currentType](self)
+			-- Actually not sure if this is needed
+			-- if not self.write_matrix[self.currentIndex].clock then
+				funcs[self.currentType](self)
+			--end
 		end
 	end
 end

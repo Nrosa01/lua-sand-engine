@@ -100,25 +100,24 @@ local function addParticleToRegistry()
         { r = 128, g = 128, b = 178, a = 255 } -- Color
     )
 
-    local function getDirections()
-        local directions = {}
-
-        for dirX = -1, 1 do
-            for dirY = -1, 1 do
-                if dirX ~= 0 or dirY ~= 0 then
-                    table.insert(directions, { x = dirX, y = dirY })
-                end
-            end
-        end
-
-        return directions
-    end
-
-
     addParticle(
         "Plant",                        -- Text id
         { r = 0, g = 255, b = 0, a = 255 }, -- Color
         function(api)
+            local function getDirections()
+                local directions = {}
+        
+                for dirX = -1, 1 do
+                    for dirY = -1, 1 do
+                        if dirX ~= 0 or dirY ~= 0 then
+                            table.insert(directions, { x = dirX, y = dirY })
+                        end
+                    end
+                end
+        
+                return directions
+            end
+            
             local dirY = 1
             local below = api:getParticleType(0, dirY)
             if below == ParticleType.EMPTY then
@@ -159,6 +158,7 @@ local function addParticleToRegistry()
         { r = 255, g = 0, b = 0, a = 255 }, -- Color
         function(api)
             -- Iterate over all directions
+            local burnt = false
             for dirX = -1, 1 do
                 for dirY = -1, 1 do
                     -- If the particle below is water, turn it into steam
@@ -168,13 +168,17 @@ local function addParticleToRegistry()
 
                     -- If the particle below is plant, turn it into fire
                     if api:getParticleType(dirX, dirY) == ParticleType.PLANT then
-                        api:setNewParticleById(dirX, dirY, ParticleType.FIRE)
+                        -- 1 in 2 chance to turn into fire
+                        if math.random(2) == 1 then
+                            api:setNewParticleById(dirX, dirY, ParticleType.FIRE)
+                        end
+                        burnt = true
                     end
                 end
             end
 
             -- 20% chance to turn into smoke
-            if math.random(5) == 1 then
+            if math.random(5) == 1 and not burnt then
                 api:setNewParticleById(0, 0, ParticleType.SMOKE)
             end
         end
