@@ -192,11 +192,14 @@ local function addParticleToRegistry()
             local dirX = math.random(-1, 1)
             if api:isEmpty(dirX, dirY) then
                 api:swap(dirX, dirY)
+            else
+                dirX = 0
+                dirY = 0
             end
 
             -- Has 1 in 200 chance to turn into water or else dissapear
-            if math.random(20) == 1 then
-                api:setNewParticleById(0, 0, ParticleType.EMPTY)
+            if math.random(30) == 1 then
+                api:setNewParticleById(dirX, dirY, ParticleType.EMPTY)
             end
         end
     )
