@@ -206,6 +206,7 @@ function love.filedropped(file)
         print("Running file: " .. file:getFilename())
         local fileRunner = require "fileRunner"
         fileRunner(file)
+        particleSimulation:send(file)
     else
         -- Show an error message as a popup (later I should make this a toast)
         local message = "The file you dropped is not a lua file"

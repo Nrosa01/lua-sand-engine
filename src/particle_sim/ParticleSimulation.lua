@@ -22,7 +22,8 @@ require("love.system")
 ---@field chunkData table
 ---@field quadData table
 ---@field channel love.Channel
----@field chunkChannel love.Channel
+---@field commonThreadChannel love.Channel
+---@field threadChannels table
 local ParticleSimulation = {}
 
 ParticleSimulation.__index = ParticleSimulation
@@ -50,7 +51,8 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         chunkData                        = {},
         quadData                         = {},
         channel                          = love.thread.getChannel("mainThreadChannel"),
-        chunkChannel                     = love.thread.getChannel("chunkChannel"),
+        commonThreadChannel              = love.thread.getChannel("commonThreadChannel"),
+        threadChannels                   = {},
         gridSize                         = 4 -- TODO: Algorithm to find this numbers
     }
 
@@ -81,8 +83,8 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     -- We will create numThreads threads
     for row = 1, numThreads do
         o.threads[row] = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
-        o.threads[row]:start(chunkData, ParticleDefinitionsHandler.particle_data,
-            ParticleDefinitionsHandler.text_to_id_map, o.quad.imageData, row)
+        o.threads[row]:start(chunkData, ParticleDefinitionsHandler.particle_data, o.quad.imageData, row)
+        o.threadChannels[row] = love.thread.getChannel("threadChannel" .. row)
     end
 
     -- We will divide the world in 4*4 chunks regardless of the number of threads
@@ -223,6 +225,12 @@ end
 
 _G.TESTFlag = false
 
+function ParticleSimulation:send(file)
+    for i,v in ipairs(self.threadChannels) do
+        v:push(file)
+    end
+end
+
 function ParticleSimulation:setBuffers()
     if self.clock then
         self.chunk.read_matrix = self.simulaton_buffer_front_ptr
@@ -271,28 +279,34 @@ function ParticleSimulation:updateBuffers(updateData, read, write)
 
     -- Init all threads
     for row = 1, threadCount do
-        self.channel:push({command = "UpdateBuffers", data =
+        self.channel:push({
+            command = "UpdateBuffers",
+            data =
             {
                 updateData = updateData[row],
                 read = read,
                 write = write
-            }})
+            }
+        })
     end
 
     -- Wait for any of them to finish, then run another until it's all done
     for row = threadCount + 1, updateDataCount do
-        self.chunkChannel:demand()     -- A thread is done
-        self.channel:push({command = "UpdateBuffers", data =
+        self.commonThreadChannel:demand() -- A thread is done
+        self.channel:push({
+            command = "UpdateBuffers",
+            data =
             {
                 updateData = updateData[row],
                 read = read,
                 write = write
-            }})
+            }
+        })
     end
 
     -- Wait for the rest of the threads to finish
     for row = 1, threadCount do
-        self.chunkChannel:demand()     -- A thread is done
+        self.commonThreadChannel:demand() -- A thread is done
     end
 end
 
@@ -303,30 +317,36 @@ function ParticleSimulation:updateFrom(updateData, read, write)
 
     -- Init all threads
     for row = 1, threadCount do
-        self.channel:push({command = "TickSimulation", data =
+        self.channel:push({
+            command = "TickSimulation",
+            data =
             {
                 updateData = updateData[row],
                 clock = self.clock,
                 read = read,
                 write = write
-            }})
+            }
+        })
     end
 
     -- Wait for any of them to finish, then run another until it's all done
     for row = threadCount + 1, updateDataCount do
-        self.chunkChannel:demand() -- A thread is done
-        self.channel:push({command = "TickSimulation", data =
+        self.commonThreadChannel:demand() -- A thread is done
+        self.channel:push({
+            command = "TickSimulation",
+            data =
             {
                 updateData = updateData[row],
                 clock = self.clock,
                 read = read,
                 write = write
-            }})
+            }
+        })
     end
 
     -- Wait for the rest of the threads to finish
     for row = 1, threadCount do
-        self.chunkChannel:demand() -- A thread is done
+        self.commonThreadChannel:demand() -- A thread is done
     end
 
     self.clock = not self.clock

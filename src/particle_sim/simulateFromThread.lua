@@ -1,14 +1,12 @@
-require ("ParticleDefinitionsHandler")
-require ("love.image")
+require("ParticleDefinitionsHandler")
+require("love.image")
 require("colour_t")
 
 local ffi = require("ffi")
 local ParticleChunk = require "particle_chunk"
-local chunkData, pdata, tdata, imageData, index = ...
+local chunkData, pdata, imageData, index = ...
 
 ParticleDefinitionsHandler.particle_data = pdata
-ParticleDefinitionsHandler.text_to_id_map = tdata
-
 
 _G.ParticleType = {}
 
@@ -24,16 +22,17 @@ end
 local chunk = ParticleChunk:new(chunkData)
 local imageDataptr = ffi.cast("uint8_t*", imageData:getFFIPointer())
 
-local channel = love.thread.getChannel("mainThreadChannel")
-local chunkChannel = love.thread.getChannel("chunkChannel")
+local mainThreadChannel = love.thread.getChannel("mainThreadChannel")
+local commonThreadChannel = love.thread.getChannel("commonThreadChannel")
+local threadChannel = love.thread.getChannel("threadChannel" .. index)
 
 local function updateSimulation(data)
-        -- print("Thread " .. index .. " received command " .. command)
-        chunk.updateData = data.updateData
-        chunk.clock = data.clock
-        chunk.read_matrix = ffi.cast("Particle*", data.read:getFFIPointer())
-        chunk.write_matrix = ffi.cast("Particle*", data.write:getFFIPointer())
-        chunk:update() 
+    -- print("Thread " .. index .. " received command " .. command)
+    chunk.updateData = data.updateData
+    chunk.clock = data.clock
+    chunk.read_matrix = ffi.cast("Particle*", data.read:getFFIPointer())
+    chunk.write_matrix = ffi.cast("Particle*", data.write:getFFIPointer())
+    chunk:update()
 end
 
 -- Updatedata here should be a start index and end index to iterate over an array
@@ -47,7 +46,7 @@ local function updateBuffers(data)
             local index = chunk:index(x, y)
             read[index].type = write[index].type
             read[index].clock = false
-            
+
             local color = ParticleDefinitionsHandler:getParticleData(read[index].type).color
             local pIndex = index * 4
             imageDataptr[pIndex] = color.r
@@ -59,7 +58,23 @@ local function updateBuffers(data)
 end
 
 while true do
-    local message = channel:demand()
+    local message = mainThreadChannel:demand()
+    local file = threadChannel:pop()
+
+    if file then
+        local numOfParticles = ParticleDefinitionsHandler:getRegisteredParticlesCount()
+
+        dofile(file:getFilename())
+
+        local newNumOfParticles = ParticleDefinitionsHandler:getRegisteredParticlesCount()
+
+        for i = newNumOfParticles - numOfParticles + 1, newNumOfParticles do
+            local data = ParticleDefinitionsHandler:getParticleData(i)
+            data.color = ffi.new("colour_t", data.color.r, data.color.g, data.color.b, data.color.a)
+            ParticleDefinitionsHandler.funcs[i] = load(data.interactions)
+            ParticleType[string.upper(data.text_id)] = i
+        end
+    end
 
     if message.command == "TickSimulation" then
         updateSimulation(message.data)
@@ -67,7 +82,7 @@ while true do
         updateBuffers(message.data)
     end
 
-    chunkChannel:performAtomic(function(channel)
+    commonThreadChannel:performAtomic(function(channel)
         channel:push(1)
     end)
 end

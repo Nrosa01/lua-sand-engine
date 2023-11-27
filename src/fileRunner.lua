@@ -1,6 +1,6 @@
 local function runFile(file)
     local contents = file:read()
-    local chunk = loadstring(contents)
+    local chunk = load(contents)
     if chunk then
         chunk()
     end
