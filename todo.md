@@ -1,0 +1,10 @@
+- Tabla de direcciones inmutable
+- Tabla de direcciones aleatorias que se generan cada frame
+- Calcular el tamaño del grid en base al tamaño del canvas
+- Versión single thread
+- Cambiar velocidad de la simulación
+- Optimizar (convertir globales de lua a upvalues)
+- Añadir densidad para scripting más sencillo
+- Añadir dos campos de datos más a las particulas
+- Limpiar main.lua
+- Crear widget de imgui en su propio archivo
