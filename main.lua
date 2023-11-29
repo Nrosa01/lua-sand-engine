@@ -15,11 +15,15 @@ require "particleLauncher"
 local ParticleSimulation = require "ParticleSimulation"
 require "buffer"
 
+local webview_thread = love.thread.newThread("libs/webview/simple.lua")
+
 local particleSimulation;
 
 function love.load()
     particleSimulation = ParticleSimulation:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size,
         canvas_size)
+
+    webview_thread:start()
 end
 
 local converter = 1.0 / 255.0
@@ -73,6 +77,12 @@ function love.keypressed(key, scancode, isrepeat)
 
         if key == "m" then
             TESTFlag = not TESTFlag
+        end
+
+        if key == "n" then
+            if not webview_thread:isRunning() then
+                webview_thread:start()
+            end
         end
 
         selectFromInput(key)

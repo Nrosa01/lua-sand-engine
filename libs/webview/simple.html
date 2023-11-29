@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <p id="sentence">It works !</p>
+    <button onclick="window.external.invoke('title=Changed Title')">Change Title</button>
+    <button onclick="window.external.invoke('print_date')">Print Date</button>
+    <button onclick="window.external.invoke('show_date')">Show Date</button>
+    <button onclick="showText(window.navigator.userAgent)">User Agent</button>
+    <br/>
+    <button title="Reload" onclick="window.location.reload()">&#x21bb;</button>
+    <button title="Toggle fullscreen" onclick="fullscreen = !fullscreen; window.external.invoke(fullscreen ? 'fullscreen' : 'exit_fullscreen')">&#x2922;</button>
+    <button title="Terminate" onclick="window.external.invoke('terminate')">&#x2716;</button>
+    <button title="Toggle hide" onclick="hidden = !hidden; window.external.invoke(hidden ? 'hide' : 'show')">O</button>
+    <br/>
+  </body>
+  <script type="text/javascript">
+  var fullscreen = false;
+  var hidden = false;
+  function showText(value) {
+    document.getElementById("sentence").innerHTML = value;
+  }
+  </script>
+</html>
