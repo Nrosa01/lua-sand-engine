@@ -36,6 +36,8 @@ local function computeGridSizeAndThreads(size, cores)
             numProcessors = numProcessors - 2
         end
     end
+
+    return 1, 1
 end
 
 return computeGridSizeAndThreads
