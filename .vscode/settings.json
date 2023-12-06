@@ -5,4 +5,5 @@
 	],
 	"Lua.runtime.version": "LuaJIT",
 	"Lua.workspace.checkThirdParty": false,
+	"debug.openDebug": "neverOpen"
 }

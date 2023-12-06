@@ -15,6 +15,8 @@ require "particleLauncher"
 local ParticleSimulation = require "ParticleSimulation"
 require "buffer"
 
+require "test_gridCoreSize"
+
 local particleSimulation;
 
 function love.load()

@@ -4,6 +4,7 @@ local Quad = require("Quad")
 local ParticleChunk = require("particle_chunk")
 require("love.system")
 local CheckerGrid = require("CheckerGrid")
+local computeGridSizeAndThreads = require("computeGridAndThreads")
 
 ---@class ParticleSimulation
 ---@field window_width number
@@ -29,6 +30,8 @@ local ParticleSimulation = {}
 
 ParticleSimulation.__index = ParticleSimulation
 
+-- Todo, refactor so simulation width and height are not needed, only size
+-- This is because it's easier to do multithreading 
 function ParticleSimulation:new(window_width, window_height, simulation_width, simulation_height)
     -- I guess here I define fields
     local o =
@@ -54,7 +57,8 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         channel                          = love.thread.getChannel("mainThreadChannel"),
         commonThreadChannel              = love.thread.getChannel("commonThreadChannel"),
         threadChannels                   = {},
-        gridSize                         = 4 -- TODO: Algorithm to find this numbers
+        gridSize                         = 0,
+        thread_count                     = 0
     }
 
     o.simulaton_buffer_front_ptr = ffi.cast("Particle*", o.simulation_buffer_front_bytecode:getFFIPointer())
@@ -77,22 +81,17 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
 
     o.chunk = ParticleChunk:new(chunkData)
 
-    -- Build update data
-    local numThreads = math.min(love.system.getProcessorCount(), o.gridSize * o.gridSize)
-    -- numThreads = 1
+    o.gridSize, o.thread_count = computeGridSizeAndThreads(simulation_width)
 
     -- We will create numThreads threads
-    for row = 1, numThreads do
+    for row = 1, o.thread_count do
         o.threads[row] = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
         o.threads[row]:start(chunkData, ParticleDefinitionsHandler.particle_data, o.quad.imageData, row)
         o.threadChannels[row] = love.thread.getChannel("threadChannel" .. row)
     end
 
-    -- We will divide the world in 4*4 chunks regardless of the number of threads
-    local gridSize = o.gridSize -- Default to a 4x4 grid
-
-    o.updateData = CheckerGrid(gridSize, gridSize, simulation_width, simulation_height, false)
-    o.updateDataReversed = CheckerGrid(gridSize, gridSize, simulation_width, simulation_height, true)
+    o.updateData = CheckerGrid(o.gridSize, o.gridSize, simulation_width, simulation_height, false)
+    o.updateDataReversed = CheckerGrid(o.gridSize, o.gridSize, simulation_width, simulation_height, true)
 
     -- We will create numThreads chunkData tables
     o.chunkData = {
