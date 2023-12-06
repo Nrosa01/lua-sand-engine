@@ -3,6 +3,7 @@ require("Particle")
 local Quad = require("Quad")
 local ParticleChunk = require("particle_chunk")
 require("love.system")
+local CheckerGrid = require("CheckerGrid")
 
 ---@class ParticleSimulation
 ---@field window_width number
@@ -210,6 +211,56 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     o.updateData = table
     o.updateDataReversed = t2
 
+    local updateData = CheckerGrid(gridSize, gridSize, simulation_width, simulation_height, false)
+
+    local updateDataReversed = CheckerGrid(gridSize, gridSize, simulation_width, simulation_height, true)
+
+    -- Let's compare the two to see if they are the same
+
+    local failed = false
+    for row = 1, #updateData do
+        -- compare every updateData field to o.updateData
+        -- They should be the same (and they should have the same fields)
+        local updateDataField = updateData[row]
+        local oUpdateDataField = o.updateData[row]
+
+        for k, v in pairs(updateDataField) do
+            if v ~= oUpdateDataField[k] then
+                print("Error: updateData and o.updateData are not the same")
+                print("updateDataField: " .. k .. " " .. v)
+                print("o.updateDataField: " .. k .. " " .. oUpdateDataField[k])
+                failed = true
+            end
+        end
+    end
+
+    -- Close the program if failed
+    if failed then
+        love.event.quit()
+    end
+
+    for row = 1, #updateDataReversed do
+        -- compare every updateData field to o.updateData
+        -- They should be the same (and they should have the same fields)
+        local updateDataField = updateDataReversed[row]
+        local oUpdateDataField = o.updateDataReversed[row]
+
+        for k, v in pairs(updateDataField) do
+            if v ~= oUpdateDataField[k] then
+                print("Error: updateDataReversed and o.updateDataReversed are not the same")
+                print("updateDataReversed: " .. k .. " " .. v)
+                print("o.updateDataReversed: " .. k .. " " .. oUpdateDataField[k])
+                failed = true
+            end
+        end
+    end
+
+    -- Close the program if failed
+    if failed then
+        love.event.pause()
+    end
+
+
     -- We will create numThreads chunkData tables
     o.chunkData = {
         bytecode = o.simulation_buffer_front_bytecode,
@@ -226,7 +277,7 @@ end
 _G.TESTFlag = false
 
 function ParticleSimulation:send(file)
-    for i,v in ipairs(self.threadChannels) do
+    for i, v in ipairs(self.threadChannels) do
         v:push(file)
     end
 end
