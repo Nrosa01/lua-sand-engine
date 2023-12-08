@@ -5,6 +5,7 @@ local ParticleChunk = require("particle_chunk")
 require("love.system")
 local CheckerGrid = require("CheckerGrid")
 local computeGridSizeAndThreads = require("computeGridAndThreads")
+local queue = require("queue")
 
 ---@class ParticleSimulation
 ---@field window_width number
@@ -26,12 +27,15 @@ local computeGridSizeAndThreads = require("computeGridAndThreads")
 ---@field channel love.Channel
 ---@field commonThreadChannel love.Channel
 ---@field threadChannels table
+---@field gridSize number
+---@field thread_count number
+---@field command_queue Queue
 local ParticleSimulation = {}
 
 ParticleSimulation.__index = ParticleSimulation
 
 -- Todo, refactor so simulation width and height are not needed, only size
--- This is because it's easier to do multithreading 
+-- This is because it's easier to do multithreading
 function ParticleSimulation:new(window_width, window_height, simulation_width, simulation_height)
     -- I guess here I define fields
     local o =
@@ -58,7 +62,9 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         commonThreadChannel              = love.thread.getChannel("commonThreadChannel"),
         threadChannels                   = {},
         gridSize                         = 0,
-        thread_count                     = 0
+        thread_count                     = 0,
+        command_queue                    = queue:new(),
+        pcount                           = 0
     }
 
     o.simulaton_buffer_front_ptr = ffi.cast("Particle*", o.simulation_buffer_front_bytecode:getFFIPointer())
@@ -114,44 +120,108 @@ function ParticleSimulation:send(file)
     end
 end
 
-function ParticleSimulation:setBuffers()
+function ParticleSimulation:setParticle(x, y, particleType)
+    -- if self.chunk:isInside(x, y) then
+    self.command_queue:enqueue(function()
+        self.chunk:setNewParticleById(x, y, particleType)
+    end)
+
+    -- Even if writing to the matrix is delayed, we still update this texture
+    -- This is not reliable but rather for testing purposes
+    local color = ParticleDefinitionsHandler:getParticleData(particleType).color
+    local index = self.chunk:index(x, y) * 4
+    local imageDataPtr = ffi.cast("uint8_t*", self.quad.imageData:getFFIPointer())
+    imageDataPtr[index] = color.r
+    imageDataPtr[index + 1] = color.g
+    imageDataPtr[index + 2] = color.b
+    imageDataPtr[index + 3] = color.a
+end
+
+function ParticleSimulation:get_write_buffer_ptr()
     if self.clock then
-        self.chunk.read_matrix = self.simulaton_buffer_front_ptr
-        self.chunk.write_matrix = self.simulaton_buffer_back_ptr
+        return self.simulaton_buffer_back_ptr
     else
-        self.chunk.read_matrix = self.simulaton_buffer_back_ptr
-        self.chunk.write_matrix = self.simulaton_buffer_front_ptr
+        return self.simulaton_buffer_front_ptr
     end
 end
 
-function ParticleSimulation:setParticle(x, y, particleType)
-    if self.chunk:isInside(x, y) then
-        local index = self.chunk:index(x, y)
-        self.simulaton_buffer_front_ptr[index].type = particleType
-        self.simulaton_buffer_back_ptr[index].type = particleType
+function ParticleSimulation:get_read_buffer_ptr()
+    if self.clock then
+        return self.simulaton_buffer_front_ptr
+    else
+        return self.simulaton_buffer_back_ptr
     end
+end
+
+function ParticleSimulation:get_read_buffer()
+    if self.clock then
+        return self.simulation_buffer_front_bytecode
+    else
+        return self.simulation_buffer_back_bytecode
+    end
+end
+
+function ParticleSimulation:get_write_buffer()
+    if self.clock then
+        return self.simulation_buffer_back_bytecode
+    else
+        return self.simulation_buffer_front_bytecode
+    end
+end
+
+function ParticleSimulation:updateSimulation(clock)
+    local data = self.clock and self.updateData or self.updateDataReversed
+    self:updateFrom(data, self:get_read_buffer(), self:get_write_buffer())
+end
+
+function ParticleSimulation:updateBuffersTmp(clock)
+    local data = self.clock and self.updateData or self.updateDataReversed
+    self:updateBuffers(data, self:get_read_buffer(), self:get_write_buffer())
+end
+
+function ParticleSimulation:execute_command_queue()
+    while not self.command_queue:isEmpty() do
+        local command = self.command_queue:dequeue()
+        command()
+    end
+end
+
+function ParticleSimulation:count()
+    -- Count all particles from the read buffer
+    local count = 0
+    local read = self:get_read_buffer_ptr()
+    for row = 0, self.simulation_width * self.simulation_height - 1 do
+        if read[row].type ~= 1 then
+            count = count + 1
+        end
+    end
+    return count
+end
+
+function ParticleSimulation:post_simulation_update()
+    -- Set chunk buffers
+    self.chunk.read_matrix = self:get_read_buffer_ptr()
+    self.chunk.write_matrix = self:get_write_buffer_ptr()
+
+    -- We want to do all this queue workaround to avoid
+    -- modifying the chunk from multiple threads
+    self:execute_command_queue()
+
+    self:updateBuffersTmp(self.clock)
+    local count = self:count()
+    
+    if count < self.pcount then
+        error("Particle count decreased")
+    end
+    
+    self.pcount = count
+    self.clock = not self.clock
 end
 
 function ParticleSimulation:update()
-    if self.clock then
-        self:updateFrom(
-            self.updateData,
-            self.simulation_buffer_front_bytecode,
-            self.simulation_buffer_back_bytecode)
-        self:updateBuffers(
-            self.updateData,
-            self.simulation_buffer_front_bytecode,
-            self.simulation_buffer_back_bytecode)
-    else
-        self:updateFrom(
-            self.updateDataReversed,
-            self.simulation_buffer_back_bytecode,
-            self.simulation_buffer_front_bytecode)
-        self:updateBuffers(
-            self.updateDataReversed,
-            self.simulation_buffer_back_bytecode,
-            self.simulation_buffer_front_bytecode)
-    end
+    local clock = self.clock
+    self:updateSimulation(clock)
+    self:post_simulation_update()
 end
 
 function ParticleSimulation:updateBuffers(updateData, read, write)
@@ -231,9 +301,9 @@ function ParticleSimulation:updateFrom(updateData, read, write)
     for row = 1, threadCount do
         self.commonThreadChannel:demand() -- A thread is done
     end
-
-    self.clock = not self.clock
 end
+
+local draw_full_grid = false
 
 function ParticleSimulation:render()
     self.quad:render(0, 0)
@@ -246,6 +316,24 @@ function ParticleSimulation:render()
         love.graphics.line(0, row * self.window_height / self.gridSize, self.window_width,
             row * self.window_height / self.gridSize)
     end
+
+    -- draw full grid
+    if draw_full_grid then
+        love.graphics.setColor(0.1, 1, 0.1, TESTFlag and 0 or 0.25)
+        for row = 1, self.simulation_width - 1 do
+            love.graphics.line(row * self.window_width / self.simulation_width, 0,
+                row * self.window_width / self.simulation_width, self.window_height)
+        end
+
+        for row = 1, self.simulation_height - 1 do
+            love.graphics.line(0, row * self.window_height / self.simulation_height, self.window_width,
+                row * self.window_height / self.simulation_height)
+        end
+    end
+
+    -- Draw particle count
+    love.graphics.setColor(1, 0, 0, 1)
+    love.graphics.print("Particle count: " .. self.pcount, 10, 40)
     love.graphics.setColor(1, 1, 1, 1)
 end
 

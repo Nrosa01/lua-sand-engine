@@ -33,7 +33,7 @@ local function test_computeGridSizeAndThreads()
     assertCase(gridSize, 2, 5, "gridSize")
     assertCase(numThreads, 2, 5, "numThreads")
     
-    print("All test cases passed")
+    print("Grid size and threads tests passed")
 end
 
 test_computeGridSizeAndThreads()

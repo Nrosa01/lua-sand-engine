@@ -3,10 +3,10 @@ require "src.debugger"
 local mouse = { x = 0, y = 0, button = "" }
 local canvas_size = 400
 local brush_size = math.floor(canvas_size / 20) * 7;
--- brush_size = 1;
+-- brush_size = 2
 local sensitivy = brush_size / 10
 local currentParticle = 2
-local paused = false
+local paused = true
 
 local imgui = require "imgui"
 require "src"
@@ -15,7 +15,7 @@ require "particleLauncher"
 local ParticleSimulation = require "ParticleSimulation"
 require "buffer"
 
-require "test_gridCoreSize"
+require "test_runner"()
 
 local particleSimulation;
 
@@ -94,13 +94,12 @@ function love.update(dt)
     if (mouse ~= nil and mouse.button == "left") then
         local centerX, centerY = mouse.x, mouse.y
 
-        particleSimulation:setBuffers()
+        local brush_size = math.ceil(brush_size)
+
         for x = -brush_size, brush_size do
             for y = -brush_size, brush_size do
                 local px = mouse.x + x
                 local py = mouse.y + y
-                -- px = mouse.x
-                -- py = mouse.y
 
                 -- Verifica si la posición (px, py) está dentro del círculo
                 local distanceSquared = (px - centerX) ^ 2 + (py - centerY) ^ 2

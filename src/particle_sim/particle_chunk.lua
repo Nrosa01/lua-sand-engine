@@ -49,10 +49,9 @@ function ParticleChunk:update()
 			self.currentIndex = self:index(x, y)
 			self.currentType = self.read_matrix[self.currentIndex].type
 
-			-- Actually not sure if this is needed
-			-- if not self.write_matrix[self.currentIndex].clock then
+			if not self.write_matrix[self.currentIndex].clock then
 				funcs[self.currentType](self)
-			--end
+			end
 		end
 	end
 end
@@ -111,16 +110,16 @@ function ParticleChunk:isEmpty(rx, ry)
 	local y = ry + self.currentY
 	return self:isInside(rx, ry) and 
 			self.read_matrix[self:index(x, y)].type == ParticleType.EMPTY and
-			self.write_matrix[self:index(x, y)].clock ~= true
+			not self.write_matrix[self:index(x, y)].clock
 end
 
 function ParticleChunk:getParticleType(rx, ry)
-	if not self:isInside(rx, ry) then
+	local x = rx + self.currentX
+	local y = ry + self.currentY
+	if not self:isInside(rx, ry) or self.write_matrix[self:index(x, y)].clock then
         return -1
     end
 
-	local x = rx + self.currentX
-	local y = ry + self.currentY
 	return self.read_matrix[self:index(x, y)].type
 end
 
