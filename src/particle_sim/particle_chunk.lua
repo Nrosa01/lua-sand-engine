@@ -74,6 +74,7 @@ function ParticleChunk:swap(rx, ry)
 	self.write_matrix[new_index].type = self.currentType
 	self.write_matrix[new_index].clock = true
 	self.write_matrix[self.currentIndex].type = type_copy
+	self.write_matrix[self.currentIndex].clock = true
 	--self.write_matrix[self.currentIndex].clock = true
 end
 

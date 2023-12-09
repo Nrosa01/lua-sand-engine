@@ -25,11 +25,14 @@ local function addParticleToRegistry()
             local dirY = 1
             local dirX = math.random(-1, 1)
             local below = api:getParticleType(0, dirY)
+            local belowDirX = api:getParticleType(dirX, dirY)
+            local belowDirX2 = api:getParticleType(-dirX, dirY)
+            
             if below == ParticleType.EMPTY or below == ParticleType.WATER then
                 api:swap(0, dirY)
-            elseif api:isEmpty(dirX, dirY) then
+            elseif belowDirX == ParticleType.EMPTY or belowDirX == ParticleType.WATER then
                 api:swap(dirX, dirY)
-            elseif api:isEmpty(-dirX, dirY) then
+            elseif belowDirX2 == ParticleType.EMPTY or belowDirX2 == ParticleType.WATER then
                 api:swap(-dirX, dirY)
             end
         end

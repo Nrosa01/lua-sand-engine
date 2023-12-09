@@ -1,12 +1,12 @@
 require "src.debugger"
 
 local mouse = { x = 0, y = 0, button = "" }
-local canvas_size = 400
+local canvas_size = 200
 local brush_size = math.floor(canvas_size / 20) * 7;
--- brush_size = 2
+--brush_size = 1
 local sensitivy = brush_size / 10
 local currentParticle = 2
-local paused = true
+local paused = false
 
 local imgui = require "imgui"
 require "src"
