@@ -140,38 +140,13 @@ end
 
 function ParticleSimulation:updateBuffers()
     local data = self.clock and self.updateData or self.updateDataReversed
-    self:doThreadedJob(data, self:get_read_buffer(), self:get_write_buffer(), Commands.UpdateBuffers)
-end
-
-function ParticleSimulation:count()
-    -- Count all particles from the read buffer
-    local count = 0
-    local read =  ffi.cast("Particle*", self:get_read_buffer():getFFIPointer())
-    for row = 0, self.simulation_width * self.simulation_height - 1 do
-        if read[row].type ~= 1 then
-            count = count + 1
-        end
-    end
-    return count
+    self.pcount = self:doThreadedJob(data, self:get_read_buffer(), self:get_write_buffer(), Commands.UpdateBuffers)
 end
 
 function ParticleSimulation:update()
     self:updateSimulation()
     self:updateBuffers()
-
-    self:post_simulation_update()
-
     self.clock = not self.clock
-end
-
-function ParticleSimulation:post_simulation_update()
-    local count = self:count()
-
-    if count < self.pcount then
-        error("Particle count decreased")
-    end
-
-    self.pcount = count
 end
 
 function ParticleSimulation:doThreadedJob(updateData, read, write, command)
@@ -188,9 +163,14 @@ function ParticleSimulation:doThreadedJob(updateData, read, write, command)
         })
     end
 
+    local p_count = 0
+
     for _, _ in ipairs(updateData) do
-        self.commonThreadChannel:demand()
+        local count = self.commonThreadChannel:demand()
+        p_count = p_count + count
     end
+
+    return p_count
 end
 
 _G.TESTFlag = false

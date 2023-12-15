@@ -43,11 +43,17 @@ local function updateBuffers(data)
     local read = ffi.cast("Particle*", data.read:getFFIPointer())
     local write = ffi.cast("Particle*", data.write:getFFIPointer())
 
+    local p_count = 0
+
     for y = updateData.yStart, updateData.yEnd, updateData.increment do
         for x = updateData.xStart, updateData.xEnd, updateData.increment do
             local index = chunk:index(x, y)
             read[index].type = write[index].type
             read[index].clock = false
+
+            if read[index].type ~= ParticleType.EMPTY then
+                p_count = p_count + 1
+            end
 
             local color = ParticleDefinitionsHandler:getParticleData(read[index].type).color
             local pIndex = index * 4
@@ -57,6 +63,8 @@ local function updateBuffers(data)
             imageDataptr[pIndex + 3] = color.a
         end
     end
+
+    return p_count
 end
 
 while true do
@@ -78,13 +86,15 @@ while true do
         end
     end
 
+    local p_count = -1
+
     if message.command == Commands.TickSimulation then
         updateSimulation(message.data)
     elseif message.command == Commands.UpdateBuffers then
-        updateBuffers(message.data)
+        p_count = updateBuffers(message.data)
     end
 
     commonThreadChannel:performAtomic(function(channel)
-        channel:push(1)
+        channel:push(p_count)
     end)
 end
