@@ -5,7 +5,6 @@ local ParticleChunk = require("particle_chunk")
 require("love.system")
 local CheckerGrid = require("CheckerGrid")
 local computeGridSizeAndThreads = require("computeGridAndThreads")
-local queue = require("queue")
 
 ---@class ParticleSimulation
 ---@field window_width number
@@ -52,7 +51,6 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         simulaton_buffer_back_ptr        = nil,
         quad                             = Quad:new(window_width, window_height, simulation_width, simulation_height),
         threads                          = {},
-        chunk                            = nil,
         clock                            = false,
         updateData                       = {},
         updateDataReversed               = {},
@@ -63,7 +61,6 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         threadChannels                   = {},
         gridSize                         = 0,
         thread_count                     = 0,
-        command_queue                    = queue:new(),
         pcount                           = 0
     }
 
@@ -84,8 +81,6 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         width = simulation_width,
         height = simulation_height
     }
-
-    o.chunk = ParticleChunk:new(chunkData)
 
     o.gridSize, o.thread_count = computeGridSizeAndThreads(simulation_width)
 
@@ -120,16 +115,40 @@ function ParticleSimulation:send(file)
     end
 end
 
-function ParticleSimulation:setParticle(x, y, particleType)
-    -- if self.chunk:isInside(x, y) then
-    self.command_queue:enqueue(function()
-        self.chunk:setNewParticleById(x, y, particleType)
-    end)
+-- Helper method for the simulation, they work the same way as the ones in ParticleChunk clas
+function ParticleSimulation:index(x, y)
+    return x + y * self.simulation_width
+end
 
-    -- Even if writing to the matrix is delayed, we still update this texture
-    -- This is not reliable but rather for testing purposes
+-- Helper method for the simulation, they work the same way as the ones in ParticleChunk clas
+function ParticleSimulation:isInside(x, y)
+    return x >= 0 and x < self.simulation_width and y >= 0 and y < self.simulation_height
+end
+
+function ParticleSimulation:setParticle(x, y, particleType)
+    if not self:isInside(x, y) then
+        return
+    end
+    
+    local index = self:index(x, y)
+
+    -- We set clock to false so the particle gets updated in the next frame
+    local write_matrix = self:get_write_buffer_ptr()
+    write_matrix[index].type = particleType
+    write_matrix[index].clock = false
+
+    local read_matrix = self:get_read_buffer_ptr()
+    read_matrix[index].type = particleType
+    read_matrix[index].clock = false
+
+    -- We want to update this because render texture only updates when the simulation updates
+    -- So if the simulation is paused, we wouldn't see the particle. We have to force this
+
+    -- You might wonder "we could separate the render texture from the simulation"
+    -- Yes we could, but that would mean to run another loop and I want maximum performance
+    -- Texture only changes when particle changes, including here
     local color = ParticleDefinitionsHandler:getParticleData(particleType).color
-    local index = self.chunk:index(x, y) * 4
+    local index = self:index(x, y) * 4
     local imageDataPtr = ffi.cast("uint8_t*", self.quad.imageData:getFFIPointer())
     imageDataPtr[index] = color.r
     imageDataPtr[index + 1] = color.g
@@ -138,35 +157,19 @@ function ParticleSimulation:setParticle(x, y, particleType)
 end
 
 function ParticleSimulation:get_write_buffer_ptr()
-    if self.clock then
-        return self.simulaton_buffer_back_ptr
-    else
-        return self.simulaton_buffer_front_ptr
-    end
+    return self.clock and self.simulaton_buffer_back_ptr or self.simulaton_buffer_front_ptr
 end
 
 function ParticleSimulation:get_read_buffer_ptr()
-    if self.clock then
-        return self.simulaton_buffer_front_ptr
-    else
-        return self.simulaton_buffer_back_ptr
-    end
+    return self.clock and self.simulaton_buffer_front_ptr or self.simulaton_buffer_back_ptr
 end
 
 function ParticleSimulation:get_read_buffer()
-    if self.clock then
-        return self.simulation_buffer_front_bytecode
-    else
-        return self.simulation_buffer_back_bytecode
-    end
+    return self.clock and self.simulation_buffer_front_bytecode or self.simulation_buffer_back_bytecode
 end
 
 function ParticleSimulation:get_write_buffer()
-    if self.clock then
-        return self.simulation_buffer_back_bytecode
-    else
-        return self.simulation_buffer_front_bytecode
-    end
+    return self.clock and self.simulation_buffer_back_bytecode or self.simulation_buffer_front_bytecode
 end
 
 function ParticleSimulation:updateSimulation(clock)
@@ -177,13 +180,6 @@ end
 function ParticleSimulation:updateBuffersTmp(clock)
     local data = self.clock and self.updateData or self.updateDataReversed
     self:updateBuffers(data, self:get_read_buffer(), self:get_write_buffer())
-end
-
-function ParticleSimulation:execute_command_queue()
-    while not self.command_queue:isEmpty() do
-        local command = self.command_queue:dequeue()
-        command()
-    end
 end
 
 function ParticleSimulation:count()
@@ -199,14 +195,6 @@ function ParticleSimulation:count()
 end
 
 function ParticleSimulation:post_simulation_update()
-    -- Set chunk buffers
-    self.chunk.read_matrix = self:get_read_buffer_ptr()
-    self.chunk.write_matrix = self:get_write_buffer_ptr()
-
-    -- We want to do all this queue workaround to avoid
-    -- modifying the chunk from multiple threads
-    self:execute_command_queue()
-
     self:updateBuffersTmp(self.clock)
     local count = self:count()
     

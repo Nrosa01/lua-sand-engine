@@ -103,7 +103,7 @@ function love.update(dt)
 
                 -- Verifica si la posición (px, py) está dentro del círculo
                 local distanceSquared = (px - centerX) ^ 2 + (py - centerY) ^ 2
-                if particleSimulation.chunk:isInside(px, py) and distanceSquared <= brush_size ^ 2 then
+                if distanceSquared <= brush_size ^ 2 then
                     particleSimulation:setParticle(px, py, currentParticle)
                 end
             end
@@ -144,8 +144,8 @@ function love.mousepressed(x, y, button, istouch, presses)
             particleSimulation:update()
         end
 
-        local chunkX = math.floor(x / (love.graphics.getWidth() / particleSimulation.chunk.width))
-        local chunkY = math.floor(y / (love.graphics.getHeight() / particleSimulation.chunk.height))
+        local chunkX = math.floor(x / (love.graphics.getWidth() / particleSimulation.simulation_width))
+        local chunkY = math.floor(y / (love.graphics.getHeight() / particleSimulation.simulation_height))
         mouse = { x = chunkX, y = chunkY, button = buttonname }
     end
 end
@@ -153,8 +153,8 @@ end
 function love.mousemoved(x, y, dx, dy)
     imgui.MouseMoved(x, y)
     if not imgui.GetWantCaptureMouse() then
-        local chunkX = math.floor(x / (love.graphics.getWidth() / particleSimulation.chunk.width))
-        local chunkY = math.floor(y / (love.graphics.getHeight() / particleSimulation.chunk.height))
+        local chunkX = math.floor(x / (love.graphics.getWidth() / particleSimulation.simulation_width))
+        local chunkY = math.floor(y / (love.graphics.getHeight() / particleSimulation.simulation_height))
         mouse = { x = chunkX, y = chunkY, button = mouse.button }
     end
 end
@@ -179,7 +179,7 @@ function love.draw(dt)
     local mouseX = love.mouse.getX()
     local mouseY = love.mouse.getY()
 
-    local drawCircleSize = brush_size * (love.graphics.getWidth() / particleSimulation.chunk.width)
+    local drawCircleSize = brush_size * (love.graphics.getWidth() / particleSimulation.simulation_width)
     love.graphics.circle("line", mouseX, mouseY, drawCircleSize)
 
     -- set white colors

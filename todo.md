@@ -20,4 +20,5 @@
 - [x]  El chunk debería proporcionar acceso a currentType y currentIndex, es útil para funciones como swap y demás.
 - [ ]  Revisar uso de API
 - [ ]  Reorganizar ficheros
+- [x]  Revisar que añadir particulas no rompa el programa (revisar que no se añadan mientras se está actualizando el buffer)
 
