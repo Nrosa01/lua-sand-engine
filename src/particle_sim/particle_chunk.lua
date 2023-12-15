@@ -109,19 +109,36 @@ end
 function ParticleChunk:isEmpty(rx, ry)
 	local x = rx + self.currentX
 	local y = ry + self.currentY
-	return self:isInside(rx, ry) and 
-			self.read_matrix[self:index(x, y)].type == ParticleType.EMPTY and
-			not self.write_matrix[self:index(x, y)].clock
+	return self:isInside(rx, ry) and
+		self.read_matrix[self:index(x, y)].type == ParticleType.EMPTY and
+		not self.write_matrix[self:index(x, y)].clock
 end
 
 function ParticleChunk:getParticleType(rx, ry)
 	local x = rx + self.currentX
 	local y = ry + self.currentY
 	if not self:isInside(rx, ry) or self.write_matrix[self:index(x, y)].clock then
-        return -1
-    end
+		return -1
+	end
 
 	return self.read_matrix[self:index(x, y)].type
+end
+
+function ParticleChunk:check_neighbour_multi(rx, ry, mask)
+	local x = rx + self.currentX
+	local y = ry + self.currentY
+	if not self:isInside(rx, ry) or self.write_matrix[self.currentIndex].clock then
+		return false
+	end
+
+	local type  = self.read_matrix[self:index(x, y)].type
+	for _, v in ipairs(mask) do
+		if type == v then
+			return true
+		end
+	end
+
+	return false
 end
 
 return ParticleChunk

@@ -5,6 +5,7 @@
 - [ ] Cambiar velocidad de la simulación
 - [ ] Optimizar (convertir globales de lua a upvalues)
 - [ ] Añadir densidad para scripting más sencillo
+- [x] Añadir método para comprobar varios tipos de partículas (check_neighbour_multi)
 - [ ] Añadir dos campos de datos más a las particulas
 - [ ] Limpiar main.lua
 - [ ] Crear widget de imgui en su propio archivo
@@ -14,11 +15,12 @@
 - [ ] Gestión de estado persistente
   - [ ] Guardar
   - [ ] Cargar
-- [ ]  Los comandos al thread deberían ser números, no texto, usar "ENUM"
+- [x]  Los comandos al thread deberían ser números, no texto, usar "ENUM"
 - [x]  El buffer debería actualizarse en una sola dimensión, así no necesito calcular el índice (descartado, no es buena idea, es más incómodo)
 - [x]  Indexar globalmente los tipos de las particulas
 - [x]  El chunk debería proporcionar acceso a currentType y currentIndex, es útil para funciones como swap y demás.
 - [ ]  Revisar uso de API
 - [ ]  Reorganizar ficheros
 - [x]  Revisar que añadir particulas no rompa el programa (revisar que no se añadan mientras se está actualizando el buffer)
+- [x]  Refactorizar ParticleSimulation.lua
 
