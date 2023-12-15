@@ -1,10 +1,23 @@
-- Tabla de direcciones inmutable
-- Tabla de direcciones aleatorias que se generan cada frame
-- Calcular el tamaño del grid en base al tamaño del canvas
-- Versión single thread
-- Cambiar velocidad de la simulación
-- Optimizar (convertir globales de lua a upvalues)
-- Añadir densidad para scripting más sencillo
-- Añadir dos campos de datos más a las particulas
-- Limpiar main.lua
-- Crear widget de imgui en su propio archivo
+- [ ] Tabla de direcciones inmutable
+- [ ] Tabla de direcciones aleatorias que se generan cada frame
+- [x] Calcular el tamaño del grid en base al tamaño del canvas
+- [x] Versión single thread (tecnicamente es multithread, pero con un solo thread)
+- [ ] Cambiar velocidad de la simulación
+- [ ] Optimizar (convertir globales de lua a upvalues)
+- [ ] Añadir densidad para scripting más sencillo
+- [ ] Añadir dos campos de datos más a las particulas
+- [ ] Limpiar main.lua
+- [ ] Crear widget de imgui en su propio archivo
+- [x] Orden de actualización siempre hacia arriba (no ayuda en nada)
+- [x] Limitar escritura por pixel a solo una vez
+- [ ] Renombrar todo, cohesión de variables	
+- [ ] Gestión de estado persistente
+  - [ ] Guardar
+  - [ ] Cargar
+- [ ]  Los comandos al thread deberían ser números, no texto, usar "ENUM"
+- [x]  El buffer debería actualizarse en una sola dimensión, así no necesito calcular el índice (descartado, no es buena idea, es más incómodo)
+- [x]  Indexar globalmente los tipos de las particulas
+- [x]  El chunk debería proporcionar acceso a currentType y currentIndex, es útil para funciones como swap y demás.
+- [ ]  Revisar uso de API
+- [ ]  Reorganizar ficheros
+

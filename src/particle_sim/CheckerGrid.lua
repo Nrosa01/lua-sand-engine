@@ -18,7 +18,7 @@ end
 
 local function GridStructure(grid_sides_x, grid_sides_y, width, height, inverted)
     local temp_table = {}
-    
+
     local xStep = math.floor(width / grid_sides_x)
     local yStep = math.floor(height / grid_sides_y)
 
@@ -35,17 +35,17 @@ local function GridStructure(grid_sides_x, grid_sides_y, width, height, inverted
     local iterator = 1
 
     local loop_data = {
-        {2, 1, grid_sides_x, grid_sides_y, 2},
-        {1, 2, grid_sides_x, grid_sides_y, 2},
-        {1, 1, grid_sides_x, grid_sides_y, 2},
-        {2, 2, grid_sides_x, grid_sides_y, 2},
+        { 2, 1, grid_sides_x, grid_sides_y, 2 },
+        { 1, 2, grid_sides_x, grid_sides_y, 2 },
+        { 1, 1, grid_sides_x, grid_sides_y, 2 },
+        { 2, 2, grid_sides_x, grid_sides_y, 2 },
     }
 
     local loop_data_inverted = {
-        {grid_sides_x, grid_sides_y, 1, 1, -2},
-        {grid_sides_x - 1, grid_sides_y - 1, 1, 1, -2},
-        {grid_sides_x, grid_sides_y - 1, 1, 1, -2},
-        {grid_sides_x - 1, grid_sides_y, 1, 1, -2},
+        { grid_sides_x,     grid_sides_y,     1, 1, -2 },
+        { grid_sides_x - 1, grid_sides_y - 1, 1, 1, -2 },
+        { grid_sides_x,     grid_sides_y - 1, 1, 1, -2 },
+        { grid_sides_x - 1, grid_sides_y,     1, 1, -2 },
     }
 
     if inverted then
