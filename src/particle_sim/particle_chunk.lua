@@ -127,7 +127,7 @@ end
 function ParticleChunk:check_neighbour_multi(rx, ry, mask)
 	local x = rx + self.currentX
 	local y = ry + self.currentY
-	if not self:isInside(rx, ry) or self.write_matrix[self.currentIndex].clock then
+	if not self:isInside(rx, ry) or self.write_matrix[self:index(x, y)].clock then
 		return false
 	end
 
