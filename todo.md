@@ -1,9 +1,9 @@
-- [ ] Tabla de direcciones inmutable
-- [ ] Tabla de direcciones aleatorias que se generan cada frame
+- [x] Tabla de direcciones inmutable
+- [x] Tabla de direcciones aleatorias que se generan cada frame
 - [x] Calcular el tamaño del grid en base al tamaño del canvas
 - [x] Versión single thread (tecnicamente es multithread, pero con un solo thread)
 - [ ] Cambiar velocidad de la simulación
-- [ ] Optimizar (convertir globales de lua a upvalues, al menos en hotpath)
+- [x] Optimizar (convertir globales de lua a upvalues, al menos en hotpath)
 - [ ] Añadir densidad para scripting más sencillo
 - [x] Añadir método para comprobar varios tipos de partículas (check_neighbour_multi)
 - [ ] Añadir dos campos de datos más a las particulas

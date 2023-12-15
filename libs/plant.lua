@@ -10,23 +10,23 @@ addParticle(
             end
         end
 
-        api:iterate_neighbours(
-            function(dirX, dirY)
-                if api:getParticleType(dirX, dirY) == ParticleType.WATER and math.random(5) == 1 then
-                    api:iterate_neighbours_random(
-                        function(randomDirX, randomDirY)
-                            if api:isEmpty(randomDirX, randomDirY) then
-                                api:setNewParticleById(randomDirX, randomDirY, ParticleType.PLANT)
-                                return false -- Stop iterating
-                            end
-                            return true      -- Continue iterating
-                        end
-                    )
+        local mask = { ParticleType.EMPTY, ParticleType.WATER }
+
+        local tries = 6
+
+        while tries > 0 do
+            local dirX, dirY = math.random(-1, 1), math.random(-1, 1)
+            if api:getParticleType(dirX, dirY) == ParticleType.WATER and math.random(5) == 1 then
+                local randomDirX, randomDirY = math.random(-1, 1) + dirX, math.random(-1, 1) + dirY
+                if api:check_neighbour_multi(randomDirX, randomDirY, mask) then
+                    api:setNewParticleById(randomDirX, randomDirY, ParticleType.PLANT)
                     api:setNewParticleById(dirX, dirY, ParticleType.EMPTY)
+                    break
                 end
-                return true -- Continue iterating
             end
-        )
+
+            tries = tries - 1
+        end
     end
 )
 
