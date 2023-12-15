@@ -291,38 +291,15 @@ function ParticleSimulation:updateFrom(updateData, read, write)
     end
 end
 
-local draw_full_grid = false
-
 function ParticleSimulation:render()
     self.quad:render(0, 0)
 
     -- Draw grid
-    love.graphics.setColor(0.1, 1, 0.1, TESTFlag and 0 or 0.25)
-    for row = 1, self.gridSize - 1 do
-        love.graphics.line(row * self.window_width / self.gridSize, 0, row * self.window_width / self.gridSize,
-            self.window_height)
-        love.graphics.line(0, row * self.window_height / self.gridSize, self.window_width,
-            row * self.window_height / self.gridSize)
+    if not TESTFlag then
+        Gizmos:drawGrid(self.gridSize, self.gridSize, { 0.1, 1, 0.1, 0.25 })
     end
 
-    -- draw full grid
-    if draw_full_grid then
-        love.graphics.setColor(0.1, 1, 0.1, TESTFlag and 0 or 0.25)
-        for row = 1, self.simulation_width - 1 do
-            love.graphics.line(row * self.window_width / self.simulation_width, 0,
-                row * self.window_width / self.simulation_width, self.window_height)
-        end
-
-        for row = 1, self.simulation_height - 1 do
-            love.graphics.line(0, row * self.window_height / self.simulation_height, self.window_width,
-                row * self.window_height / self.simulation_height)
-        end
-    end
-
-    -- Draw particle count
-    love.graphics.setColor(1, 0, 0, 1)
-    love.graphics.print("Particle count: " .. self.pcount, 10, 40)
-    love.graphics.setColor(1, 1, 1, 1)
+    Gizmos:drawText("Particle Count: " .. self.pcount, 10, 40, { 1, 0, 0, 1 })
 end
 
 return ParticleSimulation

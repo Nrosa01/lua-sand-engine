@@ -14,7 +14,7 @@ require "ParticleDefinitionsHandler"
 require "particleLauncher"
 local ParticleSimulation = require "ParticleSimulation"
 require "buffer"
-
+Gizmos = require "src.debug.Gizmos"
 require "test_runner"()
 
 local particleSimulation;
