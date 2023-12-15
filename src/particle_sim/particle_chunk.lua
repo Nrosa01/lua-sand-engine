@@ -17,12 +17,12 @@ ParticleChunk.__index = ParticleChunk
 local start_index = 0
 local end_index = 1
 
-function ParticleChunk:new(chunkData)
+function ParticleChunk:new(width, height)
 	local instance = {
 		read_matrix = {},
 		write_matrix = {},
-		width = chunkData.width,
-		height = chunkData.height,
+		width = width,
+		height = height,
 		clock = false,
 		currentX = 0,
 		currentY = 0,

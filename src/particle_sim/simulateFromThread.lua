@@ -2,9 +2,11 @@ require("ParticleDefinitionsHandler")
 require("love.image")
 require("colour_t")
 
+local Commands = require("Commands")
+
 local ffi = require("ffi")
 local ParticleChunk = require "particle_chunk"
-local chunkData, pdata, imageData, index = ...
+local width, height, pdata, imageData, index = ...
 
 ParticleDefinitionsHandler.particle_data = pdata
 
@@ -19,7 +21,7 @@ for i = 1, ParticleDefinitionsHandler:getRegisteredParticlesCount() do
     ParticleType[string.upper(data.text_id)] = i
 end
 
-local chunk = ParticleChunk:new(chunkData)
+local chunk = ParticleChunk:new(width, height)
 local imageDataptr = ffi.cast("uint8_t*", imageData:getFFIPointer())
 
 local mainThreadChannel = love.thread.getChannel("mainThreadChannel")
@@ -76,9 +78,9 @@ while true do
         end
     end
 
-    if message.command == "TickSimulation" then
+    if message.command == Commands.TickSimulation then
         updateSimulation(message.data)
-    elseif message.command == "UpdateBuffers" then
+    elseif message.command == Commands.UpdateBuffers then
         updateBuffers(message.data)
     end
 

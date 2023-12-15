@@ -1,7 +1,7 @@
 require "src.debugger"
 
 local mouse = { x = 0, y = 0, button = "" }
-local canvas_size = 200
+local canvas_size = 400
 local brush_size = math.floor(canvas_size / 20) * 7;
 --brush_size = 1
 local sensitivy = brush_size / 10
