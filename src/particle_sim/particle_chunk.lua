@@ -10,6 +10,7 @@ require("Particle")
 ---@field currentX number
 ---@field currentY number
 ---@field updateData table
+---@field randomized_neighbours table
 
 local ParticleChunk = {}
 ParticleChunk.__index = ParticleChunk
@@ -28,7 +29,8 @@ function ParticleChunk:new(width, height)
 		currentY = 0,
 		currenType = 1,
 		currentIndex = 0,
-		updateData = {}
+		updateData = {},
+		randomized_neighbours = {}
 	}
 
 	setmetatable(instance, self)
@@ -39,8 +41,31 @@ function ParticleChunk:index(x, y)
 	return x + y * self.width
 end
 
+function ParticleChunk:create_random_neighbours()
+	-- Creates a table of neighbours in random order
+	local directions = {}
+
+	for dirX = -1, 1 do
+		for dirY = -1, 1 do
+			if dirX ~= 0 or dirY ~= 0 then
+				table.insert(directions, { x = dirX, y = dirY })
+			end
+		end
+	end
+
+	-- Shuffle the directions table using Fisher-Yates algorithm
+	local n = #directions
+	for i = n, 2, -1 do
+		local j = math.random(i)
+		directions[i], directions[j] = directions[j], directions[i]
+	end
+
+	return directions
+end
+
 function ParticleChunk:update()
 	local funcs = ParticleDefinitionsHandler.funcs
+	self.randomized_neighbours = self:create_random_neighbours()
 
 	for y = self.updateData.yStart, self.updateData.yEnd, self.updateData.increment do
 		for x = self.updateData.xStart, self.updateData.xEnd, self.updateData.increment do
@@ -139,6 +164,24 @@ function ParticleChunk:check_neighbour_multi(rx, ry, mask)
 	end
 
 	return false
+end
+
+-- Iterate neighobours in fixed order
+function ParticleChunk:iterate_neighbours(func)
+	for y = -1, 1 do
+		for x = -1, 1 do
+			if x ~= 0 or y ~= 0 then
+				if not func(x, y) then return end
+			end
+		end
+	end
+end
+
+-- Iterate neighobours in random order (only once each neighbour)
+function ParticleChunk:iterate_neighbours_random(func)
+	for _, v in ipairs(self.randomized_neighbours) do
+		if not func(v.x, v.y) then return end
+	end
 end
 
 return ParticleChunk

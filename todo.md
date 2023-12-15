@@ -3,7 +3,7 @@
 - [x] Calcular el tamaño del grid en base al tamaño del canvas
 - [x] Versión single thread (tecnicamente es multithread, pero con un solo thread)
 - [ ] Cambiar velocidad de la simulación
-- [ ] Optimizar (convertir globales de lua a upvalues)
+- [ ] Optimizar (convertir globales de lua a upvalues, al menos en hotpath)
 - [ ] Añadir densidad para scripting más sencillo
 - [x] Añadir método para comprobar varios tipos de partículas (check_neighbour_multi)
 - [ ] Añadir dos campos de datos más a las particulas
@@ -24,3 +24,4 @@
 - [x]  Revisar que añadir particulas no rompa el programa (revisar que no se añadan mientras se está actualizando el buffer)
 - [x]  Refactorizar ParticleSimulation.lua
 
+Quizás meta un parámetro densidad, puede ser útil para no tener que usar máscaras complejas cuando haya distintos tipos de líquidos. El problema aquí será que el usuario debe saber que densidad tiene cada partícula. Con la aproximación actual mediante máscaras el usuario solo necesita conocer las partículas existentes.
