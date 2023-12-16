@@ -23,7 +23,7 @@ _G.addParticle = function (text, color, func)
 end
 
 _G.getFuncOf = function (id)
-    return ParticleDefinitionsHandler.particle_data[id].interactions
+    return ParticleDefinitionsHandler.funcs[id]
 end
 
 _G.getColorOf = function (id)
