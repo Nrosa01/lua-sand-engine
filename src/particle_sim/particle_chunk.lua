@@ -31,11 +31,10 @@ function ParticleChunk:new(width, height)
 		currentIndex = 0,
 		updateData = {},
 		randomized_neighbours = {},
-		neighbours = {}
+		neighbours = self:create_neighbours()
 	}
 
 	setmetatable(instance, self)
-	instance.neighbours = instance:create_neighbours()
 	return instance
 end
 
