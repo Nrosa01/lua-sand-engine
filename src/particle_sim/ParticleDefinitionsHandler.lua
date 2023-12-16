@@ -36,15 +36,15 @@ function ParticleDefinitionsHandlerConstructor:addParticleData(data)
     -- If data is already registered in text_to_id_map, then we overwrite it in particle_data
     -- Otherwise we add it to the end of the particle_data vector and add it to the text_to_id_map
     
-    local index = self.text_to_id_map[data.text_id]
+    local upper_underscore = string.gsub(string.upper(data.text_id), " ", "_")
+    local index = self.text_to_id_map[upper_underscore]
     
     if index then
         self.particle_data[index] = data
     else
         table.insert(self.particle_data, data)
-        local replace_space_with_underscore_to_upper = string.gsub(string.upper(data.text_id), " ", "_")
-        _G.ParticleType[replace_space_with_underscore_to_upper] = #self.particle_data
-        self.text_to_id_map[data.text_id] = #self.particle_data
+        _G.ParticleType[upper_underscore] = #self.particle_data
+        self.text_to_id_map[upper_underscore] = #self.particle_data
     end
 end
 
@@ -63,6 +63,12 @@ end
 
 function ParticleDefinitionsHandlerConstructor:getParticleDataVector()
     return self.particle_data
+end
+
+function ParticleDefinitionsHandlerConstructor:loadParticleData(data)
+    for i = 1, #data do
+        self:addParticleData(data[i])
+    end
 end
 
 return ParticleDefinitionsHandlerConstructor

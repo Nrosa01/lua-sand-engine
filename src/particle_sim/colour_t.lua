@@ -1,6 +1,11 @@
 -- colour_t.lua
 local ffi = require("ffi")
 
+---@class colour_t
+---@field r number
+---@field g number
+---@field b number
+---@field a number
 ffi.cdef[[
     typedef struct {
         uint8_t r;

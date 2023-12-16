@@ -98,13 +98,13 @@ addParticle(
             end)
 
         if neighbours < 2 or neighbours > 3 then
-            api:setNewParticleById(0, 0, ParticleType.DEAD)
+            api:setNewParticleById(0, 0, ParticleType.EMPTY)
         end
     end
 )
 
 addParticle(
-    "Dead",
+    "Empty",
     { r = 0, g = 0, b = 0, a = 255 },
     function(api, ticks)
         if ticks % 3 ~= 0 then return end
@@ -127,9 +127,7 @@ addParticle(
 addParticle(
     "Blinker",
     { r = 255, g = 255, b = 255, a = 255 },
-    function(api, ticks)
-        if ticks % 3 ~= 0 then return end
-
+    function(api)
         api:setNewParticleById(0, 0, ParticleType.ALIVE_CELL)
         api:setNewParticleById(0, 1, ParticleType.ALIVE_CELL)
         api:setNewParticleById(0, -1, ParticleType.ALIVE_CELL)

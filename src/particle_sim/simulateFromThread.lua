@@ -8,17 +8,13 @@ local ffi = require("ffi")
 local ParticleChunk = require "particle_chunk"
 local width, height, pdata, imageData, index = ...
 
-ParticleDefinitionsHandler.particle_data = pdata
-
-_G.ParticleType = {}
+ParticleDefinitionsHandler:loadParticleData(pdata)
 
 -- As I saved code as string, I need to load it
 -- This is the only way to pass functions to the thread
 for i = 1, ParticleDefinitionsHandler:getRegisteredParticlesCount() do
     local data = ParticleDefinitionsHandler:getParticleData(i)
-    data.color = ffi.new("colour_t", data.color.r, data.color.g, data.color.b, data.color.a)
     ParticleDefinitionsHandler.funcs[i] = load(data.interactions)
-    ParticleType[string.gsub(string.upper(data.text_id), " ", "_")] = i
 end
 
 local chunk = ParticleChunk:new(width, height)
@@ -72,17 +68,12 @@ while true do
     local file = threadChannel:pop()
 
     if file then
-        local numOfParticles = ParticleDefinitionsHandler:getRegisteredParticlesCount()
-
+        
         dofile(file:getFilename())
-
-        local newNumOfParticles = ParticleDefinitionsHandler:getRegisteredParticlesCount()
-
-        for i = newNumOfParticles - numOfParticles + 1, newNumOfParticles do
+        
+        for i = 1, ParticleDefinitionsHandler:getRegisteredParticlesCount() do
             local data = ParticleDefinitionsHandler:getParticleData(i)
-            data.color = ffi.new("colour_t", data.color.r, data.color.g, data.color.b, data.color.a)
             ParticleDefinitionsHandler.funcs[i] = load(data.interactions)
-            ParticleType[string.upper(data.text_id)] = i
         end
     end
 
