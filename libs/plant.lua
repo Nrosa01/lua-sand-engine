@@ -98,13 +98,13 @@ addParticle(
             end)
 
         if neighbours < 2 or neighbours > 3 then
-            api:setNewParticleById(0, 0, ParticleType.DEAD_CELL)
+            api:setNewParticleById(0, 0, ParticleType.DEAD)
         end
     end
 )
 
 addParticle(
-    "Dead Cell",
+    "Dead",
     { r = 0, g = 0, b = 0, a = 255 },
     function(api, ticks)
         if ticks % 3 ~= 0 then return end

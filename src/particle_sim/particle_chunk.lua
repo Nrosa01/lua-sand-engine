@@ -81,13 +81,21 @@ function ParticleChunk:update(simulation_tick)
 	end
 end
 
+-- Sets a particle at the given position if it hasn't been set yet this frame
 function ParticleChunk:setNewParticleById(rx, ry, id)
 	local x = rx + self.currentX
 	local y = ry + self.currentY
+
 	if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
 		self.write_matrix[self:index(x, y)].type = id
 		self.write_matrix[self:index(x, y)].clock = true
 	end
+end
+
+function ParticleChunk:isParticleWritten(rx, ry)
+	local x = rx + self.currentX
+	local y = ry + self.currentY
+	return self.write_matrix[self:index(x, y)].clock
 end
 
 function ParticleChunk:swap(rx, ry)
@@ -142,7 +150,8 @@ end
 function ParticleChunk:getParticleType(rx, ry)
 	local x = rx + self.currentX
 	local y = ry + self.currentY
-	if not self:isInside(rx, ry) or self.write_matrix[self:index(x, y)].clock then
+	
+	if not self:isInside(rx, ry) then
 		return -1
 	end
 

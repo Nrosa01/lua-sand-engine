@@ -3,7 +3,7 @@ require "src.debugger"
 local mouse = { x = 0, y = 0, button = "" }
 local canvas_size = 200
 local brush_size = math.floor(canvas_size / 20) * 7;
---brush_size = 1
+-- brush_size = 1
 local sensitivy = brush_size / 10
 local currentParticle = 2
 local paused = false
@@ -15,7 +15,7 @@ require "particleLauncher"
 local ParticleSimulation = require "ParticleSimulation"
 require "buffer"
 Gizmos = require "src.debug.Gizmos"
-require "test_runner"()
+require "test_runner" ()
 
 local particleSimulation;
 
@@ -38,7 +38,8 @@ local function drawParticleMenu()
             currentParticle = i
         end
         imgui.SameLine()
-        imgui.ColorButton(data.text_id .. "Color", data.color.r * converter, data.color.g *  converter, data.color.b * converter, data.color.a * converter)
+        imgui.ColorButton(data.text_id .. "Color", data.color.r * converter, data.color.g * converter,
+            data.color.b * converter, data.color.a * converter)
     end
 
     imgui.End()
@@ -96,17 +97,21 @@ function love.update(dt)
 
         local brush_size = math.ceil(brush_size)
 
-        for x = -brush_size, brush_size do
-            for y = -brush_size, brush_size do
-                local px = mouse.x + x
-                local py = mouse.y + y
+        if brush_size > 1 then
+            for x = -brush_size, brush_size do
+                for y = -brush_size, brush_size do
+                    local px = mouse.x + x
+                    local py = mouse.y + y
 
-                -- Verifica si la posición (px, py) está dentro del círculo
-                local distanceSquared = (px - centerX) ^ 2 + (py - centerY) ^ 2
-                if distanceSquared <= brush_size ^ 2 then
-                    particleSimulation:setParticle(px, py, currentParticle)
+                    -- Verifica si la posición (px, py) está dentro del círculo
+                    local distanceSquared = (px - centerX) ^ 2 + (py - centerY) ^ 2
+                    if distanceSquared <= brush_size ^ 2 then
+                        particleSimulation:setParticle(px, py, currentParticle)
+                    end
                 end
             end
+        else
+            particleSimulation:setParticle(mouse.x, mouse.y, currentParticle)
         end
     end
 
