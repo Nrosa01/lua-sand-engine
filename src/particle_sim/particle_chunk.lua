@@ -35,6 +35,7 @@ function ParticleChunk:new(width, height)
 	}
 
 	setmetatable(instance, self)
+	instance.neighbours = instance:create_neighbours()
 	return instance
 end
 
@@ -81,7 +82,6 @@ end
 function ParticleChunk:update(simulation_tick)
 	local funcs = ParticleDefinitionsHandler.funcs
 	self.randomized_neighbours = self:create_random_neighbours()
-	self.neighbours = self:create_neighbours()
 
 	for y = self.updateData.yStart, self.updateData.yEnd, self.updateData.increment do
 		for x = self.updateData.xStart, self.updateData.xEnd, self.updateData.increment do
