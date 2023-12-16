@@ -42,7 +42,8 @@ function ParticleDefinitionsHandlerConstructor:addParticleData(data)
         self.particle_data[index] = data
     else
         table.insert(self.particle_data, data)
-        _G.ParticleType[string.upper(data.text_id)] = #self.particle_data
+        local replace_space_with_underscore_to_upper = string.gsub(string.upper(data.text_id), " ", "_")
+        _G.ParticleType[replace_space_with_underscore_to_upper] = #self.particle_data
         self.text_to_id_map[data.text_id] = #self.particle_data
     end
 end

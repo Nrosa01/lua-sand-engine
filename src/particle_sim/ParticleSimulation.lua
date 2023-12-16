@@ -23,6 +23,7 @@ local computeGridSizeAndThreads = require("computeGridAndThreads")
 ---@field private threadChannels table
 ---@field private gridSize number
 ---@field private pcount number
+---@field private simulation_tick number -- This stores the number of times the simulation has been updated
 local ParticleSimulation = {}
 
 ParticleSimulation.__index = ParticleSimulation
@@ -48,7 +49,8 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
         commonThreadChannel              = love.thread.getChannel("commonThreadChannel"),
         threadChannels                   = {},
         gridSize                         = 0,
-        pcount                           = 0
+        pcount                           = 0,
+        simulation_tick                  = 0
     }
 
     local simulaton_buffer_front_ptr = ffi.cast("Particle*", o.simulation_buffer_front_bytecode:getFFIPointer())
@@ -147,6 +149,7 @@ function ParticleSimulation:update()
     self:updateSimulation()
     self:updateBuffers()
     self.clock = not self.clock
+    self.simulation_tick = self.simulation_tick + 1
 end
 
 function ParticleSimulation:doThreadedJob(updateData, read, write, command)
@@ -158,7 +161,8 @@ function ParticleSimulation:doThreadedJob(updateData, read, write, command)
                 updateData = updateData[row],
                 clock = self.clock,
                 read = read,
-                write = write
+                write = write,
+                simulation_tick = self.simulation_tick
             }
         })
     end

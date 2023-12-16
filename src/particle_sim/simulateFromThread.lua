@@ -18,7 +18,7 @@ for i = 1, ParticleDefinitionsHandler:getRegisteredParticlesCount() do
     local data = ParticleDefinitionsHandler:getParticleData(i)
     data.color = ffi.new("colour_t", data.color.r, data.color.g, data.color.b, data.color.a)
     ParticleDefinitionsHandler.funcs[i] = load(data.interactions)
-    ParticleType[string.upper(data.text_id)] = i
+    ParticleType[string.gsub(string.upper(data.text_id), " ", "_")] = i
 end
 
 local chunk = ParticleChunk:new(width, height)
@@ -34,7 +34,7 @@ local function updateSimulation(data)
     chunk.clock = data.clock
     chunk.read_matrix = ffi.cast("Particle*", data.read:getFFIPointer())
     chunk.write_matrix = ffi.cast("Particle*", data.write:getFFIPointer())
-    chunk:update()
+    chunk:update(data.simulation_tick)
 end
 
 -- Updatedata here should be a start index and end index to iterate over an array

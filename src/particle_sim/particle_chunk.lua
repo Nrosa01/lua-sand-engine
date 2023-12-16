@@ -63,7 +63,7 @@ function ParticleChunk:create_random_neighbours()
 	return directions
 end
 
-function ParticleChunk:update()
+function ParticleChunk:update(simulation_tick)
 	local funcs = ParticleDefinitionsHandler.funcs
 	self.randomized_neighbours = self:create_random_neighbours()
 
@@ -75,7 +75,7 @@ function ParticleChunk:update()
 			self.currentType = self.read_matrix[self.currentIndex].type
 
 			if not self.write_matrix[self.currentIndex].clock then
-				funcs[self.currentType](self)
+				funcs[self.currentType](self, simulation_tick)
 			end
 		end
 	end

@@ -23,5 +23,8 @@
 - [ ]  Reorganizar ficheros
 - [x]  Revisar que añadir particulas no rompa el programa (revisar que no se añadan mientras se está actualizando el buffer)
 - [x]  Refactorizar ParticleSimulation.lua
+- [ ]  Acceder a entrada de teclado desde las particulas
+- [ ]  Poder mover fácilmente más de un pixel cada partícula (crear una función específica que sea similar a swap pero que mueva más de un pixel)
+- [ ]  Hability to overwrite a particle
 
 Quizás meta un parámetro densidad, puede ser útil para no tener que usar máscaras complejas cuando haya distintos tipos de líquidos. El problema aquí será que el usuario debe saber que densidad tiene cada partícula. Con la aproximación actual mediante máscaras el usuario solo necesita conocer las partículas existentes.
