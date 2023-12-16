@@ -36,24 +36,20 @@ addParticle(
     function(api)
         -- Iterate over all directions
         local burnt = false
-        api:iterate_neighbours(
-            function(dirX, dirY)
-                -- If the particle below is water, turn it into steam
-                if api:getParticleType(dirX, dirY) == ParticleType.WATER then
-                    api:setNewParticleById(dirX, dirY, ParticleType.STEAM)
-                end
 
-                -- If the particle below is plant, turn it into fire
-                if api:getParticleType(dirX, dirY) == ParticleType.PLANT then
-                    -- 1 in 2 chance to turn into fire
-                    if math.random(2) == 1 then
-                        api:setNewParticleById(dirX, dirY, ParticleType.FIRE)
-                    end
-                    burnt = true
-                end
+        for _, dir in ipairs(api:get_neighbours()) do
+            if api:getParticleType(dir.x, dir.y) == ParticleType.WATER then
+                api:setNewParticleById(dir.x, dir.y, ParticleType.STEAM)
+            end
 
-                return true
-            end)
+            if api:getParticleType(dir.x, dir.y) == ParticleType.PLANT then
+                if math.random(2) == 1 then
+                    api:setNewParticleById(dir.x, dir.y, ParticleType.FIRE)
+                end
+                burnt = true
+            end
+        end
+
 
         -- 20% chance to turn into smoke
         if math.random(5) == 1 and not burnt then

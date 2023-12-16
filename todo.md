@@ -28,5 +28,6 @@
 - [x]  Hability to overwrite a particle
 - [x]  Añadir posibilidad de acceder al tick de simulación actual (para poder ejecutar código cada x ticks)
 - [ ]  Poder cargar una imagen como un mapa de partículas
+- [ ]  Añadir posibilidad de crear brochas específicas
 
 Quizás meta un parámetro densidad, puede ser útil para no tener que usar máscaras complejas cuando haya distintos tipos de líquidos. El problema aquí será que el usuario debe saber que densidad tiene cada partícula. Con la aproximación actual mediante máscaras el usuario solo necesita conocer las partículas existentes.

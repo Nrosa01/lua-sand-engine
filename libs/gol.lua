@@ -5,13 +5,12 @@ addParticle(
         if ticks % 3 ~= 0 then return end
 
         local neighbours = 0
-        api:iterate_neighbours(
-            function(dirX, dirY)
-                if api:getParticleType(dirX, dirY) == ParticleType.ALIVE_CELL then
-                    neighbours = neighbours + 1
-                end
-                return true
-            end)
+
+        for _, dir in ipairs(api:get_neighbours()) do
+            if api:getParticleType(dir.x, dir.y) == ParticleType.ALIVE_CELL then
+                neighbours = neighbours + 1
+            end
+        end
 
         if neighbours < 2 or neighbours > 3 then
             api:setNewParticleById(0, 0, ParticleType.EMPTY)
@@ -26,13 +25,12 @@ addParticle(
         if ticks % 3 ~= 0 then return end
 
         local neighbours = 0
-        api:iterate_neighbours(
-            function(dirX, dirY)
-                if api:getParticleType(dirX, dirY) == ParticleType.ALIVE_CELL then
-                    neighbours = neighbours + 1
-                end
-                return true
-            end)
+
+        for _, dir in ipairs(api:get_neighbours()) do
+            if api:getParticleType(dir.x, dir.y) == ParticleType.ALIVE_CELL then
+                neighbours = neighbours + 1
+            end
+        end
 
         if neighbours == 3 then
             api:setNewParticleById(0, 0, ParticleType.ALIVE_CELL)

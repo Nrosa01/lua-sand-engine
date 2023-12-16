@@ -30,7 +30,8 @@ function ParticleChunk:new(width, height)
 		currenType = 1,
 		currentIndex = 0,
 		updateData = {},
-		randomized_neighbours = {}
+		randomized_neighbours = {},
+		neighbours = {}
 	}
 
 	setmetatable(instance, self)
@@ -41,8 +42,7 @@ function ParticleChunk:index(x, y)
 	return x + y * self.width
 end
 
-function ParticleChunk:create_random_neighbours()
-	-- Creates a table of neighbours in random order
+function ParticleChunk:create_neighbours()
 	local directions = {}
 
 	for dirX = -1, 1 do
@@ -52,6 +52,13 @@ function ParticleChunk:create_random_neighbours()
 			end
 		end
 	end
+
+	return directions
+end
+
+function ParticleChunk:create_random_neighbours()
+	-- Creates a table of neighbours in random order
+	local directions = self:create_neighbours()
 
 	-- Shuffle the directions table using Fisher-Yates algorithm
 	local n = #directions
@@ -63,9 +70,18 @@ function ParticleChunk:create_random_neighbours()
 	return directions
 end
 
+function ParticleChunk:get_neighbours()
+	return self.neighbours
+end
+
+function ParticleChunk:get_randomized_neighbours()
+	return self.randomized_neighbours
+end
+
 function ParticleChunk:update(simulation_tick)
 	local funcs = ParticleDefinitionsHandler.funcs
 	self.randomized_neighbours = self:create_random_neighbours()
+	self.neighbours = self:create_neighbours()
 
 	for y = self.updateData.yStart, self.updateData.yEnd, self.updateData.increment do
 		for x = self.updateData.xStart, self.updateData.xEnd, self.updateData.increment do
@@ -173,24 +189,6 @@ function ParticleChunk:check_neighbour_multi(rx, ry, mask)
 	end
 
 	return false
-end
-
--- Iterate neighobours in fixed order
-function ParticleChunk:iterate_neighbours(func)
-	for y = -1, 1 do
-		for x = -1, 1 do
-			if x ~= 0 or y ~= 0 then
-				if not func(x, y) then return end
-			end
-		end
-	end
-end
-
--- Iterate neighobours in random order (only once each neighbour)
-function ParticleChunk:iterate_neighbours_random(func)
-	for _, v in ipairs(self.randomized_neighbours) do
-		if not func(v.x, v.y) then return end
-	end
 end
 
 return ParticleChunk
