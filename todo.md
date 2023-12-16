@@ -1,33 +1,35 @@
-- [x] Tabla de direcciones inmutable
-- [x] Tabla de direcciones aleatorias que se generan cada frame
-- [x] Calcular el tamaño del grid en base al tamaño del canvas
-- [x] Versión single thread (tecnicamente es multithread, pero con un solo thread)
-- [ ] Cambiar velocidad de la simulación
-- [x] Optimizar (convertir globales de lua a upvalues, al menos en hotpath)
-- [ ] Añadir densidad para scripting más sencillo
-- [x] Añadir método para comprobar varios tipos de partículas (check_neighbour_multi)
+- [ ] Acceder a entrada de teclado desde las particulas
 - [ ] Añadir dos campos de datos más a las particulas
-- [ ] Limpiar main.lua
+- [ ] Web blockly
+- [ ] Cambiar velocidad de la simulación
+- [ ] Añadir densidad para scripting más sencillo
 - [ ] Crear widget de imgui en su propio archivo
-- [x] Orden de actualización siempre hacia arriba (no ayuda en nada)
-- [x] Limitar escritura por pixel a solo una vez
+- [ ] Limpiar main.lua
+- [ ]  Revisar uso de API
+- [ ]  Reorganizar ficheros
+- [ ]  Poder cargar una imagen como un mapa de partículas
+- [ ]  Añadir posibilidad de crear brochas específicas
 - [ ] Renombrar todo, cohesión de variables	
 - [ ] Gestión de estado persistente
   - [ ] Guardar
   - [ ] Cargar
+- [ ]  Poder mover fácilmente más de un pixel cada partícula (crear una función específica que sea similar a swap pero que mueva más de un pixel)
+- [x] Tabla de direcciones inmutable
+- [x] Tabla de direcciones aleatorias que se generan cada frame
+- [x] Calcular el tamaño del grid en base al tamaño del canvas
+- [x] Versión single thread (tecnicamente es multithread, pero con un solo thread)
+- [x] Optimizar (convertir globales de lua a upvalues, al menos en hotpath)
+- [x] Añadir método para comprobar varios tipos de partículas (check_neighbour_multi)
+- [x] Orden de actualización siempre hacia arriba (no ayuda en nada)
+- [x] Limitar escritura por pixel a solo una vez
 - [x]  Los comandos al thread deberían ser números, no texto, usar "ENUM"
 - [x]  El buffer debería actualizarse en una sola dimensión, así no necesito calcular el índice (descartado, no es buena idea, es más incómodo)
 - [x]  Indexar globalmente los tipos de las particulas
 - [x]  El chunk debería proporcionar acceso a currentType y currentIndex, es útil para funciones como swap y demás.
-- [ ]  Revisar uso de API
-- [ ]  Reorganizar ficheros
 - [x]  Revisar que añadir particulas no rompa el programa (revisar que no se añadan mientras se está actualizando el buffer)
 - [x]  Refactorizar ParticleSimulation.lua
-- [ ]  Acceder a entrada de teclado desde las particulas
-- [ ]  Poder mover fácilmente más de un pixel cada partícula (crear una función específica que sea similar a swap pero que mueva más de un pixel)
 - [x]  Hability to overwrite a particle
 - [x]  Añadir posibilidad de acceder al tick de simulación actual (para poder ejecutar código cada x ticks)
-- [ ]  Poder cargar una imagen como un mapa de partículas
-- [ ]  Añadir posibilidad de crear brochas específicas
+
 
 Quizás meta un parámetro densidad, puede ser útil para no tener que usar máscaras complejas cuando haya distintos tipos de líquidos. El problema aquí será que el usuario debe saber que densidad tiene cada partícula. Con la aproximación actual mediante máscaras el usuario solo necesita conocer las partículas existentes.
