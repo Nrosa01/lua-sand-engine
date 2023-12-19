@@ -1,19 +1,19 @@
-- [ ] Acceder a entrada de teclado desde las particulas
-- [ ] Añadir dos campos de datos más a las particulas
-- [ ] Web blockly
-- [ ] Cambiar velocidad de la simulación
-- [ ] Añadir densidad para scripting más sencillo
-- [ ] Crear widget de imgui en su propio archivo
-- [ ] Limpiar main.lua
-- [ ]  Revisar uso de API
-- [ ]  Reorganizar ficheros
+- [ ] Acceder a entrada de teclado desde las particulas (muy prioritario, turing completeness)
+- [ ] Añadir dos campos de datos más a las particulas (dificultad media, muy prioritario)
+- [ ] Web blockly (quiero llorar)
+- [ ] Cambiar velocidad de la simulación (facil)
+- [ ] Añadir densidad para scripting más sencillo (importante, complica la implementación de blockly)
+- [ ] Crear widget de imgui en su propio archivo (no muy importante)
+- [ ] Limpiar main.lua (medio importante)
+- [x]  Revisar uso de API
+- [ ]  Reorganizar ficheros (importante)
 - [ ]  Poder cargar una imagen como un mapa de partículas
-- [ ]  Añadir posibilidad de crear brochas específicas
+- [ ]  Añadir posibilidad de crear brochas específicas (UX, no importante)
 - [ ] Renombrar todo, cohesión de variables	
-- [ ] Gestión de estado persistente
-  - [ ] Guardar
+- [ ] Gestión de estado persistente (medio importante)
+  - [ ] Guardar (sin compresión, para no morirme)
   - [ ] Cargar
-- [ ]  Poder mover fácilmente más de un pixel cada partícula (crear una función específica que sea similar a swap pero que mueva más de un pixel)
+- [ ]  Poder mover fácilmente más de un pixel cada partícula (crear una función específica que sea similar a swap pero que mueva más de un pixel, considerar riesgos, por ahora parece peligroso)
 - [x] Tabla de direcciones inmutable
 - [x] Tabla de direcciones aleatorias que se generan cada frame
 - [x] Calcular el tamaño del grid en base al tamaño del canvas
@@ -22,12 +22,13 @@
 - [x] Añadir método para comprobar varios tipos de partículas (check_neighbour_multi)
 - [x] Orden de actualización siempre hacia arriba (no ayuda en nada)
 - [x] Limitar escritura por pixel a solo una vez
+- [x] Implementar tests de unidad para no tener que estar probando a mano 
 - [x]  Los comandos al thread deberían ser números, no texto, usar "ENUM"
 - [x]  El buffer debería actualizarse en una sola dimensión, así no necesito calcular el índice (descartado, no es buena idea, es más incómodo)
 - [x]  Indexar globalmente los tipos de las particulas
 - [x]  El chunk debería proporcionar acceso a currentType y currentIndex, es útil para funciones como swap y demás.
 - [x]  Revisar que añadir particulas no rompa el programa (revisar que no se añadan mientras se está actualizando el buffer)
-- [x]  Refactorizar ParticleSimulation.lua
+- [x]  Refactorizar ParticleSimulation.lua (reducido de 370 a lineas a 194, mucho más legible)
 - [x]  Hability to overwrite a particle
 - [x]  Añadir posibilidad de acceder al tick de simulación actual (para poder ejecutar código cada x ticks)
 

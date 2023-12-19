@@ -1,6 +1,6 @@
 local ffi = require("ffi")
 require("Particle")
-local Quad = require("Quad")
+local Quad = require("quad")
 local Commands = require("Commands")
 
 local ParticleChunk = require("particle_chunk")
