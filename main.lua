@@ -1,18 +1,18 @@
-require "src.debugger"
+require "src.utils.debugger"
 require "src.init"
 
 local canvas_size = 300
 local paused = false
 
 ParticleDefinitionsHandler = require "particle_definition_handler"
-Gizmos = require "src.debug.gizmos"
+Gizmos = require "src.graphics.gizmos"
 
 local imgui = require "imgui"
-require "src.particle_sim.particle_first_load"
+require "particle_first_load"
 local ParticleSimulation = require "particle_simulation"
 local brush = require "brush"
-local entity_system = require "entity_system"
-local mods_handler = require "mods_handler"
+local entity_system = require "src.core.entity_system"
+local mods_handler = require "src.mods.mods_handler"
 local particle_menu = require("particle_menu")
 -- require "test_runner" ()
 

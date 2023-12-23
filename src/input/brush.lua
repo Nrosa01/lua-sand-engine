@@ -1,5 +1,5 @@
-local MOUSE_BUTTONS = require("mouse_buttons")
-local EVENTS = require("src.observable_events")
+local MOUSE_BUTTONS = require("src.input.mouse_buttons")
+local EVENTS = require("src.core.observable_events")
 local beholder = require("beholder")
 
 ---@class Brush

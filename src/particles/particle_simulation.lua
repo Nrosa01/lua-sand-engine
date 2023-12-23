@@ -1,9 +1,9 @@
 local ffi = require("ffi")
-require("src.particle_sim.particle")
+require("particle")
 local Quad = require("quad")
-local Commands = require("src.particle_sim.job_commands")
+local Commands = require("job_commands")
 
-local CheckerGrid = require("src.particle_sim.checker_grid")
+local CheckerGrid = require("checker_grid")
 local computeGridSizeAndThreads = require("grid_thread_comp")
 
 ---@class ParticleSimulation
@@ -65,7 +65,7 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     o.gridSize = gridSize
 
     for row = 1, thread_count do
-        o.threads[row] = love.thread.newThread("src/particle_sim/thread_job.lua")
+        o.threads[row] = love.thread.newThread("src/jobs/thread_job.lua")
         o.threads[row]:start(simulation_width, simulation_height, ParticleDefinitionsHandler.particle_data,
             o.quad.imageData, row)
         o.threadChannels[row] = love.thread.getChannel("threadChannel" .. row)

@@ -1,12 +1,12 @@
 local beholder = require "beholder"
-local EVENTS = require "src.observable_events"
+local EVENTS = require "src.core.observable_events"
 
 local mods_handler = {}
 
 function mods_handler:file_dropped(file)
     if file:getExtension() == "lua" then
         print("Running file: " .. file:getFilename())
-        local fileRunner = require "fileRunner"
+        local fileRunner = require "src.utils.file_runner"
         fileRunner(file)
         beholder.trigger(EVENTS.MOD_ADDED)
     else

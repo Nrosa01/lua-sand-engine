@@ -1,7 +1,7 @@
-require("src.particle_sim.particle_definition_handler")
+require("particle_definition_handler")
 require("love.image")
 
-local Commands = require("src.particle_sim.job_commands")
+local Commands = require("job_commands")
 
 local ffi = require("ffi")
 local ParticleChunk = require "particle_chunk"

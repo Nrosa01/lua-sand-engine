@@ -1,5 +1,5 @@
 local ffi = require("ffi")
-require("src.particle_sim.particle")
+require("particle")
 
 ---@class ParticleChunk
 ---@field bytecode love.ByteData

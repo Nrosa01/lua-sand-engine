@@ -1,6 +1,6 @@
 local imgui = require "imgui"
 local beholder = require "beholder"
-local EVENTS = require "src.observable_events"
+local EVENTS = require "src.core.observable_events"
 
 local particle_menu = {}
 -- particle_menu.__index = particle_menu
