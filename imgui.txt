@@ -1,0 +1,783 @@
+None = -1
+NoTitleBar = 1
+NoResize = 2
+NoMove = 4
+NoScrollbar = 8
+NoScrollWithMouse = 16
+NoCollapse = 32
+AlwaysAutoResize = 64
+NoBackground = 128
+NoSavedSettings = 256
+NoMouseInputs = 512
+MenuBar = 1024
+HorizontalScrollbar = 2048
+NoFocusOnAppearing = 4096
+NoBringToFrontOnFocus = 8192
+AlwaysVerticalScrollbar = 16384
+AlwaysHorizontalScrollbar = 32768
+AlwaysUseWindowPadding = 65536
+NoNavInputs = 262144
+NoNavFocus = 524288
+UnsavedDocument = 1048576
+NoDocking = 2097152
+NoNav = 786432
+NoDecoration = 43
+NoInputs = 32
+NavFlattened = 8388608
+ImGuiWindowFlags_None = 0
+ImGuiWindowFlags_NoTitleBar = 1
+ImGuiWindowFlags_NoResize = 2
+ImGuiWindowFlags_NoMove = 4
+ImGuiWindowFlags_NoScrollbar = 8
+ImGuiWindowFlags_NoScrollWithMouse = 16
+NoOptions = 8
+NoSmallPreview = 16
+NoTooltip = 64
+NoLabel = 128
+NoSidePreview = 256
+AlphaBar = 65536
+AlphaPreview = 131072
+AlphaPreviewHalf = 262144
+HDR = 524288
+RGB = 1048576
+HSV = 2097152
+HEX = 4194304
+Uint8 = 8388608
+Float = 16777216
+PickerHueBar = 33554432
+PickerHueWheel = 67108864
+ImGuiColorEditFlags_None = 0
+ImGuiColorEditFlags_NoAlpha = 2
+ImGuiColorEditFlags_NoPicker = 4
+ImGuiColorEditFlags_NoOptions = 8
+ImGuiColorEditFlags_NoSmallPreview = 16
+ImGuiColorEditFlags_NoInputs = 32
+ImGuiColorEditFlags_NoTooltip = 64
+ImGuiColorEditFlags_NoLabel = 128
+ImGuiColorEditFlags_NoSidePreview = 256
+ImGuiColorEditFlags_NoDragDrop = 512
+ImGuiColorEditFlags_AlphaBar = 65536
+ImGuiColorEditFlags_AlphaPreview = 131072
+ImGuiColorEditFlags_AlphaPreviewHalf = 262144
+ImGuiColorEditFlags_HDR = 524288
+ImGuiColorEditFlags_RGB = 1048576
+ImGuiColorEditFlags_DisplayRGB = 1048576
+ImGuiColorEditFlags_HSV = 2097152
+ImGuiColorEditFlags_DisplayHSV = 2097152
+ImGuiColorEditFlags_HEX = 4194304
+ImGuiColorEditFlags_DisplayHex = 4194304
+ImGuiColorEditFlags_Uint8 = 8388608
+ImGuiColorEditFlags_Float = 16777216
+ImGuiColorEditFlags_PickerHueBar = 33554432
+ImGuiColorEditFlags_PickerHueWheel = 67108864
+ImGuiColorEditFlags_InputRGB = 134217728
+ImGuiColorEditFlags_InputHSV = 268435456
+ImGuiColorEditFlags__OptionsDefault = 177209344
+Arrow = 0
+TextInput()
+ResizeNS = 3
+ResizeEW = 4
+ResizeNESW = 5
+ResizeNWSE = 6
+ImGuiMouseCursor_None = -1
+ImGuiMouseCursor_Arrow = 0
+ImGuiMouseCursor_TextInput = 1
+KeyPressed()
+GetWantCaptureKeyboard()
+KeyReleased()
+NewFrame()
+WheelMoved()
+GetWantCaptureMouse()
+MousePressed()
+MouseMoved()
+MouseReleased()
+Begin()
+End()
+Render()
+vertexformat = table: 0x02baf4ad5b28
+SetWindowCollapsed_2()
+GetScrollY()
+GetScrollMaxY()
+SetScrollX()
+SetScrollHere()
+SetScrollFromPosY()
+ShutDown()
+PushFont()
+PopFont()
+PushStyleColor()
+PushStyleColor_2()
+PopStyleColor()
+PushStyleVar()
+PushStyleVar_2()
+PopStyleVar()
+GetFontSize()
+GetFontTexUvWhitePixel()
+PushItemWidth()
+PopItemWidth()
+CalcItemWidth()
+PushTextWrapPos()
+PopTextWrapPos()
+PushAllowKeyboardFocus()
+PopAllowKeyboardFocus()
+PushButtonRepeat()
+PopButtonRepeat()
+SameLine()
+NewLine()
+Spacing()
+Dummy()
+Indent()
+Unindent()
+BeginGroup()
+EndGroup()
+GetCursorPos()
+GetCursorPosX()
+GetCursorPosY()
+SetCursorPos()
+SetCursorPosX()
+SetCursorPosY()
+ImGuiWindowFlags_NoCollapse = 32
+ImGuiWindowFlags_AlwaysAutoResize = 64
+ImGuiWindowFlags_NoBackground = 128
+ImGuiWindowFlags_NoSavedSettings = 256
+ImGuiWindowFlags_NoMouseInputs = 512
+ImGuiWindowFlags_MenuBar = 1024
+ImGuiWindowFlags_HorizontalScrollbar = 2048
+ImGuiWindowFlags_NoFocusOnAppearing = 4096
+ImGuiWindowFlags_NoBringToFrontOnFocus = 8192
+ImGuiWindowFlags_AlwaysVerticalScrollbar = 16384
+ImGuiWindowFlags_AlwaysHorizontalScrollbar = 32768
+ImGuiWindowFlags_AlwaysUseWindowPadding = 65536
+ImGuiWindowFlags_NoNavInputs = 262144
+ImGuiWindowFlags_NoNavFocus = 524288
+ImGuiWindowFlags_UnsavedDocument = 1048576
+ImGuiWindowFlags_NoDocking = 2097152
+ImGuiWindowFlags_NoNav = 786432
+ImGuiWindowFlags_NoDecoration = 43
+ImGuiWindowFlags_NoInputs = 786944
+ImGuiWindowFlags_NavFlattened = 8388608
+CharsDecimal = 1
+CharsHexadecimal = 2
+CharsUppercase = 4
+CharsNoBlank = 8
+AutoSelectAll = 16
+EnterReturnsTrue = 32
+CallbackCompletion = 64
+CallbackHistory = 128
+CallbackAlways = 256
+CallbackCharFilter = 512
+AllowTabInput = 1024
+CtrlEnterForNewLine = 2048
+NoHorizontalScroll = 4096
+GetWindowWidth()
+GetWindowHeight()
+IsWindowCollapsed()
+IsWindowAppearing()
+SetWindowFontScale()
+SetNextWindowPos()
+SetNextWindowSize()
+SetNextWindowSizeConstraints()
+SetNextWindowContentSize()
+SetNextWindowCollapsed()
+SetNextWindowFocus()
+SetNextWindowBgAlpha()
+SetNextWindowViewport()
+SetWindowPos()
+ImGuiInputTextFlags_CallbackCharFilter = 512
+ImGuiInputTextFlags_AllowTabInput = 1024
+ImGuiInputTextFlags_CtrlEnterForNewLine = 2048
+ImGuiInputTextFlags_NoHorizontalScroll = 4096
+ImGuiInputTextFlags_AlwaysInsertMode = 8192
+ImGuiInputTextFlags_ReadOnly = 16384
+ImGuiInputTextFlags_Password = 32768
+ImGuiInputTextFlags_NoUndoRedo = 65536
+ImGuiInputTextFlags_CharsScientific = 131072
+ImGuiInputTextFlags_CallbackResize = 262144
+Selected = 1
+Framed = 2
+AllowItemOverlap = 4
+NoTreePushOnOpen = 8
+NoAutoOpenOnLog = 16
+DefaultOpen = 32
+OpenOnDoubleClick = 64
+OpenOnArrow = 128
+Leaf = 256
+Bullet()
+FramePadding = 10
+CollapsingHeader()
+ImGuiTreeNodeFlags_None = 0
+ImGuiTreeNodeFlags_Selected = 1
+ImGuiTreeNodeFlags_Framed = 2
+ImGuiTreeNodeFlags_AllowItemOverlap = 4
+ImGuiTreeNodeFlags_NoTreePushOnOpen = 8
+ImGuiTreeNodeFlags_NoAutoOpenOnLog = 16
+ImGuiTreeNodeFlags_DefaultOpen = 32
+ImGuiTreeNodeFlags_OpenOnDoubleClick = 64
+ImGuiTreeNodeFlags_OpenOnArrow = 128
+ImGuiTreeNodeFlags_Leaf = 256
+ImGuiTreeNodeFlags_Bullet = 512
+ImGuiTreeNodeFlags_FramePadding = 1024
+ImGuiTreeNodeFlags_SpanAvailWidth = 2048
+ImGuiTreeNodeFlags_SpanFullWidth = 4096
+ImGuiTreeNodeFlags_NavLeftJumpsBackHere = 8192
+ImGuiTreeNodeFlags_CollapsingHeader = 26
+DontClosePopups = 1
+SpanAllColumns = 2
+AllowDoubleClick = 4
+ImGuiSelectableFlags_None = 0
+ImGuiSelectableFlags_DontClosePopups = 1
+ImGuiSelectableFlags_SpanAllColumns = 2
+ImGuiSelectableFlags_AllowDoubleClick = 4
+ImGuiSelectableFlags_Disabled = 8
+ImGuiSelectableFlags_AllowItemOverlap = 16
+PopupAlignLeft = 1
+HeightSmall = 2
+HeightRegular = 4
+HeightLarge = 8
+HeightLargest = 16
+HeightMask_ = 30
+ImGuiComboFlags_None = 0
+ImGuiComboFlags_PopupAlignLeft = 1
+ImGuiComboFlags_HeightSmall = 2
+ImGuiComboFlags_HeightRegular = 4
+ImGuiComboFlags_HeightLarge = 8
+ImGuiComboFlags_HeightLargest = 16
+ImGuiComboFlags_NoArrowButton = 32
+ImGuiComboFlags_NoPreview = 64
+ImGuiComboFlags_HeightMask_ = 30
+ImGuiTabBarFlags_None = 0
+ImGuiTabBarFlags_Reorderable = 1
+ImGuiTabBarFlags_AutoSelectNewTabs = 2
+ImGuiTabBarFlags_TabListPopupButton = 4
+ImGuiTabBarFlags_NoCloseWithMiddleMouseButton = 8
+ImGuiTabBarFlags_NoTabListScrollingButtons = 16
+ImGuiTabBarFlags_NoTooltip = 32
+ImGuiTabBarFlags_FittingPolicyResizeDown = 64
+ImGuiTabBarFlags_FittingPolicyScroll = 128
+ImGuiTabBarFlags_FittingPolicyMask_ = 192
+ImGuiTabBarFlags_FittingPolicyDefault_ = 64
+ImGuiTabItemFlags_None = 0
+ImGuiTabItemFlags_UnsavedDocument = 1
+ImGuiTabItemFlags_SetSelected = 2
+ImGuiTabItemFlags_NoCloseWithMiddleMouseButton = 4
+ImGuiTabItemFlags_NoPushId = 8
+ImGuiFocusedFlags_None = 0
+ImGuiFocusedFlags_ChildWindows = 1
+ImGuiFocusedFlags_RootWindow = 2
+ImGuiFocusedFlags_AnyWindow = 4
+ImGuiFocusedFlags_RootAndChildWindows = 3
+ImGuiHoveredFlags_None = 0
+ImGuiHoveredFlags_ChildWindows = 1
+ImGuiHoveredFlags_RootWindow = 2
+ImGuiHoveredFlags_AnyWindow = 4
+ImGuiHoveredFlags_AllowWhenBlockedByPopup = 8
+ImGuiHoveredFlags_AllowWhenBlockedByActiveItem = 32
+ImGuiHoveredFlags_AllowWhenOverlapped = 64
+ImGuiHoveredFlags_AllowWhenDisabled = 128
+ImGuiHoveredFlags_RectOnly = 104
+ImGuiHoveredFlags_RootAndChildWindows = 3
+ImGuiDockNodeFlags_None = 0
+ImGuiDockNodeFlags_KeepAliveOnly = 1
+ImGuiDockNodeFlags_NoDockingInCentralNode = 4
+ImGuiDockNodeFlags_PassthruCentralNode = 8
+ImGuiDockNodeFlags_NoSplit = 16
+ImGuiDockNodeFlags_NoResize = 32
+ImGuiDockNodeFlags_AutoHideTabBar = 64
+SourceNoPreviewTooltip = 1
+SourceNoDisableHover = 2
+SourceNoHoldToOpenOthers = 4
+SourceAllowNullID = 8
+SourceExtern = 16
+AcceptBeforeDelivery = 1024
+AcceptNoDrawDefaultRect = 2048
+AcceptPeekOnly = 3072
+ImGuiDragDropFlags_None = 0
+ImGuiDragDropFlags_SourceNoPreviewTooltip = 1
+ImGuiDragDropFlags_SourceNoDisableHover = 2
+ImGuiDragDropFlags_SourceNoHoldToOpenOthers = 4
+ImGuiDragDropFlags_SourceAllowNullID = 8
+ImGuiDragDropFlags_SourceExtern = 16
+ImGuiDragDropFlags_SourceAutoExpirePayload = 32
+ImGuiDragDropFlags_AcceptBeforeDelivery = 1024
+ImGuiDragDropFlags_AcceptNoDrawDefaultRect = 2048
+ImGuiDragDropFlags_AcceptNoPreviewTooltip = 4096
+ImGuiDragDropFlags_AcceptPeekOnly = 3072
+ImGuiDataType_S8 = 0
+ImGuiDataType_U8 = 1
+ImGuiDataType_S16 = 2
+ImGuiDataType_U16 = 3
+ImGuiDataType_S32 = 4
+ImGuiDataType_U32 = 5
+ImGuiDataType_S64 = 6
+ImGuiDataType_U64 = 7
+ImGuiDataType_Float = 8
+ImGuiDataType_Double = 9
+ColorEdit4()
+ColorPicker3()
+ColorPicker4()
+ColorButton()
+SetColorEditOptions()
+TreeNode()
+TreeNode_2()
+TreeNodeEx()
+TreeNodeEx_2()
+TreePush()
+TreePush_2()
+TreePop()
+TreeAdvanceToLabelPos()
+GetTreeNodeToLabelSpacing()
+SetNextTreeNodeOpen()
+CollapsingHeader_2()
+SetNextItemOpen()
+Selectable()
+Selectable_2()
+ListBox()
+ListBoxHeader()
+ListBoxHeader_2()
+ListBoxFooter()
+Value()
+Value_2()
+Value_3()
+Value_4()
+SetTooltip()
+BeginTooltip()
+EndTooltip()
+BeginMainMenuBar()
+EndMainMenuBar()
+BeginMenuBar()
+EndMenuBar()
+BeginMenu()
+EndMenu()
+MenuItem()
+MenuItem_2()
+OpenPopup()
+OpenPopupOnItemClick()
+BeginPopup()
+BeginPopupModal()
+BeginPopupContextItem()
+BeginPopupContextWindow()
+BeginPopupContextVoid()
+EndPopup()
+IsPopupOpen()
+CloseCurrentPopup()
+LogToTTY()
+LogToFile()
+LogToClipboard()
+LogFinish()
+LogButtons()
+LogText()
+BeginDragDropSource()
+EndDragDropSource()
+BeginDragDropTarget()
+EndDragDropTarget()
+PushClipRect()
+PopClipRect()
+StyleColorsClassic()
+StyleColorsDark()
+StyleColorsLight()
+SetItemDefaultFocus()
+SetKeyboardFocusHere()
+IsItemHovered()
+IsItemActive()
+IsItemFocused()
+IsItemClicked()
+IsItemVisible()
+IsItemEdited()
+IsItemActivated()
+IsItemDeactivated()
+IsItemDeactivatedAfterEdit()
+IsAnyItemHovered()
+IsAnyItemActive()
+IsAnyItemFocused()
+GetItemRectMin()
+GetItemRectMax()
+GetItemRectSize()
+SetItemAllowOverlap()
+IsWindowFocused()
+IsWindowHovered()
+IsAnyWindowFocused()
+IsAnyWindowHovered()
+IsRectVisible()
+IsRectVisible_2()
+GetTime()
+GetCursorStartPos()
+GetCursorScreenPos()
+SetCursorScreenPos()
+ColorEdit3()
+VSliderInt()
+VSliderFloat()
+SliderInt4()
+SliderInt3()
+SliderInt2()
+SliderInt()
+SliderAngle()
+SliderFloat4()
+SliderFloat3()
+SliderFloat2()
+SliderFloat()
+InputInt4()
+InputInt3()
+InputInt2()
+InputInt()
+InputFloat4()
+InputFloat3()
+InputFloat2()
+InputFloat()
+InputTextWithHint()
+InputTextMultiline()
+InputText()
+DragIntRange2()
+DragInt4()
+DragInt3()
+DragInt2()
+DragInt()
+DragFloatRange2()
+DragFloat4()
+DragFloat3()
+DragFloat2()
+DragFloat()
+Combo_2()
+Combo()
+EndCombo()
+BeginCombo()
+ProgressBar()
+RadioButton_2()
+RadioButton()
+CheckboxFlags()
+Checkbox()
+ImageButton()
+SetWindowFocus_2()
+InvisibleButton()
+ImGuiCol_PlotLines = 40
+ImGuiCol_PlotLinesHovered = 41
+ImGuiCol_PlotHistogram = 42
+ImGuiCol_PlotHistogramHovered = 43
+ImGuiCol_TextSelectedBg = 44
+ImGuiCol_ModalWindowDarkening = 49
+ImGuiCol_DragDropTarget = 45
+ImGuiCol_NavHighlight = 46
+ImGuiCol_NavWindowingHighlight = 47
+ImGuiCol_NavWindowingDimBg = 48
+ImGuiCol_ModalWindowDimBg = 49
+ImGuiCol_COUNT = 50
+Alpha = 0
+WindowPadding = 1
+WindowRounding = 2
+WindowBorderSize = 3
+WindowMinSize = 4
+ChildRounding = 6
+ChildBorderSize = 7
+PopupRounding = 8
+PopupBorderSize = 9
+FrameRounding = 11
+FrameBorderSize = 12
+ItemSpacing = 13
+ImGuiMouseCursor_ResizeAll = 2
+ImGuiMouseCursor_ResizeNS = 3
+ImGuiMouseCursor_ResizeEW = 4
+ImGuiMouseCursor_ResizeNESW = 5
+ImGuiMouseCursor_ResizeNWSE = 6
+ImGuiMouseCursor_Hand = 7
+ImGuiMouseCursor_COUNT = 8
+Always = 1
+Once = 2
+FirstUseEver = 4
+Appearing = 8
+ImGuiCond_Always = 1
+ImGuiCond_Once = 2
+ImGuiCond_FirstUseEver = 4
+ImGuiCond_Appearing = 8
+EndFrame()
+ShowDemoWindow()
+ShowMetricsWindow()
+ShowStyleEditor()
+ShowStyleSelector()
+ShowFontSelector()
+ShowUserGuide()
+BeginChild()
+BeginChild_2()
+EndChild()
+GetContentRegionMax()
+GetContentRegionAvail()
+GetContentRegionAvailWidth()
+GetWindowContentRegionMin()
+GetWindowContentRegionMax()
+GetWindowContentRegionWidth()
+GetWindowDpiScale()
+GetWindowPos()
+GetWindowSize()
+ImGuiKey_PageDown = 6
+ImGuiKey_Home = 7
+ImGuiKey_End = 8
+ImGuiKey_Insert = 9
+ImGuiKey_Delete = 10
+ImGuiKey_Backspace = 11
+ImGuiKey_Space = 12
+ImGuiKey_Enter = 13
+ImGuiKey_Escape = 14
+ImGuiKey_KeyPadEnter = 15
+ImGuiKey_A = 16
+ImGuiKey_C = 17
+ImGuiKey_V = 18
+ImGuiKey_X = 19
+ImGuiKey_Y = 20
+ImGuiKey_Z = 21
+ImGuiKey_COUNT = 22
+ImGuiNavInput_Activate = 0
+ImGuiNavInput_Cancel = 1
+ImGuiNavInput_Input = 2
+ImGuiNavInput_Menu = 3
+ImGuiNavInput_DpadLeft = 4
+ImGuiNavInput_DpadRight = 5
+ImGuiNavInput_DpadUp = 6
+ImGuiNavInput_DpadDown = 7
+ImGuiNavInput_LStickLeft = 8
+ImGuiNavInput_LStickRight = 9
+ImGuiNavInput_LStickUp = 10
+ImGuiNavInput_LStickDown = 11
+ImGuiNavInput_FocusPrev = 12
+ImGuiNavInput_FocusNext = 13
+ImGuiNavInput_TweakSlow = 14
+ImGuiNavInput_TweakFast = 15
+ImGuiConfigFlags_None = 0
+ImGuiConfigFlags_NavEnableKeyboard = 1
+ImGuiConfigFlags_NavEnableGamepad = 2
+ImGuiConfigFlags_NavEnableSetMousePos = 4
+ImGuiConfigFlags_NavNoCaptureKeyboard = 8
+ImGuiConfigFlags_NoMouse = 16
+ImGuiConfigFlags_NoMouseCursorChange = 32
+ImGuiConfigFlags_DockingEnable = 64
+ImGuiConfigFlags_ViewportsEnable = 1024
+ImGuiConfigFlags_DpiEnableScaleViewports = 16384
+ImGuiConfigFlags_DpiEnableScaleFonts = 32768
+ImGuiConfigFlags_IsSRGB = 1048576
+ImGuiConfigFlags_IsTouchScreen = 2097152
+ImGuiBackendFlags_None = 0
+ImGuiBackendFlags_HasGamepad = 1
+ImGuiBackendFlags_HasMouseCursors = 2
+ImGuiBackendFlags_HasSetMousePos = 4
+ImGuiBackendFlags_RendererHasVtxOffset = 8
+ImGuiBackendFlags_PlatformHasViewports = 1024
+ImGuiBackendFlags_HasMouseHoveredViewport = 2048
+ImGuiBackendFlags_RendererHasViewports = 4096
+TextDisabled()
+WindowBg = 2
+ChildBg = 3
+PopupBg = 4
+Border = 5
+BorderShadow = 6
+FrameBg = 7
+FrameBgHovered = 8
+FrameBgActive = 9
+TitleBg = 10
+TitleBgActive = 11
+TitleBgCollapsed = 12
+MenuBarBg = 13
+ScrollbarBg = 14
+ScrollbarGrab = 15
+ScrollbarGrabHovered = 16
+ScrollbarGrabActive = 17
+CheckMark = 18
+SliderGrab = 19
+SliderGrabActive = 20
+Button()
+ButtonHovered = 22
+ButtonActive = 23
+Header = 24
+HeaderHovered = 25
+HeaderActive = 26
+Separator()
+SeparatorHovered = 28
+SeparatorActive = 29
+ResizeGrip = 30
+ResizeGripHovered = 31
+ResizeGripActive = 32
+PlotLines()
+PlotLinesHovered = 41
+PlotHistogram()
+PlotHistogramHovered = 43
+TextSelectedBg = 44
+ModalWindowDarkening = 49
+DragDropTarget = 45
+ImGuiCol_Text = 0
+ImGuiCol_TextDisabled = 1
+ImGuiCol_WindowBg = 2
+ImGuiCol_ChildBg = 3
+ImGuiCol_PopupBg = 4
+ImGuiCol_Border = 5
+ImGuiCol_BorderShadow = 6
+ImGuiCol_FrameBg = 7
+ImGuiCol_FrameBgHovered = 8
+ImGuiCol_FrameBgActive = 9
+ImGuiCol_TitleBg = 10
+ImGuiCol_TitleBgActive = 11
+ImGuiCol_TitleBgCollapsed = 12
+ImGuiCol_MenuBarBg = 13
+ImGuiCol_ScrollbarBg = 14
+ImGuiCol_ScrollbarGrab = 15
+ImGuiCol_ScrollbarGrabHovered = 16
+ImGuiCol_ScrollbarGrabActive = 17
+ImGuiCol_CheckMark = 18
+ImGuiCol_SliderGrab = 19
+ImGuiCol_SliderGrabActive = 20
+ImGuiCol_Button = 21
+ImGuiCol_ButtonHovered = 22
+ImGuiCol_ButtonActive = 23
+ImGuiCol_Header = 24
+ImGuiCol_HeaderHovered = 25
+ImGuiCol_HeaderActive = 26
+ImGuiCol_Separator = 27
+ImGuiCol_SeparatorHovered = 28
+ImGuiCol_SeparatorActive = 29
+ImGuiCol_ResizeGrip = 30
+ImGuiCol_ResizeGripHovered = 31
+ImGuiCol_ResizeGripActive = 32
+ImGuiCol_Tab = 33
+ImGuiCol_TabHovered = 34
+ImGuiCol_TabActive = 35
+ImGuiCol_TabUnfocused = 36
+ImGuiCol_TabUnfocusedActive = 37
+ImGuiCol_DockingPreview = 38
+ImGuiCol_DockingEmptyBg = 39
+SmallButton()
+BulletText()
+LabelText()
+TextWrapped()
+TextColored()
+TextUnformatted()
+GetID_2()
+GetID()
+PopID()
+PushID_4()
+PushID_2()
+PushID()
+IsWindowDocked()
+GetWindowDockID()
+SetNextWindowDockID()
+DockSpace()
+SetTabItemClosed()
+EndTabItem()
+BeginTabItem()
+EndTabBar()
+BeginTabBar()
+GetColumnsCount()
+SetColumnOffset()
+GetColumnOffset()
+SetColumnWidth()
+GetColumnWidth()
+GetColumnIndex()
+NextColumn()
+Columns()
+GetFrameHeightWithSpacing()
+GetFrameHeight()
+GetTextLineHeightWithSpacing()
+GetTextLineHeight()
+AlignTextToFramePadding()
+GetFrameCount()
+GetStyleColorName()
+CalcItemRectClosestPoint()
+CalcTextSize()
+CalcListClipping()
+BeginChildFrame()
+EndChildFrame()
+ColorConvertU32ToFloat4()
+ColorConvertFloat4ToU32()
+GetKeyIndex()
+IsKeyDown()
+IsKeyPressed()
+IsKeyReleased()
+GetKeyPressedAmount()
+IsMouseDown()
+IsMouseClicked()
+IsMouseDoubleClicked()
+IsMouseReleased()
+IsMouseDragging()
+IsMouseHoveringRect()
+IsMousePosValid()
+GetMousePos()
+GetMousePosOnOpeningCurrentPopup()
+GetMouseDragDelta()
+ResetMouseDragDelta()
+GetMouseCursor()
+SetMouseCursor()
+CaptureKeyboardFromApp()
+CaptureMouseFromApp()
+GetClipboardText()
+SetClipboardText()
+GetVersion()
+GetStyleColName()
+GetStyleColCount()
+SetGlobalFontFromFileTTF()
+AddFontFromFileTTF()
+GetWantTextInput()
+SetReturnValueLast()
+SetScrollY()
+textureWidth = 512
+textureHeight = 64
+GetScrollMaxX()
+texturePixels
+GetScrollX()
+Image()
+textureObject = Image: 0x02baf490b230
+Text()
+SetWindowSize_2()
+SetWindowPos_2()
+SetWindowFocus()
+SetWindowCollapsed()
+SetWindowSize()
+ImGuiInputTextFlags_CallbackAlways = 256
+ImGuiInputTextFlags_CallbackHistory = 128
+ImGuiInputTextFlags_CallbackCompletion = 64
+ImGuiInputTextFlags_EnterReturnsTrue = 32
+ImGuiInputTextFlags_AutoSelectAll = 16
+ImGuiInputTextFlags_CharsNoBlank = 8
+ImGuiInputTextFlags_CharsUppercase = 4
+ImGuiInputTextFlags_CharsHexadecimal = 2
+ImGuiInputTextFlags_CharsDecimal = 1
+ImGuiInputTextFlags_None = 0
+NoUndoRedo = 65536
+Password = 32768
+ReadOnly = 16384
+AlwaysInsertMode = 8192
+ImGuiKey_PageUp = 5
+ImGuiKey_DownArrow = 4
+ImGuiKey_UpArrow = 3
+ImGuiKey_RightArrow = 2
+ImGuiKey_LeftArrow = 1
+ImGuiKey_Tab = 0
+ImGuiDir_COUNT = 4
+ImGuiDir_Down = 3
+ImGuiDir_Up = 2
+ImGuiDir_Right = 1
+ImGuiDir_Left = 0
+ImGuiDir_None = -1
+ImGuiDataType_COUNT = 10
+ImGuiStyleVar_ScrollbarSize = 16
+ImGuiStyleVar_IndentSpacing = 15
+ImGuiStyleVar_ItemInnerSpacing = 14
+ImGuiStyleVar_ItemSpacing = 13
+ImGuiStyleVar_FrameBorderSize = 12
+ImGuiStyleVar_FrameRounding = 11
+ImGuiStyleVar_FramePadding = 10
+ImGuiStyleVar_PopupBorderSize = 9
+ImGuiStyleVar_PopupRounding = 8
+ImGuiStyleVar_ChildBorderSize = 7
+ImGuiStyleVar_ChildRounding = 6
+ImGuiStyleVar_WindowTitleAlign = 5
+ImGuiStyleVar_WindowMinSize = 4
+ImGuiStyleVar_WindowBorderSize = 3
+ImGuiStyleVar_WindowRounding = 2
+ImGuiStyleVar_WindowPadding = 1
+ImGuiStyleVar_Alpha = 0
+ButtonTextAlign = 21
+GrabMinSize = 18
+IndentSpacing = 15
+ItemInnerSpacing = 14
+ImGuiStyleVar_ScrollbarRounding = 17
+ImGuiStyleVar_GrabMinSize = 18
+ImGuiStyleVar_GrabRounding = 19
+ImGuiStyleVar_TabRounding = 20
+ImGuiStyleVar_ButtonTextAlign = 21
+ImGuiStyleVar_SelectableTextAlign = 22
+ImGuiStyleVar_COUNT = 23
+NoAlpha = 2
+NoPicker = 4

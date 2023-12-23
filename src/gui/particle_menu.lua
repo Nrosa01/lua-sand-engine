@@ -1,6 +1,6 @@
 local imgui = require "imgui"
 local beholder = require "beholder"
-local EVENTS = require "src.core.observable_events"
+local Events = require "src.core.observable_events"
 
 local particle_menu = {}
 -- particle_menu.__index = particle_menu
@@ -11,7 +11,7 @@ particle_menu.current_particle = 2
 local windows_title = "Material selector"
 local window_flags = { "ImGuiWindowFlags_AlwaysAutoResize" }
 
-beholder.observe(EVENTS.MOD_ADDED, function()
+beholder.observe(Events.MOD_ADDED, function()
     particle_menu:init()
 end)
 
@@ -41,7 +41,7 @@ function particle_menu:draw()
 
         if imgui.Selectable(data.text_id, self.current_particle == i) then
             self.current_particle = i
-            beholder.trigger(EVENTS.CURRENT_PARTICLE_CHANGED, i)
+            beholder.trigger(Events.CURRENT_PARTICLE_CHANGED, i)
         end
         imgui.SameLine()
         imgui.ColorButton(self.texts[i], self.normalized_colors[i][1], self.normalized_colors[i][2],
@@ -63,7 +63,7 @@ function particle_menu:key_pressed(key, scancode, isrepeat)
 
         if dataChar == pressedChar then
             self.current_particle = startIdx
-            beholder.trigger(EVENTS.CURRENT_PARTICLE_CHANGED, startIdx)
+            beholder.trigger(Events.CURRENT_PARTICLE_CHANGED, startIdx)
             found = true
             break
         end
@@ -72,6 +72,10 @@ function particle_menu:key_pressed(key, scancode, isrepeat)
     if not found then
         -- No particle found, we could play a sound or something here idk
     end
+end
+
+function particle_menu:mouse_pressed(x, y, button, istouch, presses)
+  
 end
 
 return particle_menu

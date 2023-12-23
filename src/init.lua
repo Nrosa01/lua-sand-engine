@@ -1,6 +1,6 @@
 -- Creates a path for the require function to search for files in the src folder and subfolders recursively
 local function createPath()
-    local path = love.filesystem.getRequirePath() .. ";src/?.lua;libs/?.lua;src/gui/?.lua"
+    local path = love.filesystem.getRequirePath() .. ";src/?.lua;libs/?.lua;src/gui/?.lua;"
     local srcPath = "src"
     local files = love.filesystem.getDirectoryItems(srcPath)
     for _, file in ipairs(files) do

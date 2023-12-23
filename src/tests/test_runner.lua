@@ -1,5 +1,5 @@
 local function runner()
-    require("tests/test_gridCoreSize")
+    require("src.tests.test_grid_thread_comp")
     require("tests/test_queue")
 
     print("All tests passed")

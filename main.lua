@@ -1,4 +1,4 @@
-require "src.utils.debugger"
+local debugger = require "src.utils.debugger"
 require "src.init"
 
 local canvas_size = 300
@@ -14,16 +14,11 @@ local brush = require "brush"
 local entity_system = require "src.core.entity_system"
 local mods_handler = require "src.mods.mods_handler"
 local particle_menu = require("particle_menu")
--- require "test_runner" ()
-
-
-local particleSimulation;
 
 function love.load()
-    particleSimulation = ParticleSimulation:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size,
+    local particleSimulation = ParticleSimulation:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size,
     canvas_size)
     brush:construct(canvas_size, particleSimulation)
-
     entity_system:add_entity(mods_handler)
     entity_system:add_entity(particleSimulation)
     entity_system:add_entity(particle_menu)
