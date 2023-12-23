@@ -5,5 +5,8 @@
 	],
 	"Lua.runtime.version": "LuaJIT",
 	"Lua.workspace.checkThirdParty": false,
-	"debug.openDebug": "neverOpen"
+	"debug.openDebug": "neverOpen",
+	"Lua.diagnostics.globals": [
+		"gcinfo"
+	]
 }

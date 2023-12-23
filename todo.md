@@ -1,9 +1,11 @@
+- [ ] Refactorizar para meter un sistema ecs simple para simplificar el main.lua
+- [ ] Eliminar codigo no usado
 - [ ] Acceder a entrada de teclado desde las particulas (muy prioritario, turing completeness)
 - [ ] Añadir dos campos de datos más a las particulas (dificultad media, muy prioritario)
 - [ ] Web blockly (quiero llorar)
 - [ ] Cambiar velocidad de la simulación (facil)
 - [ ] Añadir densidad para scripting más sencillo (importante, complica la implementación de blockly)
-- [ ] Crear widget de imgui en su propio archivo (no muy importante)
+- [x] Crear widget de imgui en su propio archivo (no muy importante)
 - [ ] Limpiar main.lua (medio importante)
 - [x]  Revisar uso de API
 - [ ]  Reorganizar ficheros (importante)
@@ -14,6 +16,8 @@
   - [ ] Guardar (sin compresión, para no morirme)
   - [ ] Cargar
 - [ ]  Poder mover fácilmente más de un pixel cada partícula (crear una función específica que sea similar a swap pero que mueva más de un pixel, considerar riesgos, por ahora parece peligroso)
+- [ ]  Optimizar gc
+- [ ]  Añadir sonido
 - [x] Tabla de direcciones inmutable
 - [x] Tabla de direcciones aleatorias que se generan cada frame
 - [x] Calcular el tamaño del grid en base al tamaño del canvas

@@ -80,9 +80,11 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     return o
 end
 
-function ParticleSimulation:send(file)
-    for _, v in ipairs(self.threadChannels) do
-        v:push(file)
+function ParticleSimulation:file_dropped(file)
+    if file:getExtension() == "lua" then
+        for _, v in ipairs(self.threadChannels) do
+            v:push(file)
+        end
     end
 end
 
@@ -179,7 +181,7 @@ end
 
 _G.TESTFlag = false
 
-function ParticleSimulation:render()
+function ParticleSimulation:draw()
     self.quad:render(0, 0)
 
     -- Draw grid
