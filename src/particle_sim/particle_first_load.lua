@@ -1,7 +1,7 @@
 -- init.lua
 print("Loading Lua scripts...")
 -- init.lua
-require("ParticleDefinitionsHandler")
+require("particle_definition_handler")
 
 print("Adding particle to registry")
 

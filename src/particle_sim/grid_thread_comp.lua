@@ -1,3 +1,5 @@
+require("love.system")
+
 -- Returns gridSize and numThreads given the size of the simulation
 
 -- Preconditions:

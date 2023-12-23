@@ -1,4 +1,4 @@
-local ParticleDefinition = require("ParticleDefinition")
+local ParticleDefinition = require("particle_definition")
 
 -- ParticleDefinitionsHandler.lua
 local ParticleDefinitionsHandlerConstructor = {

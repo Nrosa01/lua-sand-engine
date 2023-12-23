@@ -1,12 +1,10 @@
 local ffi = require("ffi")
-require("Particle")
+require("src.particle_sim.particle")
 local Quad = require("quad")
-local Commands = require("Commands")
+local Commands = require("src.particle_sim.job_commands")
 
-local ParticleChunk = require("particle_chunk")
-require("love.system")
-local CheckerGrid = require("CheckerGrid")
-local computeGridSizeAndThreads = require("computeGridAndThreads")
+local CheckerGrid = require("src.particle_sim.checker_grid")
+local computeGridSizeAndThreads = require("grid_thread_comp")
 
 ---@class ParticleSimulation
 ---@field public simulation_width number
@@ -67,7 +65,7 @@ function ParticleSimulation:new(window_width, window_height, simulation_width, s
     o.gridSize = gridSize
 
     for row = 1, thread_count do
-        o.threads[row] = love.thread.newThread("src/particle_sim/simulateFromThread.lua")
+        o.threads[row] = love.thread.newThread("src/particle_sim/thread_job.lua")
         o.threads[row]:start(simulation_width, simulation_height, ParticleDefinitionsHandler.particle_data,
             o.quad.imageData, row)
         o.threadChannels[row] = love.thread.getChannel("threadChannel" .. row)
@@ -139,12 +137,12 @@ end
 
 function ParticleSimulation:updateSimulation()
     local data = self.clock and self.updateData or self.updateDataReversed
-    self:doThreadedJob(data, self:get_read_buffer(), self:get_write_buffer(), Commands.TickSimulation)
+    self:doThreadedJob(data, self:get_read_buffer(), self:get_write_buffer(), Commands.TICK_SIMULATION)
 end
 
 function ParticleSimulation:updateBuffers()
     local data = self.clock and self.updateData or self.updateDataReversed
-    self.pcount = self:doThreadedJob(data, self:get_read_buffer(), self:get_write_buffer(), Commands.UpdateBuffers)
+    self.pcount = self:doThreadedJob(data, self:get_read_buffer(), self:get_write_buffer(), Commands.UPDATE_BUFFERS)
 end
 
 function ParticleSimulation:update()

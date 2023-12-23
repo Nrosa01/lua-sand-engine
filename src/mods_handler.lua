@@ -1,5 +1,5 @@
 local beholder = require "beholder"
-local EVENTS = require "events"
+local EVENTS = require "src.observable_events"
 
 local mods_handler = {}
 

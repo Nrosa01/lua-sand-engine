@@ -1,8 +1,7 @@
-require("ParticleDefinitionsHandler")
+require("src.particle_sim.particle_definition_handler")
 require("love.image")
-require("colour_t")
 
-local Commands = require("Commands")
+local Commands = require("src.particle_sim.job_commands")
 
 local ffi = require("ffi")
 local ParticleChunk = require "particle_chunk"
@@ -79,9 +78,9 @@ while true do
 
     local p_count = -1
 
-    if message.command == Commands.TickSimulation then
+    if message.command == Commands.TICK_SIMULATION then
         updateSimulation(message.data)
-    elseif message.command == Commands.UpdateBuffers then
+    elseif message.command == Commands.UPDATE_BUFFERS then
         p_count = updateBuffers(message.data)
     end
 
