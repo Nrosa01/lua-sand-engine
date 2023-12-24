@@ -12,7 +12,8 @@ function mods_handler:file_dropped(file)
     else
         -- Show an error message as a popup (later I should make this a toast)
         local message = "The file you dropped is not a lua file"
-        love.window.showMessageBox("Error", message, "error")
+        -- use a toast
+        --love.window.showMessageBox("Error", message, "error")
     end
 end
 

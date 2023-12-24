@@ -9,23 +9,6 @@
 ---@field texture love.Texture
 local Quad = {}
 
-function Quad:from(width, height, textWidth, textHeight, imageData)
-  local obj = {
-    width = width,
-    height = height,
-    textWidth = textWidth,
-    textHeight = textHeight,
-    scaleX = width / textWidth,
-    scaleY = height / textHeight,
-    imageData = imageData,
-    texture = nil
-  }
-  
-  setmetatable(obj, self)
-  self.__index = self
-  return obj
-end
-
 -- Constructor
 ----@class Quad 
 function Quad:new(width, height, textWidth, textHeight)
@@ -50,7 +33,7 @@ end
 -- Render method that uploads the texture to the GPU and draws it
 function Quad:render(x, y)
     self.texture:replacePixels(self.imageData)
-    love.graphics.draw(self.texture, x, y, 0, self.scaleX, self.scaleY)
+    love.graphics.draw(self.texture, x or 0, y or 0, 0, self.scaleX, self.scaleY)
 end
 
 -- Simple set pixel method (RGBA)

@@ -14,15 +14,23 @@ local brush = require "brush"
 local entity_system = require "src.core.entity_system"
 local mods_handler = require "src.mods.mods_handler"
 local particle_menu = require("particle_menu")
+local image_dropped = require("image_dropped")
+local Quad = require "quad"
+
+local test_image = Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)
 
 function love.load()
     local particleSimulation = ParticleSimulation:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size,
     canvas_size)
     brush:construct(canvas_size, particleSimulation)
+    image_dropped:construct(canvas_size, particleSimulation)
+
+
     entity_system:add_entity(mods_handler)
     entity_system:add_entity(particleSimulation)
     entity_system:add_entity(particle_menu)
     entity_system:add_entity(brush)
+    entity_system:add_entity(image_dropped)
     entity_system:init()
 end
 
@@ -77,9 +85,7 @@ function love.draw(dt)
     love.graphics.clear(0.07, 0.13, 0.17, 1.0)
     
     entity_system:draw()
-
-    imgui.Begin("Fused: " .. tostring(love.filesystem.isFused()))
-    imgui.End()
+    test_image:render()
 
     imgui.Render();
 
