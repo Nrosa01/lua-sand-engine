@@ -109,9 +109,14 @@ function love.filedropped(file)
     entity_system:file_dropped(file)
 
     if file:getExtension() == "png" then
+        -- Start timer
+        local start = love.timer.getTime()
         local image_data = love.image.newImageData(file)
         image_data = image_utils.resize(image_data, canvas_size, canvas_size)
         image_data = image_utils.quantize(image_data, ParticleDefinitionsHandler:getRegisteredParticlesCount())
         test_image.imageData = image_data
+        local finish = love.timer.getTime()
+
+        print("Quantization took " .. (finish - start) .. " seconds")
     end
 end
