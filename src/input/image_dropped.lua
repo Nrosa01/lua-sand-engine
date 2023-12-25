@@ -103,17 +103,50 @@ function image_dropped:paint_from_image_normal(image)
     end
 end
 
+-- Colours and centroids table are tables of the form: { {r, g, b, a}, ... }
+-- I want the map to be of the form: { [r .. g .. b .. a] = particle_id, ... }
 local function generate_map_from_centroids(colours, centroids_table)
     local map = {}
-
+    local free_indexes = {} -- To keep track of assigned indices
     for i = 1, #colours do
-        local closest = get_closest_particle(centroids_table[i].r, centroids_table[i].g, centroids_table[i].b,
-            centroids_table[i].a, colours)
-        map[centroids_table[i].r .. centroids_table[i].g .. centroids_table[i].b .. centroids_table[i].a] = closest
-        colours[closest].r = math.huge
-        colours[closest].g = math.huge
-        colours[closest].b = math.huge
-        colours[closest].a = math.huge
+        free_indexes[i] = true
+    end
+
+    for i, centroid in ipairs(centroids_table) do
+        local minDistance = math.huge
+        local particleID
+
+        for j, color in ipairs(colours) do
+            local distance = colourDistance(centroid.r, centroid.g, centroid.b, color.r, color.g, color.b)
+
+            if distance < minDistance then
+                minDistance = distance
+                particleID = j -- Assign the particle ID of the closest centroid
+            end
+        end
+
+        map[centroid.r .. centroid.g .. centroid.b .. centroid.a] = particleID
+        free_indexes[particleID] = false
+    end
+
+    -- Remove indexes that are false
+    for i = #free_indexes, 1, -1 do
+        if free_indexes[i] == false then
+            table.remove(free_indexes, i)
+        end
+    end
+
+    local dups = {}
+    -- We will iterate to find duplicates. These will be added to the dups list
+    for i, centroid in ipairs(centroids_table) do
+        local particleID = map[centroid.r .. centroid.g .. centroid.b .. centroid.a]
+        for j, color in ipairs(colours) do
+            if i ~= j then
+                if centroid.r == color.r and centroid.g == color.g and centroid.b == color.b and centroid.a == color.a then
+                    table.insert(dups, { particleID = particleID, index = j })
+                end
+            end
+        end
     end
 
     return map
