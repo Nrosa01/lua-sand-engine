@@ -30,7 +30,7 @@ function love.load()
     entity_system:add_entity(particleSimulation)
     entity_system:add_entity(particle_menu)
     entity_system:add_entity(brush)
-    entity_system:add_entity(image_dropped)
+    --entity_system:add_entity(image_dropped)
     entity_system:init()
 end
 
@@ -103,6 +103,15 @@ function love.quit()
     imgui.ShutDown()
 end
 
+local image_utils = require "image_utils"
+
 function love.filedropped(file)
     entity_system:file_dropped(file)
+
+    if file:getExtension() == "png" then
+        local image_data = love.image.newImageData(file)
+        image_data = image_utils.resize(image_data, canvas_size, canvas_size)
+        image_data = image_utils.quantize(image_data, ParticleDefinitionsHandler:getRegisteredParticlesCount())
+        test_image.imageData = image_data
+    end
 end
