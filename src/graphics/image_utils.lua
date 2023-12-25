@@ -1,4 +1,3 @@
-
 local ffi = require("ffi")
 
 -- Reescales an image to a new size
@@ -55,7 +54,7 @@ local function distance(a, b)
 end
 
 local function average(clusterIndices, pixels)
-    local centroid = {0, 0, 0, 0}
+    local centroid = { 0, 0, 0, 0 }
     for _, pixelIndex in ipairs(clusterIndices) do
         local pixel = pixels[pixelIndex]
         for i = 1, 4 do
@@ -73,8 +72,10 @@ local function kmeans(pixels, num_clusters, sample)
     -- Initialize clusters with random pixels
     local clusters = {}
     for i = 1, num_clusters do
-        clusters[i] = {centroid = sample[math.random(#sample)], pixels = {}}
+        clusters[i] = { centroid = sample[i], pixels = {} }
     end
+
+    print("Sample " .. #sample)
 
     local changed = true
     while changed do
@@ -89,7 +90,7 @@ local function kmeans(pixels, num_clusters, sample)
                     min_cluster = cluster
                 end
             end
-            table.insert(min_cluster.pixels, index)  -- Store the index of the pixel
+            table.insert(min_cluster.pixels, index) -- Store the index of the pixel
         end
 
         -- Recalculate centroids and check for changes
@@ -98,9 +99,9 @@ local function kmeans(pixels, num_clusters, sample)
             local new_centroid = average(cluster.pixels, pixels)
             if distance(new_centroid, cluster.centroid) > 0.01 then
                 cluster.centroid = new_centroid
+                cluster.pixels = {}
                 changed = true
             end
-            --cluster.pixels = {}
         end
     end
 
@@ -108,20 +109,22 @@ local function kmeans(pixels, num_clusters, sample)
 end
 
 local function getSample(image, num_colors)
-    local resized = resize(image, num_colors, num_colors)
+    local resized = resize(image, 32, 32)
 
     local sample = {}
 
-    for y = 0, num_colors - 1 do
-        for x = 0, num_colors - 1 do
+    local dimX, dimY = resized:getDimensions()
+
+    for y = 0, dimX - 1 do
+        for x = 0, dimY - 1 do
             local r, g, b, a = resized:getPixel(x, y)
-            table.insert(sample, {r, g, b, a})
+            table.insert(sample, { r, g, b, a })
         end
     end
 
     -- Remove colors that are too similar
     local i = 1
-    local threshold = 1
+    local threshold = 0.2
     while i <= #sample do
         local color = sample[i]
         local j = i + 1
@@ -129,6 +132,11 @@ local function getSample(image, num_colors)
             local other = sample[j]
             if distance(color, other) < threshold then
                 table.remove(sample, j)
+
+                -- If table size is already num_colors, we can stop
+                if #sample == num_colors then
+                    return sample
+                end
             else
                 j = j + 1
             end
@@ -136,12 +144,41 @@ local function getSample(image, num_colors)
         i = i + 1
     end
 
-    return sample
+    -- Count the times each color appears
+    local counts = {}
+    for _, color in ipairs(sample) do
+        local count = counts[color]
+        if count then
+            counts[color] = count + 1
+        else
+            counts[color] = 1
+        end
+    end
+
+    -- Sort the colors by frequency
+    local sorted = {}
+    for color, count in pairs(counts) do
+        table.insert(sorted, { color = color, count = count })
+    end
+
+    table.sort(sorted, function(a, b) return a.count > b.count end)
+
+    -- Return the most frequent colors
+    local result = {}
+    for i = 1, num_colors do
+        table.insert(result, sorted[i].color)
+    end
+
+    -- Print the colors
+    for _, color in ipairs(result) do
+        print(color[1], color[2], color[3], color[4])
+    end
+
+    return result
 end
 
 
 local function quantize(image, num_colors)
-
     local width, height = image:getDimensions()
     local pixels = {}
 
@@ -149,12 +186,12 @@ local function quantize(image, num_colors)
     for y = 0, height - 1 do
         for x = 0, width - 1 do
             local r, g, b, a = image:getPixel(x, y)
-            table.insert(pixels, {r, g, b, a})
+            table.insert(pixels, { r, g, b, a })
         end
     end
 
     -- Perform k-means clustering
-    local clusters = kmeans(pixels, num_colors, getSample(image, num_colors * 2))
+    local clusters = kmeans(pixels, num_colors, getSample(image, num_colors))
 
     -- Create a new image with quantized colors
     local new_image_data = love.image.newImageData(width, height)
