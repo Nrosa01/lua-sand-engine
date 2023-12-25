@@ -47,7 +47,7 @@ end
 
 local function distance(a, b)
     local sum = 0
-    for i = 1, #a do
+    for i = 1, 4 do
         local diff = math.abs(a[i] - b[i])
         sum = sum + diff
     end
@@ -81,13 +81,16 @@ local function distance_using_buffer(pixel_buffer, index, centroid)
     return sum
 end
 
-local function kmeans(pixel_buffer, buffer_size, num_clusters, sample)
-    -- Initialize clusters with random pixels
-    local pixel_count = buffer_size / 4
+ffi.cdef[[
+    typedef uint8_t centroid[4];
+]]
 
+local function kmeans(pixel_buffer, buffer_size, num_clusters, sample)
     local clusters = {}
     for i = 1, num_clusters do
-        clusters[i] = { centroid = sample[i], pixels = {} }
+        local colour = sample[i]
+        local centroid = ffi.new("centroid", colour[1], colour[2], colour[3], colour[4])
+        clusters[i] = { centroid = centroid, pixels = {} }
     end
 
     local changed = true
