@@ -3,7 +3,7 @@ local EVENTS = require("src.core.observable_events")
 local beholder = require("beholder")
 local ffi = require("ffi")
 
-local quantized = true
+local quantized = false
 
 local image_dropped =
 {}
@@ -129,24 +129,74 @@ local function generate_map_from_centroids(colours, centroids_table)
         free_indexes[particleID] = false
     end
 
-    -- Remove indexes that are false
-    for i = #free_indexes, 1, -1 do
-        if free_indexes[i] == false then
-            table.remove(free_indexes, i)
+    local free = {}
+    for i = 1, #free_indexes do
+        if free_indexes[i] then
+            table.insert(free, i)
         end
     end
 
+    free_indexes = free
+
     local dups = {}
+    local pending_to_assign = {}
     -- We will iterate to find duplicates. These will be added to the dups list
     for i, centroid in ipairs(centroids_table) do
         local particleID = map[centroid.r .. centroid.g .. centroid.b .. centroid.a]
-        for j, color in ipairs(colours) do
-            if i ~= j then
-                if centroid.r == color.r and centroid.g == color.g and centroid.b == color.b and centroid.a == color.a then
-                    table.insert(dups, { particleID = particleID, index = j })
+        
+        if dups[particleID] == nil then
+            dups[particleID] = {}
+        else
+            print("2. Duplicate found at index " .. i .. " with particleID " .. particleID .. " and centroid " .. centroid.r .. " " .. centroid.g .. " " .. centroid.b .. " " .. centroid.a .. "")
+        end
+
+        table.insert(dups[particleID], centroid)
+    end
+
+    -- dups whose size are greater than 1 are duplicates
+    for particleID, collection in pairs(dups) do
+        if #collection > 1 then
+            -- We want to see which centroid is closer to the particle color
+            local minDistance = math.huge
+            local closestCentroid
+
+            for _, centroid in ipairs(collection) do
+                local distance = colourDistance(centroid.r, centroid.g, centroid.b, colours[particleID].r,
+                    colours[particleID].g, colours[particleID].b)
+
+                if distance < minDistance then
+                    minDistance = distance
+                    closestCentroid = centroid
+                end
+            end
+
+            -- The centroid who arent the closest will be pending to assign
+            for _, centroid in ipairs(collection) do
+                if centroid ~= closestCentroid then
+                    table.insert(pending_to_assign, centroid)
                 end
             end
         end
+    end
+
+    -- Assign the pending centroids to the free indexes
+    for _, centroid in ipairs(pending_to_assign) do
+        -- Search the index who's closest to the centroid
+        local minDistance = math.huge
+        local closestIndex
+
+        for _, index in ipairs(free_indexes) do
+            local distance = colourDistance(centroid.r, centroid.g, centroid.b, colours[index].r, colours[index].g,
+                colours[index].b)
+
+            if distance < minDistance then
+                minDistance = distance
+                closestIndex = index
+            end
+        end
+
+        map[centroid.r .. centroid.g .. centroid.b .. centroid.a] = closestIndex
+        table.remove(free_indexes, closestIndex)
     end
 
     return map
