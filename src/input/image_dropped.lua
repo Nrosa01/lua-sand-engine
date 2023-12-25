@@ -3,6 +3,8 @@ local EVENTS = require("src.core.observable_events")
 local beholder = require("beholder")
 local ffi = require("ffi")
 
+local quantized = true
+
 local image_dropped =
 {}
 
@@ -24,7 +26,14 @@ end
 function image_dropped:handle_png(file)
     local image_data = love.image.newImageData(file)
     image_data = image_utils.resize(image_data, self.canvas_size, self.canvas_size)
-    self:paint_from_image(image_data)
+    if quantized then
+        local centroids_table = {}
+        image_data, centroids_table = image_utils.quantize(image_data,
+            ParticleDefinitionsHandler:getRegisteredParticlesCount())
+        self:paint_from_image_quantized(image_data, centroids_table)
+    else
+        self:paint_from_image_normal(image_data)
+    end
 end
 
 ---Function that returns a value that represents the distance between two colors
@@ -33,11 +42,6 @@ local function colourDistance(r1, g1, b1, r2, g2, b2)
 end
 
 local function get_closest_particle(r, g, b, a, colors)
-    r = math.floor(r * 255)
-    g = math.floor(g * 255)
-    b = math.floor(b * 255)
-    a = math.floor(a * 255)
-
     -- Transparent pixel corresponds to empty space
     -- Black also corresponds to empty space unless there is another particle dark defined
     if a < 10 then
@@ -75,7 +79,7 @@ end
 
 --- Paints the image on the canvas
 --- It takes a pixel colour and paints the particle whose colour is the closest to it
-function image_dropped:paint_from_image(image)
+function image_dropped:paint_from_image_normal(image)
     local width = image:getWidth()
     local height = image:getHeight()
     local canvas_size = self.canvas_size
@@ -89,7 +93,51 @@ function image_dropped:paint_from_image(image)
         for y = 0, height - 1 do
             local px, py = math.floor(x / ratio_x), math.floor(y / ratio_y)
             local r, g, b, a = image:getPixel(x, y)
+            r = math.floor(r * 255)
+            g = math.floor(g * 255)
+            b = math.floor(b * 255)
+            a = math.floor(a * 255)
             local particle_id = get_closest_particle(r, g, b, a, colors)
+            self.particle_simulation:setParticle(px, py, particle_id)
+        end
+    end
+end
+
+local function generate_map_from_centroids(colours, centroids_table)
+    local map = {}
+
+    for i = 1, #colours do
+        local closest = get_closest_particle(centroids_table[i].r, centroids_table[i].g, centroids_table[i].b,
+            centroids_table[i].a, colours)
+        map[centroids_table[i].r .. centroids_table[i].g .. centroids_table[i].b .. centroids_table[i].a] = closest
+        colours[closest].r = math.huge
+        colours[closest].g = math.huge
+        colours[closest].b = math.huge
+        colours[closest].a = math.huge
+    end
+
+    return map
+end
+
+function image_dropped:paint_from_image_quantized(image, centroids_table)
+    local width, height = image:getWidth(), image:getHeight()
+    local canvas_size = self.canvas_size
+
+    local ratio_x = width / canvas_size
+    local ratio_y = height / canvas_size
+
+    local colors = getColors()
+    local map = generate_map_from_centroids(colors, centroids_table)
+
+    for x = 0, width - 1 do
+        for y = 0, height - 1 do
+            local px, py = math.floor(x / ratio_x), math.floor(y / ratio_y)
+            local r, g, b, a = image:getPixel(x, y)
+            r = math.floor(r * 255)
+            g = math.floor(g * 255)
+            b = math.floor(b * 255)
+            a = math.floor(a * 255)
+            local particle_id = map[r .. g .. b .. a]
             self.particle_simulation:setParticle(px, py, particle_id)
         end
     end

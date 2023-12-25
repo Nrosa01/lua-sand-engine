@@ -2,7 +2,6 @@ local debugger = require "src.utils.debugger"
 require "src.init"
 
 local canvas_size = 300
-local paused = false
 
 ParticleDefinitionsHandler = require "particle_definition_handler"
 Gizmos = require "src.graphics.gizmos"
@@ -17,8 +16,6 @@ local particle_menu = require("particle_menu")
 local image_dropped = require("image_dropped")
 local Quad = require "quad"
 
-local test_image = Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)
-
 function love.load()
     local particleSimulation = ParticleSimulation:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size,
     canvas_size)
@@ -30,7 +27,7 @@ function love.load()
     entity_system:add_entity(particleSimulation)
     entity_system:add_entity(particle_menu)
     entity_system:add_entity(brush)
-    --entity_system:add_entity(image_dropped)
+    entity_system:add_entity(image_dropped)
     entity_system:init()
 end
 
@@ -85,7 +82,6 @@ function love.draw(dt)
     love.graphics.clear(0.07, 0.13, 0.17, 1.0)
     
     entity_system:draw()
-    test_image:render()
 
     imgui.Render();
 
@@ -103,20 +99,6 @@ function love.quit()
     imgui.ShutDown()
 end
 
-local image_utils = require "image_utils"
-
 function love.filedropped(file)
     entity_system:file_dropped(file)
-
-    if file:getExtension() == "png" then
-        -- Start timer
-        local start = love.timer.getTime()
-        local image_data = love.image.newImageData(file)
-        image_data = image_utils.resize(image_data, canvas_size, canvas_size)
-        image_data = image_utils.quantize(image_data, ParticleDefinitionsHandler:getRegisteredParticlesCount())
-        test_image.imageData = image_data
-        local finish = love.timer.getTime()
-
-        print("Quantization took " .. (finish - start) .. " seconds")
-    end
 end

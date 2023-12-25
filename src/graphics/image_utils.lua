@@ -230,7 +230,12 @@ local function quantize(image, num_colors)
         end
     end
 
-    return new_image_data
+    local centroids = {}
+    for _, cluster in ipairs(clusters) do
+        table.insert(centroids, {r = cluster.centroid[0], g = cluster.centroid[1], b = cluster.centroid[2], a = cluster.centroid[3]})
+    end
+
+    return new_image_data, centroids
 end
 
 
