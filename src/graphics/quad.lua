@@ -1,9 +1,13 @@
--- Quad.lua
-
--- Definición de la clase Quad
+---@class Quad
+---@field width number
+---@field height number
+---@field textWidth number
+---@field textHeight number
+---@field scaleX number
+---@field scaleY number
+---@field imageData love.ImageData
+---@field texture love.Texture
 local Quad = {}
-
-Libs.Quad = Quad
 
 -- Constructor
 ----@class Quad 
@@ -29,7 +33,7 @@ end
 -- Render method that uploads the texture to the GPU and draws it
 function Quad:render(x, y)
     self.texture:replacePixels(self.imageData)
-    love.graphics.draw(self.texture, x, y, 0, self.scaleX, self.scaleY)
+    love.graphics.draw(self.texture, x or 0, y or 0, 0, self.scaleX, self.scaleY)
 end
 
 -- Simple set pixel method (RGBA)

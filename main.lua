@@ -1,190 +1,104 @@
-local IS_DEBUG = os.getenv("LOCAL_LUA_DEBUGGER_VSCODE") == "1" and arg[2] == "debug"
-if IS_DEBUG then
-    lldebugger = require("lldebugger")
-    lldebugger.start()
+local debugger = require "src.utils.debugger"
+require "src.init"
 
-    function love.errorhandler(msg)
-        error(msg, 2)
-    end
-end
+local canvas_size = 300
 
-local mouse = { x = 0, y = 0, button = "" }
-local canvas_size = 200
-local brush_size = math.floor(canvas_size / 20);
-local sensitivy = brush_size / 10
-local currentParticle = 2
+ParticleDefinitionsHandler = require "particle_definition_handler"
+Gizmos = require "src.graphics.gizmos"
 
 local imgui = require "imgui"
-require "src"
-require "ParticleDefinitionsHandler"
-require "particleLauncher"
-require "quad"
-require "particle_chunk"
-
-local myQuad;
-local chunk;
+require "particle_first_load"
+local ParticleSimulation = require "particle_simulation"
+local brush = require "brush"
+local entity_system = require "src.core.entity_system"
+local mods_handler = require "src.mods.mods_handler"
+local particle_menu = require("particle_menu")
+local image_dropped = require("image_dropped")
+local Quad = require "quad"
 
 function love.load()
-    -- create quad with the same size as the window getting the size from the window
-    myQuad = Libs.Quad:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size, canvas_size)
-    chunk = ParticleChunk.new(canvas_size, canvas_size, myQuad)
-end
+    local particleSimulation = ParticleSimulation:new(love.graphics.getWidth(), love.graphics.getHeight(), canvas_size,
+    canvas_size)
+    brush:construct(canvas_size, particleSimulation)
+    image_dropped:construct(canvas_size, particleSimulation)
 
-local function drawParticleMenu()
-    local count = ParticleDefinitionsHandler:getRegisteredParticlesCount()
 
-    imgui.Begin("Material selector", true, { "ImGuiWindowFlags_AlwaysAutoResize" });
-
-    for i = 1, count do
-        local data = ParticleDefinitionsHandler:getParticleData(i)
-
-        if imgui.Selectable(data.text_id, currentParticle == i) then
-            currentParticle = i
-        end
-        imgui.SameLine()
-        imgui.ColorButton(data.text_id .. "Color", data.color.r, data.color.g, data.color.b, data.color.a)
-    end
-
-    imgui.End()
-end
-
-local function selectFromInput(input)
-    local pressedChar = string.lower(input)
-    local startIdx = currentParticle
-    local found = false
-
-    repeat
-        startIdx = (startIdx % ParticleDefinitionsHandler:getRegisteredParticlesCount()) + 1
-        local data = ParticleDefinitionsHandler:getParticleData(startIdx)
-        local dataChar = string.lower(data.text_id:sub(1, 1))
-
-        if dataChar == pressedChar then
-            currentParticle = startIdx
-            found = true
-            break
-        end
-    until startIdx == currentParticle
-
-    if not found then
-        -- No particle found, we could play a sound or something here idk
-    end
+    entity_system:add_entity(mods_handler)
+    entity_system:add_entity(particleSimulation)
+    entity_system:add_entity(particle_menu)
+    entity_system:add_entity(brush)
+    entity_system:add_entity(image_dropped)
+    entity_system:init()
 end
 
 function love.keypressed(key, scancode, isrepeat)
     imgui.KeyPressed(key)
     if not imgui.GetWantCaptureKeyboard() then
-        selectFromInput(key)
+        entity_system:key_pressed(key, scancode, isrepeat)
     end
 end
 
 function love.keyreleased(key)
     imgui.KeyReleased(key)
     if not imgui.GetWantCaptureKeyboard() then
-        -- Pass event to the game
+       entity_system:key_released(key)
     end
 end
 
 function love.update(dt)
     imgui.NewFrame()
-
-    if (mouse ~= nil and mouse.button == "left") then
-        local centerX, centerY = mouse.x, mouse.y
-
-        for x = -brush_size, brush_size do
-            for y = -brush_size, brush_size do
-                local px = mouse.x + x
-                local py = mouse.y + y
-
-                -- Verifica si la posición (px, py) está dentro del círculo
-                local distanceSquared = (px - centerX) ^ 2 + (py - centerY) ^ 2
-                if chunk:isInside(px, py) and distanceSquared <= brush_size ^ 2 and (chunk:isEmpty(px, py) or currentParticle == 1) then
-                    chunk:setNewParticleById(px, py, currentParticle)
-                end
-            end
-        end
-    end
-
-
-    chunk:update()
-end
-
-function love.quit()
-    imgui.ShutDown()
+    entity_system:update(dt)
 end
 
 function love.wheelmoved(x, y)
     imgui.WheelMoved(y)
     if not imgui.GetWantCaptureMouse() then
-        if y > 0 then
-            brush_size = brush_size + sensitivy
-        elseif y < 0 then
-            brush_size = brush_size - sensitivy
-            -- use math.max to avoid negative values
-            brush_size = math.max(brush_size, 1)
-        end
+        entity_system:wheel_moved(x, y)
     end
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
     imgui.MousePressed(button)
     if not imgui.GetWantCaptureMouse() then
-        -- Checks which button was pressed.
-        local buttonname = ""
-        if button == 1 then
-            buttonname = "left"
-        elseif button == 2 then
-            buttonname = "right"
-        end
-
-        local chunkX = math.floor(x / (love.graphics.getWidth() / chunk.width))
-        local chunkY = math.floor(y / (love.graphics.getHeight() / chunk.height))
-        mouse = { x = chunkX, y = chunkY, button = buttonname }
+        entity_system:mouse_pressed(x, y, button, istouch, presses)
     end
 end
 
 function love.mousemoved(x, y, dx, dy)
     imgui.MouseMoved(x, y)
     if not imgui.GetWantCaptureMouse() then
-        local chunkX = math.floor(x / (love.graphics.getWidth() / chunk.width))
-        local chunkY = math.floor(y / (love.graphics.getHeight() / chunk.height))
-        mouse = { x = chunkX, y = chunkY, button = mouse.button }
+        entity_system:mouse_moved(x, y, dx, dy)
     end
 end
 
 function love.mousereleased(x, y, button, istouch)
     imgui.MouseReleased(button)
     if not imgui.GetWantCaptureMouse() then
-        mouse.button = ""
+        entity_system:mouse_released(x, y, button, istouch)
     end
 end
 
 function love.draw(dt)
-    -- clear color
     love.graphics.clear(0.07, 0.13, 0.17, 1.0)
+    
+    entity_system:draw()
 
-    myQuad:render(0, 0)
-    drawParticleMenu()
     imgui.Render();
 
-    -- Print a circunference around the mouse
-    local mouseX = love.mouse.getX()
-    local mouseY = love.mouse.getY()
+    love.graphics.setColor(1, 0, 0, 1)
+    love.graphics.print("Current FPS: " .. love.timer.getFPS() .. " GC: " .. gcinfo(), 10, 10)
+    love.graphics.setColor(1, 1, 1, 1)
+end
 
-    local drawCircleSize = brush_size * (love.graphics.getWidth() / chunk.width)
-    love.graphics.circle("line", mouseX, mouseY, drawCircleSize)
+function love.focus(focused)
+    entity_system:focus(focused)
+end
 
-    love.graphics.print("Current FPS: " .. tostring(love.timer.getFPS() .. " GC: " .. gcinfo()), 10, 10)
+function love.quit()
+    entity_system:quit()
+    imgui.ShutDown()
 end
 
 function love.filedropped(file)
-    -- Only run if the file is a lua file
-    if file:getExtension() == "lua" then
-        print("Running file: " .. file:getFilename())
-        local fileRunner = require "fileRunner"
-        fileRunner(file)
-    else
-        -- Show an error message as a popup (later I should make this a toast)
-        local message = "The file you dropped is not a lua file"
-        love.window.showMessageBox("Error", message, "error")
-    end
+    entity_system:file_dropped(file)
 end

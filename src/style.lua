@@ -1,0 +1,6 @@
+--- variables are snake_case
+--- functions are camelCase
+--- classes and enums are PascalCase
+--- constants are ALL_CAPS
+--- package names are lowercase, short if possible
+--- intanced objects modules are camelCase
