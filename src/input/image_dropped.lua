@@ -143,7 +143,6 @@ local function generate_map_from_centroids(colours, centroids_table)
     -- We will iterate to find duplicates. These will be added to the dups list
     for i, centroid in ipairs(centroids_table) do
         local particleID = map[centroid.r .. centroid.g .. centroid.b .. centroid.a]
-        
         if dups[particleID] == nil then
             dups[particleID] = {}
         else

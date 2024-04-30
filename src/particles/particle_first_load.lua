@@ -14,7 +14,7 @@ addParticle(
     "Sand",                                   -- Text id
     { r = 255, g = 255, b = 0, a = 255 },     -- Color
     function(api)
-        local dirY = 1
+        local dirY = -1
         local dirX = math.random(-1, 1)
         local mask = { ParticleType.EMPTY, ParticleType.WATER }
 
@@ -32,7 +32,7 @@ addParticle(
     "Dust",                                     -- Text id
     { r = 128, g = 128, b = 128, a = 255 },     -- Color
     function(api)
-        local dirY = 1
+        local dirY = -1
         local dirX = math.random(-1, 1)
         if api:isEmpty(dirX, dirY) then
             api:swap(dirX, dirY)
@@ -44,7 +44,7 @@ addParticle(
     "Steam",                                    -- Text id
     { r = 200, g = 200, b = 200, a = 255 },     -- Color
     function(api)
-        local dirY = -1
+        local dirY = 1
         local dirX = math.random(-1, 1)
         if api:isEmpty(dirX, dirY) then
             api:swap(dirX, dirY)
@@ -56,13 +56,13 @@ addParticle(
     "Water",                                   -- Text id
     { r = 39, g = 221, b = 245, a = 255 },     -- Color
     function(api)
-        local dirX = math.random(-1, 1)
-        if api:isEmpty(0, 1) then
-            api:swap(0, 1)
-        elseif api:isEmpty(dirX, 1) then
+        local dirX = math.random(-1, -1)
+        if api:isEmpty(0, -1) then
+            api:swap(0, -1)
+        elseif api:isEmpty(dirX, -1) then
             api:swap(dirX, 1)
-        elseif api:isEmpty(-dirX, 1) then
-            api:swap(-dirX, 1)
+        elseif api:isEmpty(-dirX, -1) then
+            api:swap(-dirX, -1)
         elseif api:isEmpty(dirX, 0) then
             api:swap(dirX, 0)
         elseif api:isEmpty(-dirX, 0) then
@@ -78,8 +78,8 @@ addParticle(
         local dirX = math.random(-1, 1)
         if api:getParticleType(0, -1) == ParticleType.WATER or api:getParticleType(0, 1) == ParticleType.WATER then
             api:setNewParticleById(0, 0, ParticleType.STONE)
-        elseif api:isEmpty(0, 1) then
-            api:swap(0, 1)
+        elseif api:isEmpty(0, -1) then
+            api:swap(0, -1)
         elseif api:isEmpty(dirX, 0) then
             api:swap(dirX, 0)
         elseif api:isEmpty(-dirX, 0) then

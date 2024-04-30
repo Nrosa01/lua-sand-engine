@@ -39,8 +39,8 @@ end
 
 function brush:mouse_pressed(x, y, button, istouch, presses)
     if button == MOUSE_BUTTONS.LEFT then
-        local x = math.floor(love.mouse.getX() / (love.graphics.getWidth() / self.particle_simulation.simulation_width))
-        local y = math.floor(love.mouse.getY() / (love.graphics.getHeight() / self.particle_simulation.simulation_height))
+        local x = math.floor(love.mouse.getX() * (self.particle_simulation.simulation_width / love.graphics.getWidth()))
+        local y = math.floor(love.mouse.getY() * (self.particle_simulation.simulation_height / love.graphics.getHeight()))
         mouse = { x = x, y = y, button = button }
     end
 end

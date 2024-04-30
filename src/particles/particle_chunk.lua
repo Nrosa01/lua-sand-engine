@@ -99,7 +99,7 @@ end
 -- Sets a particle at the given position if it hasn't been set yet this frame
 function ParticleChunk:setNewParticleById(rx, ry, id)
 	local x = rx + self.currentX
-	local y = ry + self.currentY
+	local y = -ry + self.currentY
 
 	if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
 		self.write_matrix[self:index(x, y)].type = id
@@ -109,13 +109,13 @@ end
 
 function ParticleChunk:isParticleWritten(rx, ry)
 	local x = rx + self.currentX
-	local y = ry + self.currentY
+	local y = -ry + self.currentY
 	return self.write_matrix[self:index(x, y)].clock
 end
 
 function ParticleChunk:swap(rx, ry)
 	local new_x = rx + self.currentX
-	local new_y = ry + self.currentY
+	local new_y = -ry + self.currentY
 	local new_index = self:index(new_x, new_y)
 
 	local type_copy = self.read_matrix[new_index].type
@@ -128,7 +128,7 @@ end
 
 -- function ParticleChunk:setParticle(rx, ry, particle)
 --     local x = rx + self.currentX
---     local y = ry + self.currentY
+--     local y = -ry + self.currentY
 --     if x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index then
 --         self.write_matrix[self:index(x, y)].type = particle.type
 --     end
@@ -144,19 +144,19 @@ end
 
 function ParticleChunk:getParticle(rx, ry)
 	local x = rx + self.currentX
-	local y = ry + self.currentY
+	local y = -ry + self.currentY
 	return self.read_matrix[self:index(x, y)]
 end
 
 function ParticleChunk:isInside(rx, ry)
 	local x = rx + self.currentX
-	local y = ry + self.currentY
+	local y = -ry + self.currentY
 	return x >= start_index and x <= self.width - end_index and y >= start_index and y <= self.height - end_index
 end
 
 function ParticleChunk:isEmpty(rx, ry)
 	local x = rx + self.currentX
-	local y = ry + self.currentY
+	local y = -ry + self.currentY
 	return self:isInside(rx, ry) and
 		self.read_matrix[self:index(x, y)].type == ParticleType.EMPTY and
 		not self.write_matrix[self:index(x, y)].clock
@@ -164,7 +164,7 @@ end
 
 function ParticleChunk:getParticleType(rx, ry)
 	local x = rx + self.currentX
-	local y = ry + self.currentY
+	local y = -ry + self.currentY
 	
 	if not self:isInside(rx, ry) then
 		return -1
@@ -175,7 +175,7 @@ end
 
 function ParticleChunk:check_neighbour_multi(rx, ry, mask)
 	local x = rx + self.currentX
-	local y = ry + self.currentY
+	local y = -ry + self.currentY
 	if not self:isInside(rx, ry) or self.write_matrix[self:index(x, y)].clock then
 		return false
 	end

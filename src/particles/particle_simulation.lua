@@ -177,7 +177,7 @@ function ParticleSimulation:doThreadedJob(updateData, read, write, command)
     return p_count
 end
 
-_G.TESTFlag = false
+_G.TESTFlag = true
 
 function ParticleSimulation:draw()
     self.quad:render(0, 0)
